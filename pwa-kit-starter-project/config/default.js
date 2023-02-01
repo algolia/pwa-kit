@@ -12,7 +12,7 @@ module.exports = {
             // showDefaults: true
         },
         // The default site for your app. This value will be used when a siteRef could not be determined from the url
-        defaultSite: 'RefArch',
+        defaultSite: 'NTOManaged',
         // Provide aliases for your sites. These will be used in place of your site id when generating paths throughout the application.
         // siteAliases: {
         //     RefArch: 'us'
@@ -33,14 +33,7 @@ module.exports = {
             proxyPath: '/mobify/proxy/einstein',
             einsteinId: '47ccb7e7-dd4d-4434-8d1b-a95ae5623ccf',
             siteId: 'bbms-NTO_NA'
-        },
-        proxyConfigs: [
-            {
-                host: 'kv7kzm78.api.commercecloud.salesforce.com',
-                path: 'api',
-                protocol: 'https',
-            }
-        ]
+        }
         // commerceAPI: {
         //     proxyPath: `/mobify/proxy/api`,
         //     parameters: {

@@ -17,13 +17,13 @@ const options = {
     buildDir: path.resolve(process.cwd(), 'build'),
 
     // The cache time for SSR'd pages (defaults to 600 seconds)
-    defaultCacheTimeSeconds: 600,
+    defaultCacheTimeSeconds: 0,
 
     // This is the value of the 'mobify' object from package.json
     mobify: getConfig(),
 
     // The port that the local dev server listens on
-    port: 3000,
+    port: 3001,
 
     // The protocol on which the development Express app listens.
     // Note that http://localhost is treated as a secure context for development.
@@ -39,9 +39,10 @@ const {handler} = runtime.createHandler(options, (app) => {
             contentSecurityPolicy: {
                 useDefaults: true,
                 directives: {
-                    'img-src': ["'self'", '*.commercecloud.salesforce.com', 'data:'],
+                    'img-src': ["'self'", '*.commercecloud.salesforce.com', 's3.amazonaws.com','data:'],
                     'script-src': ["'self'", "'unsafe-eval'", 'storage.googleapis.com'],
-                    'connect-src': ["'self'", 'api.cquotient.com'],
+                    'connect-src': ["'self'", 'api.cquotient.com', '*.algolianet.com', '*.algolia.net'],
+                    'default-src': ["'self'", '*.algolianet.com', '*.algolia.net'],
 
                     // Do not upgrade insecure requests for local development
                     'upgrade-insecure-requests': isRemote() ? [] : null
