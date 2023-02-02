@@ -39,9 +39,19 @@ const {handler} = runtime.createHandler(options, (app) => {
             contentSecurityPolicy: {
                 useDefaults: true,
                 directives: {
-                    'img-src': ["'self'", '*.commercecloud.salesforce.com', 's3.amazonaws.com','data:'],
+                    'img-src': [
+                        "'self'",
+                        '*.commercecloud.salesforce.com',
+                        's3.amazonaws.com',
+                        'data:'
+                    ],
                     'script-src': ["'self'", "'unsafe-eval'", 'storage.googleapis.com'],
-                    'connect-src': ["'self'", 'api.cquotient.com', '*.algolianet.com', '*.algolia.net'],
+                    'connect-src': [
+                        "'self'",
+                        'api.cquotient.com',
+                        '*.algolianet.com',
+                        '*.algolia.net'
+                    ],
                     'default-src': ["'self'", '*.algolianet.com', '*.algolia.net'],
 
                     // Do not upgrade insecure requests for local development

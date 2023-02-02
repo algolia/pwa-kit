@@ -10,7 +10,14 @@ import PropTypes from 'prop-types'
 import {useIntl, FormattedMessage} from 'react-intl'
 import {useLocation} from 'react-router-dom'
 import algoliasearch from 'algoliasearch/lite'
-import {InstantSearch, SearchBox, Hits, Pagination, RefinementList} from 'react-instantsearch-hooks-web'
+import {
+    InstantSearch,
+    SearchBox,
+    Hits,
+    Pagination,
+    RefinementList,
+    HierarchicalMenu
+} from 'react-instantsearch-hooks-web'
 
 // Components
 import {
@@ -26,12 +33,13 @@ import {
     Link
 } from '@chakra-ui/react'
 
+import {NumericMenu} from '../../components/numeric-menu'
+
 // Project Components
 import Hero from '../../components/hero'
 import Seo from '../../components/seo'
 import Section from '../../components/section'
 import ProductScroller from '../../components/product-scroller'
-
 
 // Others
 import {getAssetUrl} from 'pwa-kit-react-sdk/ssr/universal/utils'
@@ -48,37 +56,32 @@ import {
 } from '../../constants'
 
 function Hit(props) {
-    const price = ( props.hit.price )? props.hit.price.USD : 0;
+    const price = props.hit.price ? props.hit.price.USD : 0
     // get the right image
-    let imageUrl = '';
-    let imageAlt = '';
+    let imageUrl = ''
+    let imageAlt = ''
     props.hit.image_groups.forEach((imageGroup) => {
-        if ( imageGroup.view_type == 'small') {
-            imageUrl = imageGroup.images[0].dis_base_link;
-            imageAlt = imageGroup.images[0].alt;
+        if (imageGroup.view_type == 'small') {
+            imageUrl = imageGroup.images[0].dis_base_link
+            imageAlt = imageGroup.images[0].alt
         }
     })
     return (
-        <div>
-        <a href={`${props.hit.url}`} >
-            <div >
-            <div>
-                <img
-                src={imageUrl}
-                alt={imageAlt}
-                />
-            </div>
-            <div>
-                <span>{props.hit.name}</span>
-                <span>
-                    ${price}
-                </span>
-            </div>
-            <div> </div>
-            </div>
-        </a>
-        </div>        
-    );
+        <Section>
+            <a href={`${props.hit.url}`}>
+                <Flex display="flex" gridGap={4} gridAutoFlow="row dense">
+                    <Section height="40px">
+                        <img src={imageUrl} alt={imageAlt} />
+                    </Section>
+                    <Section>
+                        <Text>{props.hit.name}</Text>
+                        <Text fontSize="0.8em">{props.hit.short_description}</Text>
+                        <Text color="red">${price}</Text>
+                    </Section>
+                </Flex>
+            </a>
+        </Section>
+    )
 }
 /**
  * This is the home page for Retail React App.
@@ -118,11 +121,39 @@ const Home = ({productSearchResult, isLoading}) => {
                 marginLeft={{base: '-50vw', md: 'auto'}}
                 marginRight={{base: '-50vw', md: 'auto'}}
             >
-                <InstantSearch searchClient={searchClient} indexName="zzsb_032_dx__NTOManaged__products__default">
-                    <RefinementList attribute="brand" />                    
-                    <SearchBox />
-                    <Hits hitComponent={Hit} />
-                    <Pagination />
+                <InstantSearch
+                    searchClient={searchClient}
+                    indexName="zzsb_032_dx__NTOManaged__products__default"
+                >
+                <SearchBox />
+                    <Flex display="flex">
+                        <Section>
+                            <Text>Brands</Text>
+                            <RefinementList attribute="brand" />
+                            <Text>Categories</Text>
+                            <HierarchicalMenu
+                                attributes={[
+                                    '__primary_category.0',
+                                    '__primary_category.1',
+                                    '__primary_category.2'
+                                ]}
+                            />
+                            <Text>Price</Text>
+                            <NumericMenu
+                                attribute="price.USD"
+                                items={[
+                                    {label: '<= $10', end: 10},
+                                    {label: '$10 - $100', start: 10, end: 100},
+                                    {label: '$100 - $500', start: 100, end: 500},
+                                    {label: '>= $500', start: 500}
+                                ]}
+                            />
+                        </Section>
+                        <Section>
+                            <Hits hitComponent={Hit} />
+                            <Pagination />
+                        </Section>
+                    </Flex>
                 </InstantSearch>
             </Section>
 
