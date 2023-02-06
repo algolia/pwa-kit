@@ -9,6 +9,15 @@ import React, {useEffect} from 'react'
 import PropTypes from 'prop-types'
 import {useIntl, FormattedMessage} from 'react-intl'
 import {useLocation} from 'react-router-dom'
+import algoliasearch from 'algoliasearch/lite'
+import {
+    InstantSearch,
+    SearchBox,
+    Hits,
+    Pagination,
+    RefinementList,
+    HierarchicalMenu
+} from 'react-instantsearch-hooks-web'
 
 // Components
 import {
@@ -24,6 +33,7 @@ import {
     Link
 } from '@chakra-ui/react'
 
+import {NumericMenu} from '../../components/numeric-menu'
 
 // Project Components
 import Hero from '../../components/hero'
@@ -45,6 +55,34 @@ import {
     HOME_SHOP_PRODUCTS_LIMIT
 } from '../../constants'
 
+function Hit(props) {
+    const price = props.hit.price ? props.hit.price.USD : 0
+    // get the right image
+    let imageUrl = ''
+    let imageAlt = ''
+    props.hit.image_groups.forEach((imageGroup) => {
+        if (imageGroup.view_type == 'small') {
+            imageUrl = imageGroup.images[0].dis_base_link
+            imageAlt = imageGroup.images[0].alt
+        }
+    })
+    return (
+        <Section>
+            <a href={`${props.hit.url}`}>
+                <Flex display="flex" gridGap={4} gridAutoFlow="row dense">
+                    <Section height="40px">
+                        <img src={imageUrl} alt={imageAlt} />
+                    </Section>
+                    <Section>
+                        <Text>{props.hit.name}</Text>
+                        <Text fontSize="0.8em">{props.hit.short_description}</Text>
+                        <Text color="red">${price}</Text>
+                    </Section>
+                </Flex>
+            </a>
+        </Section>
+    )
+}
 /**
  * This is the home page for Retail React App.
  * The page is created for demonstration purposes.
@@ -55,6 +93,8 @@ const Home = ({productSearchResult, isLoading}) => {
     const intl = useIntl()
     const einstein = useEinstein()
     const {pathname} = useLocation()
+
+    const searchClient = algoliasearch('YH9KIEOW1H', 'b09d6dab074870f67f7682f4aabaa474')
 
     /**************** Einstein ****************/
     useEffect(() => {
@@ -67,33 +107,6 @@ const Home = ({productSearchResult, isLoading}) => {
                 title="Home Page"
                 description="Commerce Cloud Retail React App"
                 keywords="Commerce Cloud, Retail React App, React Storefront"
-            />
-            <Hero
-                title={intl.formatMessage({
-                    defaultMessage: 'The React PWA Starter Store for Retail',
-                    id: 'home.title.react_starter_store'
-                })}
-                img={{
-                    src: getAssetUrl('static/img/hero.png'),
-                    alt: 'npx pwa-kit-create-app'
-                }}
-                actions={
-                    <Stack spacing={{base: 4, sm: 6}} direction={{base: 'column', sm: 'row'}}>
-                        <Button
-                            as={Link}
-                            href="https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/getting-started.html"
-                            target="_blank"
-                            width={{base: 'full', md: 'inherit'}}
-                            paddingX={7}
-                            _hover={{textDecoration: 'none'}}
-                        >
-                            <FormattedMessage
-                                defaultMessage="Get started"
-                                id="home.link.get_started"
-                            />
-                        </Button>
-                    </Stack>
-                }
             />
             <Section
                 background={'gray.50'}
@@ -108,39 +121,40 @@ const Home = ({productSearchResult, isLoading}) => {
                 marginLeft={{base: '-50vw', md: 'auto'}}
                 marginRight={{base: '-50vw', md: 'auto'}}
             >
-                <SimpleGrid
-                    columns={{base: 1, md: 1, lg: 3}}
-                    spacingX={{base: 1, md: 4}}
-                    spacingY={{base: 4, md: 14}}
+                <InstantSearch
+                    searchClient={searchClient}
+                    indexName="zzsb_032_dx__NTOManaged__products__default"
                 >
-                    {heroFeatures.map((feature, index) => {
-                        const featureMessage = feature.message
-                        return (
-                            <Box
-                                key={index}
-                                background={'white'}
-                                boxShadow={'0px 2px 2px rgba(0, 0, 0, 0.1)'}
-                                borderRadius={'4px'}
-                            >
-                                <Link target="_blank" href={feature.href}>
-                                    <HStack>
-                                        <Flex
-                                            paddingLeft={6}
-                                            height={24}
-                                            align={'center'}
-                                            justify={'center'}
-                                        >
-                                            {feature.icon}
-                                        </Flex>
-                                        <Text fontWeight="700">
-                                            {intl.formatMessage(featureMessage.title)}
-                                        </Text>
-                                    </HStack>
-                                </Link>
-                            </Box>
-                        )
-                    })}
-                </SimpleGrid>                
+                    <SearchBox />
+                    <Flex display="flex">
+                        <Section>
+                            <Text>Brands</Text>
+                            <RefinementList attribute="brand" />
+                            <Text>Categories</Text>
+                            <HierarchicalMenu
+                                attributes={[
+                                    '__primary_category.0',
+                                    '__primary_category.1',
+                                    '__primary_category.2'
+                                ]}
+                            />
+                            <Text>Price</Text>
+                            <NumericMenu
+                                attribute="price.USD"
+                                items={[
+                                    {label: '<= $10', end: 10},
+                                    {label: '$10 - $100', start: 10, end: 100},
+                                    {label: '$100 - $500', start: 100, end: 500},
+                                    {label: '>= $500', start: 500}
+                                ]}
+                            />
+                        </Section>
+                        <Section>
+                            <Hits hitComponent={Hit} />
+                            <Pagination />
+                        </Section>
+                    </Flex>
+                </InstantSearch>
             </Section>
 
             {productSearchResult && (

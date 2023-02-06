@@ -11,16 +11,15 @@ import {useHistory, useParams} from 'react-router-dom'
 import {FormattedMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
-import algoliasearch from 'algoliasearch/lite'
-import {
-    InstantSearch,
-    Pagination,
-    RefinementList,
-    HierarchicalMenu,
-    useHits
-} from 'react-instantsearch-hooks-web'
-
-import {NumericMenu} from '../../components/numeric-menu'
+// import algoliasearch from 'algoliasearch/lite'
+// import {
+//     InstantSearch,
+//     SearchBox,
+//     Hits,
+//     Pagination,
+//     RefinementList,
+//     HierarchicalMenu
+// } from 'react-instantsearch-hooks-web'
 
 // Components
 import {
@@ -50,8 +49,8 @@ import {
 } from '@chakra-ui/react'
 
 // Project Components
-// import Pagination from '../../components/pagination'
-import ProductTile, {Skeleton as ProductTileSkeleton} from '../../components/algolia-product-tile'
+import Pagination from '../../components/pagination'
+import ProductTile, {Skeleton as ProductTileSkeleton} from '../../components/product-tile'
 import {HideOnDesktop} from '../../components/responsive'
 import Refinements from './partials/refinements'
 import SelectedRefinements from './partials/selected-refinements'
@@ -253,56 +252,6 @@ const ProductList = (props) => {
         selectedSortingOptionLabel = productSearchResult?.sortingOptions?.[0]
     }
 
-    const algoliaInitialQuery = searchQuery
-        ? {query: searchParams}
-        : {HierarchicalMenu: {categories: ['Womens > Bottoms']}}
-    const algoliaInitialState = {zzsb_032_dx__NTOManaged__products__default: algoliaInitialQuery}
-
-
-    const searchClient = algoliasearch('YH9KIEOW1H', 'b09d6dab074870f67f7682f4aabaa474')
-
-    function CustomHits(props) {
-        const {hits} = useHits(props)
-
-        return (
-            <>
-                <SimpleGrid columns={[2, 2, 3, 3]} spacingX={4} spacingY={{base: 12, lg: 16}}>
-                    {hits.map((hit) => {
-                        const isInWishlist = !!wishlist.findItemByProductId(hit.id)
-
-                        const productSearchItem = hit
-
-                        return (
-                            <ProductTile
-                                data-testid={`sf-product-tile-${productSearchItem.id}`}
-                                key={productSearchItem.id}
-                                product={productSearchItem}
-                                enableFavourite={true}
-                                isFavourite={isInWishlist}
-                                onClick={() => {
-                                    if (searchQuery) {
-                                        einstein.sendClickSearch(searchQuery, productSearchItem)
-                                    } else if (category) {
-                                        einstein.sendClickCategory(category, productSearchItem)
-                                    }
-                                }}
-                                onFavouriteToggle={(isFavourite) => {
-                                    const action = isFavourite
-                                        ? addItemToWishlist
-                                        : removeItemFromWishlist
-                                    return action(productSearchItem)
-                                }}
-                                dynamicImageProps={{
-                                    widths: ['50vw', '50vw', '20vw', '20vw', '25vw']
-                                }}
-                            />
-                        )
-                    })}
-                </SimpleGrid>
-            </>
-        )
-    }
-
     return (
         <Box
             className="sf-product-list-page"
@@ -317,51 +266,207 @@ const ProductList = (props) => {
                 <meta name="keywords" content={category?.pageKeywords} />
             </Helmet>
             <Text>Another Hello World</Text>
-            <InstantSearch
-                searchClient={searchClient}
-                indexName="zzsb_032_dx__NTOManaged__products__default"
-                initialUiState={algoliaInitialState}
-            >
-                <Stack
-                    display={{base: 'none', lg: 'flex'}}
-                    direction="row"
-                    justify="flex-start"
-                    align="flex-start"
-                    spacing={4}
-                    marginBottom={6}
-                ></Stack>
-                <Grid templateColumns={{base: '1fr', md: '280px 1fr'}} columnGap={6}>
-                    <Stack display={{base: 'none', md: 'flex'}}>
-                        <Text>Brands</Text>
-                        <RefinementList attribute="brand" />
-                        <Text>Categories</Text>
-                        <HierarchicalMenu
-                            attributes={[
-                                '__primary_category.0',
-                                '__primary_category.1',
-                                '__primary_category.2'
-                            ]}
-                        />
-                        <Text>Price</Text>
-                        <NumericMenu
-                            attribute="price.USD"
-                            items={[
-                                {label: '<= $10', end: 10},
-                                {label: '$10 - $100', start: 10, end: 100},
-                                {label: '$100 - $500', start: 100, end: 500},
-                                {label: '>= $500', start: 500}
-                            ]}
-                        />
-                    </Stack>
-                    <Box>
-                        <CustomHits />
-                        {/* Footer */}
-                        <Flex justifyContent={['center', 'center', 'flex-start']} paddingTop={8}>
-                            <Pagination />
+
+            {showNoResults ? (
+                <EmptySearchResults searchQuery={searchQuery} category={category} />
+            ) : (
+                <>
+                    {/* Header */}
+
+                    <Stack
+                        display={{base: 'none', lg: 'flex'}}
+                        direction="row"
+                        justify="flex-start"
+                        align="flex-start"
+                        spacing={4}
+                        marginBottom={6}
+                    >
+                        <Flex align="left" width="287px">
+                            <PageHeader
+                                searchQuery={searchQuery}
+                                category={category}
+                                productSearchResult={productSearchResult}
+                                isLoading={isLoading}
+                            />
                         </Flex>
-                    </Box>
-                </Grid>
-            </InstantSearch>
+
+                        <Box flex={1} paddingTop={'45px'}>
+                            <SelectedRefinements
+                                filters={productSearchResult?.refinements}
+                                toggleFilter={toggleFilter}
+                                selectedFilterValues={productSearchResult?.selectedRefinements}
+                            />
+                        </Box>
+                        <Box paddingTop={'45px'}>
+                            <Sort
+                                sortUrls={sortUrls}
+                                productSearchResult={productSearchResult}
+                                basePath={basePath}
+                            />
+                        </Box>
+                    </Stack>
+
+                    <HideOnDesktop>
+                        <Stack spacing={6}>
+                            <PageHeader
+                                searchQuery={searchQuery}
+                                category={category}
+                                productSearchResult={productSearchResult}
+                                isLoading={isLoading}
+                            />
+                            <Stack
+                                display={{base: 'flex', md: 'none'}}
+                                direction="row"
+                                justify="flex-start"
+                                align="center"
+                                spacing={1}
+                                height={12}
+                                borderColor="gray.100"
+                            >
+                                <Flex align="center">
+                                    <Button
+                                        fontSize="sm"
+                                        colorScheme="black"
+                                        variant="outline"
+                                        marginRight={2}
+                                        display="inline-flex"
+                                        leftIcon={<FilterIcon boxSize={5} />}
+                                        onClick={onOpen}
+                                    >
+                                        <FormattedMessage
+                                            defaultMessage="Filter"
+                                            id="product_list.button.filter"
+                                        />
+                                    </Button>
+                                </Flex>
+                                <Flex align="center">
+                                    <Button
+                                        maxWidth="245px"
+                                        fontSize="sm"
+                                        marginRight={2}
+                                        colorScheme="black"
+                                        variant="outline"
+                                        display="inline-flex"
+                                        rightIcon={<ChevronDownIcon boxSize={5} />}
+                                        onClick={() => setSortOpen(true)}
+                                    >
+                                        {formatMessage(
+                                            {
+                                                id: 'product_list.button.sort_by',
+                                                defaultMessage: 'Sort By: {sortOption}'
+                                            },
+                                            {
+                                                sortOption: selectedSortingOptionLabel?.label
+                                            }
+                                        )}
+                                    </Button>
+                                </Flex>
+                            </Stack>
+                        </Stack>
+                        <Box marginBottom={4}>
+                            <SelectedRefinements
+                                filters={productSearchResult?.refinements}
+                                toggleFilter={toggleFilter}
+                                selectedFilterValues={productSearchResult?.selectedRefinements}
+                            />
+                        </Box>
+                    </HideOnDesktop>
+
+                    {/* Body  */}
+                    <Grid templateColumns={{base: '1fr', md: '280px 1fr'}} columnGap={6}>
+                        <Stack display={{base: 'none', md: 'flex'}}>
+                            <Refinements
+                                isLoading={filtersLoading}
+                                toggleFilter={toggleFilter}
+                                filters={productSearchResult?.refinements}
+                                selectedFilters={searchParams.refine}
+                            />
+                        </Stack>
+                        <Box>
+                            <SimpleGrid
+                                columns={[2, 2, 3, 3]}
+                                spacingX={4}
+                                spacingY={{base: 12, lg: 16}}
+                            >
+                                {isLoading || !productSearchResult
+                                    ? new Array(searchParams.limit)
+                                          .fill(0)
+                                          .map((value, index) => (
+                                              <ProductTileSkeleton key={index} />
+                                          ))
+                                    : productSearchResult.hits.map((productSearchItem) => {
+                                          const productId = productSearchItem.productId
+                                          const isInWishlist =
+                                              !!wishlist.findItemByProductId(productId)
+
+                                          return (
+                                              <ProductTile
+                                                  data-testid={`sf-product-tile-${productSearchItem.productId}`}
+                                                  key={productSearchItem.productId}
+                                                  product={productSearchItem}
+                                                  enableFavourite={true}
+                                                  isFavourite={isInWishlist}
+                                                  onClick={() => {
+                                                      if (searchQuery) {
+                                                          einstein.sendClickSearch(
+                                                              searchQuery,
+                                                              productSearchItem
+                                                          )
+                                                      } else if (category) {
+                                                          einstein.sendClickCategory(
+                                                              category,
+                                                              productSearchItem
+                                                          )
+                                                      }
+                                                  }}
+                                                  onFavouriteToggle={(isFavourite) => {
+                                                      const action = isFavourite
+                                                          ? addItemToWishlist
+                                                          : removeItemFromWishlist
+                                                      return action(productSearchItem)
+                                                  }}
+                                                  dynamicImageProps={{
+                                                      widths: [
+                                                          '50vw',
+                                                          '50vw',
+                                                          '20vw',
+                                                          '20vw',
+                                                          '25vw'
+                                                      ]
+                                                  }}
+                                              />
+                                          )
+                                      })}
+                            </SimpleGrid>
+                            {/* Footer */}
+                            <Flex
+                                justifyContent={['center', 'center', 'flex-start']}
+                                paddingTop={8}
+                            >
+                                <Pagination currentURL={basePath} urls={pageUrls} />
+
+                                {/*
+                            Our design doesn't call for a page size select. Show this element if you want
+                            to add one to your design.
+                        */}
+                                <Select
+                                    display="none"
+                                    value={basePath}
+                                    onChange={({target}) => {
+                                        history.push(target.value)
+                                    }}
+                                >
+                                    {limitUrls.map((href, index) => (
+                                        <option key={href} value={href}>
+                                            {DEFAULT_LIMIT_VALUES[index]}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </Flex>
+                        </Box>
+                    </Grid>
+                </>
+            )}
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}
@@ -486,8 +591,6 @@ ProductList.getProps = async ({res, params, location, api}) => {
     if (searchQuery) {
         isSearch = true
     }
-    console.log('params', params)
-
     // In case somebody navigates to /search without a param
     if (!categoryId && !isSearch) {
         // We will simulate search for empty string
@@ -529,7 +632,6 @@ ProductList.getProps = async ({res, params, location, api}) => {
     if (category?.type?.endsWith('category-not-found')) {
         throw new HTTPNotFound(category.detail)
     }
-    console.log(category)
 
     return {searchQuery: searchQuery, productSearchResult, category}
 }

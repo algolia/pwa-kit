@@ -14,6 +14,7 @@ import {
     PopoverContent,
     Button,
     Box,
+    Text,
     Flex,
     HStack,
     Spinner
@@ -175,6 +176,7 @@ const Search = (props) => {
 
     return (
         <Box>
+            <Text>Hello World?</Text>
             <Popover isOpen={isOpen} isLazy initialFocusRef={searchInputRef}>
                 <PopoverTrigger>
                     <form onSubmit={onSubmitSearch}>

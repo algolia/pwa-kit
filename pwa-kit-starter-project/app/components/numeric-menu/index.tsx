@@ -8,7 +8,6 @@ export type NumericMenuProps = React.ComponentProps<'div'> & UseNumericMenuProps
 
 export function NumericMenu(props: NumericMenuProps) {
     const {items, refine} = useNumericMenu(props)
-    console.log(items)
 
     return (
         <Box>
@@ -16,7 +15,13 @@ export function NumericMenu(props: NumericMenuProps) {
                 <Stack>
                     {items.map((item) => (
                         // eslint-disable-next-line react/jsx-key
-                        <Radio isChecked={item.isRefined} onChange={() => refine(item.value)}>{item.label}</Radio>
+                        <Radio
+                            key={item.value}
+                            isChecked={item.isRefined}
+                            onChange={() => refine(item.value)}
+                        >
+                            {item.label}
+                        </Radio>
                     ))}
                 </Stack>
             </RadioGroup>
