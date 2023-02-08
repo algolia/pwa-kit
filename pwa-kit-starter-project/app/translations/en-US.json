@@ -649,8 +649,14 @@
   "home.link.contact_us": {
     "defaultMessage": "Contact Us"
   },
+  "home.link.get_started": {
+    "defaultMessage": "Get started"
+  },
   "home.link.read_docs": {
     "defaultMessage": "Read docs"
+  },
+  "home.title.react_starter_store": {
+    "defaultMessage": "The React PWA Starter Store for Retail"
   },
   "item_attributes.label.promotions": {
     "defaultMessage": "Promotions"

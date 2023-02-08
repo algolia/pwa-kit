@@ -24,7 +24,6 @@ import {
     Link
 } from '@chakra-ui/react'
 
-
 // Project Components
 import Hero from '../../components/hero'
 import Seo from '../../components/seo'
@@ -140,7 +139,7 @@ const Home = ({productSearchResult, isLoading}) => {
                             </Box>
                         )
                     })}
-                </SimpleGrid>                
+                </SimpleGrid>
             </Section>
 
             {productSearchResult && (

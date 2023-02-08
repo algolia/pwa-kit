@@ -1,6 +1,6 @@
 /* eslint-disable header/header */
 import React from 'react'
-import {useNumericMenu, UseNumericMenuProps} from 'react-instantsearch-hooks'
+import {useNumericMenu, UseNumericMenuProps} from 'react-instantsearch-hooks-web'
 
 import {Box, RadioGroup, Radio, Stack} from '@chakra-ui/react'
 

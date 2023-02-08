@@ -14,13 +14,14 @@ import {Helmet} from 'react-helmet'
 import algoliasearch from 'algoliasearch/lite'
 import {
     InstantSearch,
+    SearchBox,
     Pagination,
-    RefinementList,
     HierarchicalMenu,
     useHits
 } from 'react-instantsearch-hooks-web'
 
 import {NumericMenu} from '../../components/numeric-menu'
+import VirtualSearchBox from './partials/virtual-search-box'
 
 // Components
 import {
@@ -82,6 +83,7 @@ import {
 } from '../../constants'
 import useNavigation from '../../hooks/use-navigation'
 import LoadingSpinner from '../../components/loading-spinner'
+import {CustomerProductListsProvider} from '../../commerce-api/contexts'
 
 // NOTE: You can ignore certain refinements on a template level by updating the below
 // list of ignored refinements.
@@ -253,11 +255,27 @@ const ProductList = (props) => {
         selectedSortingOptionLabel = productSearchResult?.sortingOptions?.[0]
     }
 
-    const algoliaInitialQuery = searchQuery
-        ? {query: searchParams}
-        : {HierarchicalMenu: {categories: ['Womens > Bottoms']}}
-    const algoliaInitialState = {zzsb_032_dx__NTOManaged__products__default: algoliaInitialQuery}
+    let catJson = {}
+    let hierarchicalRootMenu = ''
+    let algoliaInitialState = {}
+    const searchIndex = 'zzsb_032_dx__NTOManaged__products__default'
 
+    if (category) {
+        // build catJson
+        let valueArray = []
+        category.parentCategoryTree.forEach((parentCategory, i) => {
+            valueArray.push(parentCategory.name)
+            // const label = '__primary_category.' + i
+            hierarchicalRootMenu =
+                i > 0 ? hierarchicalRootMenu + ' > ' + parentCategory.name : parentCategory.name
+            // catJson[label] = [mainValue]
+        })
+        catJson = {'__primary_category.0': valueArray}
+        algoliaInitialState = {[searchIndex]: {hierarchicalMenu: catJson}}
+    } else {
+        algoliaInitialState = {[searchIndex]: {query: searchParams.q}}
+    }
+    console.log('initial state', algoliaInitialState)
 
     const searchClient = algoliasearch('YH9KIEOW1H', 'b09d6dab074870f67f7682f4aabaa474')
 
@@ -316,12 +334,12 @@ const ProductList = (props) => {
                 <meta name="description" content={category?.pageDescription} />
                 <meta name="keywords" content={category?.pageKeywords} />
             </Helmet>
-            <Text>Another Hello World</Text>
             <InstantSearch
                 searchClient={searchClient}
-                indexName="zzsb_032_dx__NTOManaged__products__default"
+                indexName={searchIndex}
                 initialUiState={algoliaInitialState}
             >
+                <VirtualSearchBox />
                 <Stack
                     display={{base: 'none', lg: 'flex'}}
                     direction="row"
@@ -332,8 +350,6 @@ const ProductList = (props) => {
                 ></Stack>
                 <Grid templateColumns={{base: '1fr', md: '280px 1fr'}} columnGap={6}>
                     <Stack display={{base: 'none', md: 'flex'}}>
-                        <Text>Brands</Text>
-                        <RefinementList attribute="brand" />
                         <Text>Categories</Text>
                         <HierarchicalMenu
                             attributes={[
@@ -341,6 +357,7 @@ const ProductList = (props) => {
                                 '__primary_category.1',
                                 '__primary_category.2'
                             ]}
+                            rootPath={hierarchicalRootMenu}
                         />
                         <Text>Price</Text>
                         <NumericMenu
@@ -486,7 +503,6 @@ ProductList.getProps = async ({res, params, location, api}) => {
     if (searchQuery) {
         isSearch = true
     }
-    console.log('params', params)
 
     // In case somebody navigates to /search without a param
     if (!categoryId && !isSearch) {
@@ -529,7 +545,6 @@ ProductList.getProps = async ({res, params, location, api}) => {
     if (category?.type?.endsWith('category-not-found')) {
         throw new HTTPNotFound(category.detail)
     }
-    console.log(category)
 
     return {searchQuery: searchQuery, productSearchResult, category}
 }

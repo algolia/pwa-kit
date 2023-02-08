@@ -33,6 +33,8 @@ import useCustomer from '../../commerce-api/hooks/useCustomer'
 
 import Link from '../link'
 import Search from '../search'
+import AlgoliaSearch from '../algolia-search'
+
 import withRegistration from '../../hoc/with-registration'
 import {
     AccountIcon,
@@ -140,7 +142,7 @@ const Header = ({
                     />
                     <Box {...styles.bodyContainer}>{children}</Box>
                     <Box {...styles.searchContainer}>
-                        <Search
+                    <Search
                             placeholder={intl.formatMessage({
                                 id: 'header.field.placeholder.search_for_products',
                                 defaultMessage: 'Search for products...'

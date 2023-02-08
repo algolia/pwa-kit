@@ -60,7 +60,7 @@ export const Skeleton = () => {
  * The ProductTile is a simple visual representation of a
  * product object. It will show it's default image, name and price.
  * It also supports favourite products, controlled by a heart icon.
- * 
+ *
  * name,brand,master,variant,short-description,searchable-flag,
  * short_description,color,size,category_1,url,image_groups,promotionalPrice,
  * refinementColor,refinement_color,apparelFeatures,apparel_features
@@ -93,6 +93,7 @@ const ProductTile = (props) => {
             imageAlt = imageGroup.images[0].alt
         }
     })
+    const productPrice = product.price ? product.price.USD : ''
 
     return (
         <Link
@@ -145,7 +146,7 @@ const ProductTile = (props) => {
 
             {/* Price */}
             <Text {...styles.price}>
-                {intl.formatNumber(product.price.USD, {
+                {intl.formatNumber(productPrice, {
                     style: 'currency',
                     currency: 'USD'
                 })}
