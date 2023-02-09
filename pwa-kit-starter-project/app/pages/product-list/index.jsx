@@ -12,16 +12,11 @@ import {FormattedMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
 import algoliasearch from 'algoliasearch/lite'
-import {
-    InstantSearch,
-    SearchBox,
-    Pagination,
-    HierarchicalMenu,
-    useHits
-} from 'react-instantsearch-hooks-web'
+import {InstantSearch, Pagination, HierarchicalMenu, useHits} from 'react-instantsearch-hooks-web'
 
 import {NumericMenu} from '../../components/numeric-menu'
 import VirtualSearchBox from './partials/virtual-search-box'
+import AlgoliaColorRefinements from './partials/algolia-color-refinements'
 
 // Components
 import {
@@ -260,7 +255,7 @@ const ProductList = (props) => {
     let algoliaInitialState = {}
     const searchIndex = 'zzsb_032_dx__NTOManaged__products__default'
 
-    if (category) {
+    if (category && !searchQuery) {
         // build catJson
         let valueArray = []
         category.parentCategoryTree.forEach((parentCategory, i) => {
@@ -272,7 +267,7 @@ const ProductList = (props) => {
         })
         catJson = {'__primary_category.0': valueArray}
         algoliaInitialState = {[searchIndex]: {hierarchicalMenu: catJson}}
-    } else {
+    } else if (searchQuery) {
         algoliaInitialState = {[searchIndex]: {query: searchParams.q}}
     }
     console.log('initial state', algoliaInitialState)
@@ -359,7 +354,9 @@ const ProductList = (props) => {
                             ]}
                             rootPath={hierarchicalRootMenu}
                         />
-                        <Text>Price</Text>
+                        <Box>
+                            <AlgoliaColorRefinements attribute="refinementColor" />
+                        </Box>
                         <NumericMenu
                             attribute="price.USD"
                             items={[
