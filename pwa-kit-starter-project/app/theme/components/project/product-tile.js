@@ -6,7 +6,16 @@
  */
 export default {
     baseStyle: () => ({
-        container: {},
+        container: {
+            display: 'flex',
+            flexDirection: 'column',
+            border: '1px solid #f5f5f5',
+            borderRadius: '4px',
+            _hover: {
+                textDecoration: 'none',
+                borderColor: '#ccc'
+            }
+        },
         favIcon: {
             position: 'absolute',
             variant: 'unstyled',
@@ -15,18 +24,37 @@ export default {
         },
         imageWrapper: {
             position: 'relative',
-            marginBottom: 2
+            marginBottom: 2,
+            borderBottom: '1px solid #f5f5f5'
         },
         image: {
-            ratio: 1,
-            paddingBottom: 2
+            position: 'relative',
+            ratio: 1
         },
-        price: {},
-        title: {
+        detailsWrapper: {
+            flex: '1 1',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '0 1rem 1rem 1rem',
             fontWeight: 600
+        },
+        title: {},
+        price: {
+            marginTop: '1rem',
+            fontSize: '1.55rem'
         },
         rating: {},
         variations: {}
     }),
-    parts: ['container', 'imageWrapper', 'image', 'price', 'title', 'rating', 'variations']
+    parts: [
+        'container',
+        'imageWrapper',
+        'image',
+        'detailsWrapper',
+        'price',
+        'title',
+        'rating',
+        'variations'
+    ]
 }

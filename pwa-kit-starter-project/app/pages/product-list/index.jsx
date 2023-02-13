@@ -253,6 +253,7 @@ const ProductList = (props) => {
     let catJson = {}
     let hierarchicalRootMenu = ''
     let algoliaInitialState = {}
+
     const searchIndex = 'zzsb_032_dx__NTOManaged__products__default'
 
     if (category && !searchQuery) {
@@ -342,10 +343,15 @@ const ProductList = (props) => {
                     align="flex-start"
                     spacing={4}
                     marginBottom={6}
-                ></Stack>
+                >
+                    <PageHeader
+                        searchQuery={searchQuery}
+                        category={category}
+                        isLoading={isLoading}
+                    />
+                </Stack>
                 <Grid templateColumns={{base: '1fr', md: '280px 1fr'}} columnGap={6}>
                     <Stack display={{base: 'none', md: 'flex'}}>
-                        <Text>Categories</Text>
                         <HierarchicalMenu
                             attributes={[
                                 '__primary_category.0',

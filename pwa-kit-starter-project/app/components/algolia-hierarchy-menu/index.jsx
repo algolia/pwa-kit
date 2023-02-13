@@ -12,18 +12,10 @@ import {useHierarchicalMenu} from 'react-instantsearch-hooks-web'
 // Components
 import {
     Box,
-    Container,
-    SimpleGrid,
-    Fade,
     Flex,
     Stack,
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
-    PopoverBody,
     Center,
     Spinner,
-    Text,
 
     // Hooks
     useTheme
@@ -31,10 +23,9 @@ import {
 import Link from '../link'
 // Others
 import {algoliaUrlBuilder} from '../../utils/url'
-import {ChevronDownIcon} from '../icons'
 
 function CustomHierarchicalMenu(props) {
-    const {items, refine} = useHierarchicalMenu(props)
+    const {items} = useHierarchicalMenu(props)
     const theme = useTheme()
     const {baseStyle} = theme.components.ListMenu
 

@@ -34,7 +34,6 @@ import {useIntl} from 'react-intl'
 import {productUrlBuilder} from '../../utils/url'
 import Link from '../link'
 import withRegistration from '../../hoc/with-registration'
-import {useCurrency} from '../../hooks'
 
 const IconButtonWithRegistration = withRegistration(IconButton)
 
@@ -88,11 +87,12 @@ const ProductTile = (props) => {
     let imageAlt = ''
     // eslint-disable-next-line react/prop-types
     product.image_groups.forEach((imageGroup) => {
-        if (imageGroup.view_type == 'small') {
+        if (imageGroup.view_type == 'large') {
             imageUrl = imageGroup.images[0].dis_base_link
             imageAlt = imageGroup.images[0].alt
         }
     })
+
     const productPrice = product.price ? product.price.USD : ''
 
     return (
@@ -140,17 +140,18 @@ const ProductTile = (props) => {
                     </Box>
                 )}
             </Box>
+            <Box {...styles.detailsWrapper}>
+                {/* Title */}
+                <Text {...styles.title}>{localizedProductName}</Text>
 
-            {/* Title */}
-            <Text {...styles.title}>{localizedProductName}</Text>
-
-            {/* Price */}
-            <Text {...styles.price}>
-                {intl.formatNumber(productPrice, {
-                    style: 'currency',
-                    currency: 'USD'
-                })}
-            </Text>
+                {/* Price */}
+                <Text {...styles.price}>
+                    {intl.formatNumber(productPrice, {
+                        style: 'currency',
+                        currency: 'USD'
+                    })}
+                </Text>
+            </Box>
         </Link>
     )
 }
