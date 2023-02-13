@@ -18,7 +18,6 @@ const AlgoliaColorRefinements = (props) => {
     })
 
     const {items, refine} = useRefinementList(props)
-    console.log(items)
 
     return (
         <SimpleGrid columns={2} spacing={2} mt={1}>

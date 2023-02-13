@@ -191,3 +191,19 @@ CurrencyProvider.propTypes = {
     children: PropTypes.node.isRequired,
     currency: PropTypes.string
 }
+
+export const AlgoliaSearchContext = React.createContext()
+export const AlgoliaSearchProvider = ({searchClient: initialSearchClient = {}, children}) => {
+    const [searchClient, setSearchClient] = useState(initialSearchClient)
+
+    return (
+        <AlgoliaSearchContext.Provider value={{searchClient, setSearchClient}}>
+            {children}
+        </AlgoliaSearchContext.Provider>
+    )
+}
+
+AlgoliaSearchProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+    searchClient: PropTypes.object
+}

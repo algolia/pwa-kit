@@ -98,7 +98,10 @@ export const buildUrlSet = (url = '', key = '', values = [], extraParams = {}) =
  */
 export const categoryUrlBuilder = (category) => encodeURI(`/category/${category.id}`)
 
-export const algoliaUrlBuilder = (item) => encodeURI(`/category/${item.value.toLowerCase()}`)
+export const algoliaUrlBuilder = (item) => {
+    const sections = item.id.split('/')
+    return encodeURI(`/category/${sections[1]}`)
+}
 
 /**
  * Given a product and the current locale returns an href to the product detail page.

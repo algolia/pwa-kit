@@ -142,13 +142,14 @@ const Header = ({
                     />
                     <Box {...styles.bodyContainer}>{children}</Box>
                     <Box {...styles.searchContainer}>
-                    <Search
+                        <AlgoliaSearch />
+                    {/* <Search
                             placeholder={intl.formatMessage({
                                 id: 'header.field.placeholder.search_for_products',
                                 defaultMessage: 'Search for products...'
                             })}
                             {...styles.search}
-                        />
+                        /> */}
                     </Box>
                     <AccountIcon
                         {...styles.accountIcon}

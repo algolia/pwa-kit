@@ -12,10 +12,15 @@ import {FormattedMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
 import algoliasearch from 'algoliasearch/lite'
-import {InstantSearch, Pagination, HierarchicalMenu, useHits} from 'react-instantsearch-hooks-web'
+import {
+    InstantSearch,
+    SearchBox,
+    Pagination,
+    HierarchicalMenu,
+    useHits
+} from 'react-instantsearch-hooks-web'
 
 import {NumericMenu} from '../../components/numeric-menu'
-import VirtualSearchBox from './partials/virtual-search-box'
 import AlgoliaColorRefinements from './partials/algolia-color-refinements'
 
 // Components
@@ -334,7 +339,6 @@ const ProductList = (props) => {
                 indexName={searchIndex}
                 initialUiState={algoliaInitialState}
             >
-                <VirtualSearchBox />
                 <Stack
                     display={{base: 'none', lg: 'flex'}}
                     direction="row"
@@ -368,6 +372,7 @@ const ProductList = (props) => {
                         />
                     </Stack>
                     <Box>
+                        <SearchBox />
                         <CustomHits />
                         {/* Footer */}
                         <Flex justifyContent={['center', 'center', 'flex-start']} paddingTop={8}>
