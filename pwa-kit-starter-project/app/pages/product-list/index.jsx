@@ -347,9 +347,17 @@ const ProductList = (props) => {
                     spacing={4}
                     marginBottom={6}
                 ></Stack>
+                <Flex align="left" width="287px">
+                    <PageHeader
+                        searchQuery={searchQuery}
+                        category={category}
+                        productSearchResult={productSearchResult}
+                        isLoading={isLoading}
+                    />
+                </Flex>
+
                 <Grid templateColumns={{base: '1fr', md: '280px 1fr'}} columnGap={6}>
                     <Stack display={{base: 'none', md: 'flex'}}>
-                        <Text>Categories</Text>
                         <HierarchicalMenu
                             attributes={[
                                 '__primary_category.0',

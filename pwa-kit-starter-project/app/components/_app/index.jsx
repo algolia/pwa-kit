@@ -231,8 +231,8 @@ const App = (props) => {
                                         </HideOnDesktop>
 
                                         <HideOnMobile>
-                                            {/* <ListMenu locale={locale} /> */}
-                                            <CustomHierarchicalMenu />
+                                            <ListMenu locale={locale} />
+                                            {/* <CustomHierarchicalMenu /> */}
                                         </HideOnMobile>
                                     </Header>
                                 ) : (
