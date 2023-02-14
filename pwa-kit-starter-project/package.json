@@ -94,6 +94,8 @@
   ],
   "dependencies": {
     "@algolia/autocomplete-js": "^1.7.4",
+    "@algolia/autocomplete-plugin-query-suggestions": "^1.8.0",
+    "@algolia/autocomplete-plugin-recent-searches": "^1.8.0",
     "algoliasearch": "^4.14.3",
     "react-instantsearch-hooks-web": "^6.39.3"
   }

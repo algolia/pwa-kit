@@ -343,7 +343,6 @@ const ProductList = (props) => {
                 indexName={searchIndex}
                 initialUiState={algoliaInitialState}
             >
-                <VirtualSearchBox />
                 <Stack
                     display={{base: 'none', lg: 'flex'}}
                     direction="row"
@@ -381,6 +380,7 @@ const ProductList = (props) => {
                         </AlgoliaRefinementsContainer>
                     </Stack>
                     <Box>
+                        <SearchBox />
                         <CustomHits />
                         <Flex justifyContent={['center', 'center', 'flex-start']} marginTop={16}>
                             <AlgoliaPagination />
