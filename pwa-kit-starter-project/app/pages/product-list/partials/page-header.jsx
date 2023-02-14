@@ -20,17 +20,20 @@ import {useHits} from 'react-instantsearch-hooks-web'
 const PageHeader = ({category, isLoading, searchQuery, ...otherProps}) => {
     const {results} = useHits()
     const intl = useIntl()
+    const title = (category?.name || searchQuery || '').trim()
 
     return (
         <Box {...otherProps} data-testid="sf-product-list-breadcrumb">
             {/* Breadcrumb */}
             {category && <Breadcrumb categories={category.parentCategoryTree} />}
-            {searchQuery && <Text>Search Results for</Text>}
+            {searchQuery && <Text>Search Results</Text>}
             {/* Category Title */}
             <Flex>
-                <Heading as="h2" size="lg" marginRight={2}>
-                    {`${category?.name || searchQuery || ''}`}
-                </Heading>
+                {title != '' && (
+                    <Heading as="h2" size="lg" marginRight={2}>
+                        {title}
+                    </Heading>
+                )}
                 <Heading as="h2" size="lg" marginRight={2}>
                     {!isLoading && <Fade in={true}>({intl.formatNumber(results.nbHits)})</Fade>}
                 </Heading>

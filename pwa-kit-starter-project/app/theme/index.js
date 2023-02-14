@@ -34,6 +34,8 @@ import Tooltip from './components/base/tooltip'
 import Popover from './components/base/popover'
 
 // Project Component style overrides
+import AlgoliaCurrentRefinements from './components/project/algolia-current-refinements'
+import AlgoliaHierarchicalRefinements from './components/project/algolia-hierarchical-refinements'
 import App from './components/project/_app'
 import Breadcrumb from './components/project/breadcrumb'
 import Header from './components/project/header'
@@ -97,7 +99,9 @@ const overrides = {
         Pagination,
         ProductTile,
         SwatchGroup,
-        ImageGallery
+        ImageGallery,
+        AlgoliaCurrentRefinements,
+        AlgoliaHierarchicalRefinements
     }
 }
 

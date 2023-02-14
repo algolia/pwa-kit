@@ -5,15 +5,16 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useMemo, useState} from 'react'
 import PropTypes from 'prop-types'
 import {useHistory, useParams} from 'react-router-dom'
-import {FormattedMessage, useIntl} from 'react-intl'
+import {FormattedMessage, formatMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
 import algoliasearch from 'algoliasearch/lite'
 import {InstantSearch, useHits, SearchBox} from 'react-instantsearch-hooks-web'
 
+import AlgoliaCurrentRefinements from './partials/algolia-current-refinements'
 import AlgoliaRefinementsContainer from './partials/algolia-refinements-container'
 import AlgoliaHierarchicalRefinements from './partials/algolia-hierarchical-refinements'
 import AlgoliaColorRefinements from './partials/algolia-color-refinements'
@@ -52,14 +53,9 @@ import {
 // Project Components
 // import Pagination from '../../components/pagination'
 import ProductTile, {Skeleton as ProductTileSkeleton} from '../../components/algolia-product-tile'
-import {HideOnDesktop} from '../../components/responsive'
 import Refinements from './partials/refinements'
-import SelectedRefinements from './partials/selected-refinements'
 import EmptySearchResults from './partials/empty-results'
 import PageHeader from './partials/page-header'
-
-// Icons
-import {FilterIcon, ChevronDownIcon} from '../../components/icons'
 
 // Hooks
 import {useLimitUrls, usePageUrls, useSortUrls, useSearchParams, useCurrency} from '../../hooks'
@@ -82,11 +78,27 @@ import {
 } from '../../constants'
 import useNavigation from '../../hooks/use-navigation'
 import LoadingSpinner from '../../components/loading-spinner'
-import {CustomerProductListsProvider} from '../../commerce-api/contexts'
 
 // NOTE: You can ignore certain refinements on a template level by updating the below
 // list of ignored refinements.
 const REFINEMENT_DISALLOW_LIST = ['c_isNew']
+
+const transformCurrentRefinements = (items) => {
+    return items.map((item) => {
+        let label = item.label
+
+        if (label === 'refinementColor') {
+            label = 'Color'
+        } else if (label.startsWith('price')) {
+            label = 'Price'
+        }
+
+        return {
+            ...item,
+            label
+        }
+    })
+}
 
 /*
  * This is a simple product listing page. It displays a paginated list
@@ -281,7 +293,7 @@ const ProductList = (props) => {
 
     function CustomHits(props) {
         const {hits} = useHits(props)
-        const {currency} = useCurrency();
+        const {currency} = useCurrency()
 
         return (
             <>
@@ -340,20 +352,31 @@ const ProductList = (props) => {
                 searchClient={searchClient}
                 indexName={searchIndex}
                 initialUiState={algoliaInitialState}
+                routing={true}
             >
                 <Stack
                     display={{base: 'none', lg: 'flex'}}
                     direction="row"
                     justify="flex-start"
                     align="flex-start"
-                    spacing={4}
+                    spacing={6}
                     marginBottom={6}
                 >
-                    <PageHeader
-                        searchQuery={searchQuery}
-                        category={category}
-                        isLoading={isLoading}
-                    />
+                    <Flex align="left" width="290px">
+                        <PageHeader
+                            searchQuery={searchQuery}
+                            category={category}
+                            isLoading={isLoading}
+                        />
+                    </Flex>
+
+                    <Box flex={1} paddingTop={'45px'}>
+                        <AlgoliaCurrentRefinements
+                            includedAttributes={['size', 'refinementColor', 'price.USD']}
+                            transformItems={transformCurrentRefinements}
+                        />
+                    </Box>
+                    <Box paddingTop={'45px'}></Box>
                 </Stack>
                 <Grid templateColumns={{base: '1fr', md: '290px 1fr'}} columnGap={6}>
                     <Stack spacing="6" divider={<Divider />} direction="column">
@@ -378,10 +401,12 @@ const ProductList = (props) => {
                         </AlgoliaRefinementsContainer>
                     </Stack>
                     <Box>
-                        <SearchBox />
+                        <Box mb={4}>
+                            <SearchBox />
+                        </Box>
                         <CustomHits />
                         <Flex justifyContent={['center', 'center', 'flex-start']} marginTop={16}>
-                            <AlgoliaPagination />
+                            <AlgoliaPagination onPageChange={() => window.scrollTo(0, 0)} />
                         </Flex>
                     </Box>
                 </Grid>

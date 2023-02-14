@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2021, salesforce.com, inc.
+ * Copyright (c) 2023, salesforce.com, inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-
 import React from 'react'
 import {Box, Text, Radio, RadioGroup, Stack} from '@chakra-ui/react'
 import {useNumericMenu} from 'react-instantsearch-hooks'
@@ -12,6 +11,7 @@ import PropTypes from 'prop-types'
 
 const AlgoliaRadioRefinements = (props) => {
     const {items, refine} = useNumericMenu(props)
+
     return (
         <Box>
             <RadioGroup>
