@@ -12,10 +12,8 @@ import {FormattedMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
 import algoliasearch from 'algoliasearch/lite'
-import {InstantSearch, useHits} from 'react-instantsearch-hooks-web'
+import {InstantSearch, useHits, SearchBox} from 'react-instantsearch-hooks-web'
 
-import {NumericMenu} from '../../components/numeric-menu'
-import VirtualSearchBox from './partials/virtual-search-box'
 import AlgoliaRefinementsContainer from './partials/algolia-refinements-container'
 import AlgoliaHierarchicalRefinements from './partials/algolia-hierarchical-refinements'
 import AlgoliaColorRefinements from './partials/algolia-color-refinements'
