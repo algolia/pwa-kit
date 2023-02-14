@@ -9,11 +9,13 @@ export default {
         container: {
             display: 'flex',
             flexDirection: 'column',
-            border: '1px solid #f5f5f5',
-            borderRadius: '4px',
+            border: '1px',
+            borderColor: 'gray.100',
+            borderRadius: 'md',
             _hover: {
                 textDecoration: 'none',
-                borderColor: '#ccc'
+                border: '1px',
+                borderColor: 'gray.200'
             }
         },
         favIcon: {
@@ -25,7 +27,8 @@ export default {
         imageWrapper: {
             position: 'relative',
             marginBottom: 2,
-            borderBottom: '1px solid #f5f5f5'
+            borderBottom: '1px',
+            borderBottomColor: 'gray.100'
         },
         image: {
             position: 'relative',
@@ -36,13 +39,14 @@ export default {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            padding: '0 1rem 1rem 1rem',
+            padding: 3,
+            paddingTop: 0,
             fontWeight: 600
         },
         title: {},
         price: {
-            marginTop: '1rem',
-            fontSize: '1.55rem'
+            marginTop: 3,
+            fontSize: '2xl'
         },
         rating: {},
         variations: {}

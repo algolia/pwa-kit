@@ -7,18 +7,19 @@
 
 import React from 'react'
 import {Box, SimpleGrid, HStack, Text, Button, Center, useMultiStyleConfig} from '@chakra-ui/react'
+import {useIntl} from 'react-intl'
 import PropTypes from 'prop-types'
 import {cssColorGroups} from '../../../constants'
 import {useRefinementList} from 'react-instantsearch-hooks-web'
 
 const AlgoliaColorRefinements = (props) => {
+    const intl = useIntl()
     const styles = useMultiStyleConfig('SwatchGroup', {
         variant: 'circle',
         disabled: false
     })
 
     const {items, refine} = useRefinementList(props)
-    console.log(items)
 
     return (
         <SimpleGrid columns={2} spacing={2} mt={1}>
@@ -61,8 +62,10 @@ const AlgoliaColorRefinements = (props) => {
                                 display="flex"
                                 alignItems="center"
                                 fontSize="sm"
+                                isTruncated
                                 marginBottom="1px"
-                            >{`${item.label} (${item.count})`}</Text>
+                                fontWeight={item.isRefined ? 'bold' : 'normal'}
+                            >{`${item.label} (${intl.formatNumber(item.count)})`}</Text>
                         </HStack>
                     </Box>
                 )
@@ -72,9 +75,7 @@ const AlgoliaColorRefinements = (props) => {
 }
 
 AlgoliaColorRefinements.propTypes = {
-    filter: PropTypes.object,
-    toggleFilter: PropTypes.func,
-    selectedFilters: PropTypes.oneOfType([PropTypes.array, PropTypes.string])
+    attribute: PropTypes.string
 }
 
 export default AlgoliaColorRefinements

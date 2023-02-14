@@ -68,6 +68,7 @@ const ProductTile = (props) => {
     const intl = useIntl()
     const {
         product,
+        currency,
         enableFavourite = false,
         isFavourite,
         onFavouriteToggle,
@@ -148,7 +149,7 @@ const ProductTile = (props) => {
                 <Text {...styles.price}>
                     {intl.formatNumber(productPrice, {
                         style: 'currency',
-                        currency: 'USD'
+                        currency
                     })}
                 </Text>
             </Box>
@@ -164,7 +165,6 @@ ProductTile.propTypes = {
      * component.
      */
     product: PropTypes.shape({
-        currency: PropTypes.string,
         image: PropTypes.shape({
             alt: PropTypes.string,
             disBaseLink: PropTypes.string,
@@ -201,7 +201,8 @@ ProductTile.propTypes = {
      * interacts with favourite icon/button.
      */
     onFavouriteToggle: PropTypes.func,
-    dynamicImageProps: PropTypes.object
+    dynamicImageProps: PropTypes.object,
+    currency: PropTypes.string
 }
 
 export default ProductTile

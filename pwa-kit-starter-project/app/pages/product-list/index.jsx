@@ -12,11 +12,16 @@ import {FormattedMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
 import algoliasearch from 'algoliasearch/lite'
-import {InstantSearch, Pagination, HierarchicalMenu, useHits} from 'react-instantsearch-hooks-web'
+import {InstantSearch, useHits} from 'react-instantsearch-hooks-web'
 
 import {NumericMenu} from '../../components/numeric-menu'
 import VirtualSearchBox from './partials/virtual-search-box'
+import AlgoliaRefinementsContainer from './partials/algolia-refinements-container'
+import AlgoliaHierarchicalRefinements from './partials/algolia-hierarchical-refinements'
 import AlgoliaColorRefinements from './partials/algolia-color-refinements'
+import AlgoliaSizeRefinements from './partials/algolia-size-refinements'
+import AlgoliaRangeRefinements from './partials/algolia-range-refinements'
+import AlgoliaPagination from './partials/algolia-pagination'
 
 // Components
 import {
@@ -42,7 +47,8 @@ import {
     DrawerHeader,
     DrawerOverlay,
     DrawerContent,
-    DrawerCloseButton
+    DrawerCloseButton,
+    Divider
 } from '@chakra-ui/react'
 
 // Project Components
@@ -58,7 +64,7 @@ import PageHeader from './partials/page-header'
 import {FilterIcon, ChevronDownIcon} from '../../components/icons'
 
 // Hooks
-import {useLimitUrls, usePageUrls, useSortUrls, useSearchParams} from '../../hooks'
+import {useLimitUrls, usePageUrls, useSortUrls, useSearchParams, useCurrency} from '../../hooks'
 import {useToast} from '../../hooks/use-toast'
 import useWishlist from '../../hooks/use-wishlist'
 import {parse as parseSearchParams} from '../../hooks/use-search-params'
@@ -277,6 +283,7 @@ const ProductList = (props) => {
 
     function CustomHits(props) {
         const {hits} = useHits(props)
+        const {currency} = useCurrency();
 
         return (
             <>
@@ -293,6 +300,7 @@ const ProductList = (props) => {
                                 product={productSearchItem}
                                 enableFavourite={true}
                                 isFavourite={isInWishlist}
+                                currency={currency}
                                 onClick={() => {
                                     if (searchQuery) {
                                         einstein.sendClickSearch(searchQuery, productSearchItem)
@@ -350,34 +358,32 @@ const ProductList = (props) => {
                         isLoading={isLoading}
                     />
                 </Stack>
-                <Grid templateColumns={{base: '1fr', md: '280px 1fr'}} columnGap={6}>
-                    <Stack display={{base: 'none', md: 'flex'}}>
-                        <HierarchicalMenu
-                            attributes={[
-                                '__primary_category.0',
-                                '__primary_category.1',
-                                '__primary_category.2'
-                            ]}
-                            rootPath={hierarchicalRootMenu}
-                        />
-                        <Box>
+                <Grid templateColumns={{base: '1fr', md: '290px 1fr'}} columnGap={6}>
+                    <Stack spacing="6" divider={<Divider />} direction="column">
+                        <AlgoliaRefinementsContainer title="Category">
+                            <AlgoliaHierarchicalRefinements
+                                attributes={[
+                                    '__primary_category.0',
+                                    '__primary_category.1',
+                                    '__primary_category.2'
+                                ]}
+                                rootPath={hierarchicalRootMenu}
+                            />
+                        </AlgoliaRefinementsContainer>
+                        <AlgoliaRefinementsContainer title="Color">
                             <AlgoliaColorRefinements attribute="refinementColor" />
-                        </Box>
-                        <NumericMenu
-                            attribute="price.USD"
-                            items={[
-                                {label: '<= $10', end: 10},
-                                {label: '$10 - $100', start: 10, end: 100},
-                                {label: '$100 - $500', start: 100, end: 500},
-                                {label: '>= $500', start: 500}
-                            ]}
-                        />
+                        </AlgoliaRefinementsContainer>
+                        <AlgoliaRefinementsContainer title="Size">
+                            <AlgoliaSizeRefinements attribute="size" />
+                        </AlgoliaRefinementsContainer>
+                        <AlgoliaRefinementsContainer title="Price">
+                            <AlgoliaRangeRefinements attribute="price.USD" />
+                        </AlgoliaRefinementsContainer>
                     </Stack>
                     <Box>
                         <CustomHits />
-                        {/* Footer */}
-                        <Flex justifyContent={['center', 'center', 'flex-start']} paddingTop={8}>
-                            <Pagination />
+                        <Flex justifyContent={['center', 'center', 'flex-start']} marginTop={16}>
+                            <AlgoliaPagination />
                         </Flex>
                     </Box>
                 </Grid>
