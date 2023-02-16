@@ -5,10 +5,10 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import React, {useEffect, useMemo, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import PropTypes from 'prop-types'
 import {useHistory, useParams} from 'react-router-dom'
-import {FormattedMessage, formatMessage, useIntl} from 'react-intl'
+import {FormattedMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
 import algoliasearch from 'algoliasearch/lite'
@@ -21,6 +21,7 @@ import AlgoliaColorRefinements from './partials/algolia-color-refinements'
 import AlgoliaSizeRefinements from './partials/algolia-size-refinements'
 import AlgoliaRangeRefinements from './partials/algolia-range-refinements'
 import AlgoliaPagination from './partials/algolia-pagination'
+import AlgoliaSortBy from './partials/algolia-sort-by'
 
 // Components
 import {
@@ -376,7 +377,24 @@ const ProductList = (props) => {
                             transformItems={transformCurrentRefinements}
                         />
                     </Box>
-                    <Box paddingTop={'45px'}></Box>
+                    <Box paddingTop={'45px'}>
+                        <AlgoliaSortBy
+                            items={[
+                                {
+                                    label: 'Sort By: Best Matches',
+                                    value: 'zzsb_032_dx__NTOManaged__products__default'
+                                },
+                                {
+                                    label: 'Sort By: Price Low to High',
+                                    value: 'zzsb_032_dx__NTOManaged__products__default_price_asc'
+                                },
+                                {
+                                    label: 'Sort By: Price High to Low',
+                                    value: 'zzsb_032_dx__NTOManaged__products__default_price_desc'
+                                }
+                            ]}
+                        />
+                    </Box>
                 </Stack>
                 <Grid templateColumns={{base: '1fr', md: '290px 1fr'}} columnGap={6}>
                     <Stack spacing="6" divider={<Divider />} direction="column">
