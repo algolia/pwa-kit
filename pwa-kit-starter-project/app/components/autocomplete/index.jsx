@@ -27,6 +27,7 @@ import {quickAccessPlugin} from './plugins/quickAccessPlugin'
 import {recentSearchesPlugin} from './plugins/recentSearchesPlugin'
 import {isDetached} from './utils'
 import {Box} from '@chakra-ui/react'
+// import './style.css'
 
 // import '@algolia/autocomplete-theme-classic'
 
@@ -62,45 +63,24 @@ export function Autocomplete(props) {
             plugins: [
                 recentSearchesPlugin,
                 querySuggestionsPlugin,
-                categoriesPlugin,
-                productsPlugin,
-                popularPlugin,
-                quickAccessPlugin,
-                popularCategoriesPlugin
+                categoriesPlugin
             ],
-            reshape({sourcesBySourceId, sources, state}) {
-                const {
-                    recentSearchesPlugin: recentSearches,
-                    querySuggestionsPlugin: querySuggestions,
-                    categoriesPlugin: categories,
-                    popularPlugin: popular,
-                    popularCategoriesPlugin: popularCategories,
-                    ...rest
-                } = sourcesBySourceId
-
-                const sourceIdsToExclude = ['popularPlugin', 'popularCategoriesPlugin']
-                const shouldDisplayPopularCategories = sources.every((source) => {
-                    if (sourceIdsToExclude.indexOf(source.sourceId) !== -1) {
-                        return true
-                    }
-                    return source.getItems().length === 0
-                })
-
-                return [
-                    combine(recentSearches, querySuggestions, categories),
-                    [
-                        !state.query && popular,
-                        ...Object.values(rest),
-                        shouldDisplayPopularCategories && popularCategories
-                    ].filter(Boolean)
-                ]
+            onSubmit: ({state}) => {
+                window.location.href = `/search?q=${state.query}`
+            },
+            onSelect: ({state}) => {
+                window.location.href = `/search?q=${state.query}`
             }
+            // onStateChange: ({state}) => {
+            //     console.log('onStateChange', state)
+            // }
+
         })
 
         return () => {
             search.destroy()
         }
-    }, [])
+    }, [props])
 
     return <Box ref={containerRef} />
 }
