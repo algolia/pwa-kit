@@ -50,7 +50,8 @@ const {handler} = runtime.createHandler(options, (app) => {
                         "'self'",
                         'api.cquotient.com',
                         '*.algolianet.com',
-                        '*.algolia.net'
+                        '*.algolia.net',
+                        'insights.algolia.io'
                     ],
                     'default-src': ["'self'", '*.algolianet.com', '*.algolia.net'],
 
