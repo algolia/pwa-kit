@@ -14,11 +14,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/react-in-jsx-scope */
 import {autocomplete} from '@algolia/autocomplete-js'
-import React, {useEffect, useRef} from 'react'
+import React, {createElement, Fragment, useEffect, useRef} from 'react'
+import {render} from 'react-dom'
 import {pipe} from 'ramda'
-import { h, render } from 'preact';
-
-
 import {createFillWith, uniqBy} from './functions'
 import {categoriesPlugin} from './plugins/categoriesPlugin'
 import {popularCategoriesPlugin} from './plugins/popularCategoriesPlugin'
@@ -30,11 +28,11 @@ import {recentSearchesPlugin} from './plugins/recentSearchesPlugin'
 import {isDetached} from './utils'
 import {Box} from '@chakra-ui/react'
 // import './style.css'
-
 // import '@algolia/autocomplete-theme-classic'
 
 const removeDuplicates = uniqBy(({source, item}) => {
     const sourceIds = ['recentSearchesPlugin', 'querySuggestionsPlugin']
+
     if (sourceIds.indexOf(source.sourceId) === -1) {
         return item
     }
@@ -59,49 +57,45 @@ export function Autocomplete(props) {
 
         const search = autocomplete({
             container: containerRef.current,
+            renderer: {createElement, Fragment, render},
+            ...props,
             placeholder: 'Search products',
             autoFocus: true,
             openOnFocus: true,
-            plugins: [
-                recentSearchesPlugin,
-                querySuggestionsPlugin,
-                categoriesPlugin
-            ],
+            plugins: [recentSearchesPlugin, querySuggestionsPlugin, categoriesPlugin],
             onSubmit: ({state}) => {
                 window.location.href = `/search?q=${state.query}`
             },
             onSelect: ({state}) => {
                 window.location.href = `/search?q=${state.query}`
             },
-            // render({ elements, state, Fragment }, root) {
-            //     const {
-            //         recentSearchesPlugin: recentSearches,
-            //         querySuggestionsPlugin: querySuggestions,
-            //         categoriesPlugin: categories,
-            //       } = elements;
-              
-            //     render(
-            //       <div className="aa-PanelLayout aa-Panel--scrollable">
-            
-            //         <div className="aa-PanelSections">
-            //           <div className="aa-PanelSection--left">
-            //             {recentSearches}
-            //             {querySuggestions}
-            //           </div>
-            //           <div className="aa-PanelSection--right">
-            //               <div className="aa-PanelSection--products">
-            //                 <div className="aa-PanelSectionSource">{categories}</div>
-            //               </div>
-            //           </div>
-            //         </div>
-            //       </div>,
-            //       root
-            //     );
-            //   },            
-            // onStateChange: ({state}) => {
-            //     console.log('onStateChange', state)
-            // }
+            render({elements}, root) {
+                const {
+                    recentSearchesPlugin: recentSearches,
+                    querySuggestionsPlugin: querySuggestions,
+                    categoriesPlugin: categories
+                } = elements
 
+                render(
+                    <div className="aa-PanelLayout aa-Panel--scrollable">
+                        <div className="aa-PanelSections">
+                            <div className="aa-PanelSection--left">
+                                {recentSearches}
+                                {querySuggestions}
+                            </div>
+                            <div className="aa-PanelSection--right">
+                                <div className="aa-PanelSection--products">
+                                    <div className="aa-PanelSectionSource">{categories}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>,
+                    root
+                )
+            },
+            onStateChange: ({state}) => {
+                console.log('onStateChange', state)
+            }
         })
 
         return () => {
