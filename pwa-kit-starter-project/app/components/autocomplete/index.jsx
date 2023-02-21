@@ -16,6 +16,8 @@
 import {autocomplete} from '@algolia/autocomplete-js'
 import React, {useEffect, useRef} from 'react'
 import {pipe} from 'ramda'
+import { h, render } from 'preact';
+
 
 import {createFillWith, uniqBy} from './functions'
 import {categoriesPlugin} from './plugins/categoriesPlugin'
@@ -70,7 +72,32 @@ export function Autocomplete(props) {
             },
             onSelect: ({state}) => {
                 window.location.href = `/search?q=${state.query}`
-            }
+            },
+            // render({ elements, state, Fragment }, root) {
+            //     const {
+            //         recentSearchesPlugin: recentSearches,
+            //         querySuggestionsPlugin: querySuggestions,
+            //         categoriesPlugin: categories,
+            //       } = elements;
+              
+            //     render(
+            //       <div className="aa-PanelLayout aa-Panel--scrollable">
+            
+            //         <div className="aa-PanelSections">
+            //           <div className="aa-PanelSection--left">
+            //             {recentSearches}
+            //             {querySuggestions}
+            //           </div>
+            //           <div className="aa-PanelSection--right">
+            //               <div className="aa-PanelSection--products">
+            //                 <div className="aa-PanelSectionSource">{categories}</div>
+            //               </div>
+            //           </div>
+            //         </div>
+            //       </div>,
+            //       root
+            //     );
+            //   },            
             // onStateChange: ({state}) => {
             //     console.log('onStateChange', state)
             // }
