@@ -77,25 +77,21 @@ export function Autocomplete(props) {
                 } = elements
 
                 render(
-                    <div className="aa-PanelLayout aa-Panel--scrollable">
-                        <div className="aa-PanelSections">
-                            <div className="aa-PanelSection--left">
-                                {recentSearches}
-                                {querySuggestions}
-                            </div>
-                            <div className="aa-PanelSection--right">
-                                <div className="aa-PanelSection--products">
-                                    <div className="aa-PanelSectionSource">{categories}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>,
+                    <Box display="flex" flexDirection="column">
+                        <Box width="50%" display="flex">
+                            {querySuggestions}
+                        </Box>
+                        <Box width="50%" display="flex">
+                            {categories}
+                        </Box>
+
+                    </Box>,
                     root
                 )
-            },
-            onStateChange: ({state}) => {
-                console.log('onStateChange', state)
             }
+            // onStateChange: ({state}) => {
+            //     console.log('onStateChange', state)
+            // }
         })
 
         return () => {
