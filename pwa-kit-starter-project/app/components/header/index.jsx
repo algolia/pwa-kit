@@ -32,8 +32,7 @@ import useBasket from '../../commerce-api/hooks/useBasket'
 import useCustomer from '../../commerce-api/hooks/useCustomer'
 
 import Link from '../link'
-import Search from '../search'
-import AlgoliaSearch from '../algolia-search'
+import AlgoliaAutocomplete from '../algolia-autocomplete'
 
 import withRegistration from '../../hoc/with-registration'
 import {
@@ -142,14 +141,7 @@ const Header = ({
                     />
                     <Box {...styles.bodyContainer}>{children}</Box>
                     <Box {...styles.searchContainer}>
-                        <AlgoliaSearch />
-                    {/* <Search
-                            placeholder={intl.formatMessage({
-                                id: 'header.field.placeholder.search_for_products',
-                                defaultMessage: 'Search for products...'
-                            })}
-                            {...styles.search}
-                        /> */}
+                        <AlgoliaAutocomplete />
                     </Box>
                     <AccountIcon
                         {...styles.accountIcon}

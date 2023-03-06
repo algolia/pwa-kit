@@ -34,6 +34,7 @@ import Tooltip from './components/base/tooltip'
 import Popover from './components/base/popover'
 
 // Project Component style overrides
+import AlgoliaAutocomplete from './components/project/algolia-autocomplete'
 import AlgoliaCurrentRefinements from './components/project/algolia-current-refinements'
 import AlgoliaHierarchicalRefinements from './components/project/algolia-hierarchical-refinements'
 import AlgoliaSortBy from './components/project/algolia-sort-by'
@@ -101,6 +102,7 @@ const overrides = {
         ProductTile,
         SwatchGroup,
         ImageGallery,
+        AlgoliaAutocomplete,
         AlgoliaCurrentRefinements,
         AlgoliaHierarchicalRefinements,
         AlgoliaSortBy

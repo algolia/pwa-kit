@@ -11,8 +11,7 @@ export default {
             minWidth: 'xs',
             width: 'full',
             boxShadow: 'base',
-            backgroundColor: 'white',
-            zIndex: -1
+            backgroundColor: 'white'
         },
         content: {
             maxWidth: 'container.xxxl',
@@ -25,7 +24,7 @@ export default {
         },
         searchContainer: {
             order: [2, 2, 2, 'inherit'],
-            width: ['full', 'full', 'full', 60],
+            width: ['full', 'full', 'full', '40rem'],
             marginRight: [0, 0, 0, 4],
             marginBottom: [1, 1, 2, 0]
         },
