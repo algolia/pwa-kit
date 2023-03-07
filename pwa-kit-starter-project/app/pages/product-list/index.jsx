@@ -12,7 +12,13 @@ import {FormattedMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
 import algoliasearch from 'algoliasearch/lite'
-import {InstantSearch, useHits, SearchBox} from 'react-instantsearch-hooks-web'
+import {
+    InstantSearch,
+    useHits,
+    SearchBox,
+    Index,
+    DynamicWidgets
+} from 'react-instantsearch-hooks-web'
 
 import AlgoliaCurrentRefinements from './partials/algolia-current-refinements'
 import AlgoliaRefinementsContainer from './partials/algolia-refinements-container'
@@ -28,6 +34,8 @@ import {
     Box,
     Flex,
     SimpleGrid,
+    Image,
+    Link,
     Grid,
     Select,
     Text,
@@ -48,41 +56,36 @@ import {
     DrawerOverlay,
     DrawerContent,
     DrawerCloseButton,
-    Divider
+    Divider,
+    Center,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel
 } from '@chakra-ui/react'
 
 // Project Components
 // import Pagination from '../../components/pagination'
 import ProductTile, {Skeleton as ProductTileSkeleton} from '../../components/algolia-product-tile'
 import Refinements from './partials/refinements'
-import EmptySearchResults from './partials/empty-results'
 import PageHeader from './partials/page-header'
 
 // Hooks
-import {useLimitUrls, usePageUrls, useSortUrls, useSearchParams, useCurrency} from '../../hooks'
+import {useSortUrls, useSearchParams, useCurrency} from '../../hooks'
 import {useToast} from '../../hooks/use-toast'
 import useWishlist from '../../hooks/use-wishlist'
-import {parse as parseSearchParams} from '../../hooks/use-search-params'
 import useEinstein from '../../commerce-api/hooks/useEinstein'
-
-// Others
-import {HTTPNotFound} from 'pwa-kit-react-sdk/ssr/universal/errors'
 
 // Constants
 import {
-    DEFAULT_LIMIT_VALUES,
     API_ERROR_MESSAGE,
-    MAX_CACHE_AGE,
     TOAST_ACTION_VIEW_WISHLIST,
     TOAST_MESSAGE_ADDED_TO_WISHLIST,
     TOAST_MESSAGE_REMOVED_FROM_WISHLIST
 } from '../../constants'
 import useNavigation from '../../hooks/use-navigation'
 import LoadingSpinner from '../../components/loading-spinner'
-
-// NOTE: You can ignore certain refinements on a template level by updating the below
-// list of ignored refinements.
-const REFINEMENT_DISALLOW_LIST = ['c_isNew']
 
 const transformCurrentRefinements = (items) => {
     return items.map((item) => {
@@ -111,6 +114,7 @@ const ProductList = (props) => {
         searchQuery,
         productSearchResult,
         category,
+        catId,
         // eslint-disable-next-line react/prop-types
         staticContext,
         location,
@@ -135,12 +139,7 @@ const ProductList = (props) => {
     }, [isLoading])
 
     // Get urls to be used for pagination, page size changes, and sorting.
-    const pageUrls = usePageUrls({total})
     const sortUrls = useSortUrls({options: sortingOptions})
-    const limitUrls = useLimitUrls()
-
-    // If we are loaded and still have no products, show the no results component.
-    const showNoResults = !isLoading && productSearchResult && !productSearchResult?.hits
 
     /**************** Wishlist ****************/
     const wishlist = useWishlist()
@@ -197,14 +196,14 @@ const ProductList = (props) => {
         }
     }
 
-    /**************** Einstein ****************/
-    useEffect(() => {
-        if (productSearchResult) {
-            searchQuery
-                ? einstein.sendViewSearch(searchQuery, productSearchResult)
-                : einstein.sendViewCategory(category, productSearchResult)
-        }
-    }, [productSearchResult])
+    // /**************** Einstein ****************/
+    // useEffect(() => {
+    //     if (productSearchResult) {
+    //         searchQuery
+    //             ? einstein.sendViewSearch(searchQuery, productSearchResult)
+    //             : einstein.sendViewCategory(category, productSearchResult)
+    //     }
+    // }, [productSearchResult])
 
     /**************** Filters ****************/
     const [searchParams, {stringify: stringifySearchParams}] = useSearchParams()
@@ -272,18 +271,14 @@ const ProductList = (props) => {
     let algoliaInitialState = {}
 
     const searchIndex = 'zzsb_032_dx__NTOManaged__products__default'
+    const articleIndex = 'sfcc_articles'
+    console.log('catId: ' + catId)
+    let categoryTitle = catId ? catId.charAt(0).toUpperCase() + catId.slice(1) : ''
+    if (catId == 'shoes') categoryTitle = 'Footwear'
 
-    if (category && !searchQuery) {
+    if (catId && !searchQuery) {
         // build catJson
-        let valueArray = []
-        category.parentCategoryTree.forEach((parentCategory, i) => {
-            valueArray.push(parentCategory.name)
-            // const label = '__primary_category.' + i
-            hierarchicalRootMenu =
-                i > 0 ? hierarchicalRootMenu + ' > ' + parentCategory.name : parentCategory.name
-            // catJson[label] = [mainValue]
-        })
-        catJson = {'__primary_category.0': valueArray}
+        catJson = {'__primary_category.0': [categoryTitle]}
         algoliaInitialState = {[searchIndex]: {hierarchicalMenu: catJson}}
     } else if (searchQuery) {
         algoliaInitialState = {[searchIndex]: {query: searchParams.q}}
@@ -332,6 +327,39 @@ const ProductList = (props) => {
                         )
                     })}
                 </SimpleGrid>
+            </>
+        )
+    }
+
+    function ArticleHits(props) {
+        const {hits} = useHits(props)
+        const {currency} = useCurrency()
+
+        return (
+            <>
+                <Box>
+                    {hits.map((hit) => {
+                        const article = hit
+
+                        return (
+                            <Flex
+                                key={article.objectID}
+                                borderWidth="1px"
+                                borderRadius="lg"
+                                overflow="hidden"
+                                marginTop="5px"
+                            >
+                                <Center w="150px" bg="green.500">
+                                    <Image src={article['Image Link']} />
+                                </Center>
+                                <Box flex="1" marginLeft="10px">
+                                    <Link href={article.Link}>{article.Title}</Link>
+                                    <Text>{article.Subtitle}</Text>
+                                </Box>
+                            </Flex>
+                        )
+                    })}
+                </Box>
             </>
         )
     }
@@ -422,10 +450,33 @@ const ProductList = (props) => {
                         <Box mb={4}>
                             <SearchBox />
                         </Box>
-                        <CustomHits />
-                        <Flex justifyContent={['center', 'center', 'flex-start']} marginTop={16}>
-                            <AlgoliaPagination onPageChange={() => window.scrollTo(0, 0)} />
-                        </Flex>
+                        <Tabs>
+                            <TabList>
+                                <Tab>Products</Tab>
+                                <Tab>Articles</Tab>
+                            </TabList>
+
+                            <TabPanels>
+                                <TabPanel>
+                                    <Index indexName={searchIndex}>
+                                        <CustomHits />
+                                        <Flex
+                                            justifyContent={['center', 'center', 'flex-start']}
+                                            marginTop={16}
+                                        >
+                                            <AlgoliaPagination
+                                                onPageChange={() => window.scrollTo(0, 0)}
+                                            />
+                                        </Flex>
+                                    </Index>
+                                </TabPanel>
+                                <TabPanel>
+                                    <Index indexName={articleIndex}>
+                                        <ArticleHits />
+                                    </Index>
+                                </TabPanel>
+                            </TabPanels>
+                        </Tabs>
                     </Box>
                 </Grid>
             </InstantSearch>
@@ -553,50 +604,51 @@ ProductList.getProps = async ({res, params, location, api}) => {
     if (searchQuery) {
         isSearch = true
     }
+    console.log('categoryId: ' + categoryId)
 
     // In case somebody navigates to /search without a param
-    if (!categoryId && !isSearch) {
-        // We will simulate search for empty string
-        return {searchQuery: ' ', productSearchResult: {}}
-    }
+    // if (!categoryId && !isSearch) {
+    //     // We will simulate search for empty string
+    //     return {searchQuery: ' ', productSearchResult: {}}
+    // }
 
-    const searchParams = parseSearchParams(location.search, false)
+    // const searchParams = parseSearchParams(location.search, false)
 
-    if (!searchParams.refine.includes(`cgid=${categoryId}`) && categoryId) {
-        searchParams.refine.push(`cgid=${categoryId}`)
-    }
+    // if (!searchParams.refine.includes(`cgid=${categoryId}`) && categoryId) {
+    //     searchParams.refine.push(`cgid=${categoryId}`)
+    // }
 
-    // only search master products
-    searchParams.refine.push('htype=master')
+    // // only search master products
+    // searchParams.refine.push('htype=master')
 
-    // Set the `cache-control` header values to align with the Commerce API settings.
-    if (res) {
-        res.set('Cache-Control', `max-age=${MAX_CACHE_AGE}`)
-    }
+    // // Set the `cache-control` header values to align with the Commerce API settings.
+    // if (res) {
+    //     res.set('Cache-Control', `max-age=${MAX_CACHE_AGE}`)
+    // }
 
-    const [category, productSearchResult] = await Promise.all([
-        isSearch
-            ? Promise.resolve()
-            : api.shopperProducts.getCategory({
-                  parameters: {id: categoryId, levels: 0}
-              }),
-        api.shopperSearch.productSearch({
-            parameters: searchParams
-        })
-    ])
+    // const [category, productSearchResult] = await Promise.all([
+    //     isSearch
+    //         ? Promise.resolve()
+    //         : api.shopperProducts.getCategory({
+    //               parameters: {id: categoryId, levels: 0}
+    //           }),
+    //     api.shopperSearch.productSearch({
+    //         parameters: searchParams
+    //     })
+    // ])
 
     // Apply disallow list to refinements.
-    productSearchResult.refinements = productSearchResult?.refinements?.filter(
-        ({attributeId}) => !REFINEMENT_DISALLOW_LIST.includes(attributeId)
-    )
+    // productSearchResult.refinements = productSearchResult?.refinements?.filter(
+    //     ({attributeId}) => !REFINEMENT_DISALLOW_LIST.includes(attributeId)
+    // )
 
     // The `isomorphic-sdk` returns error objects when they occur, so we
     // need to check the category type and throw if required.
-    if (category?.type?.endsWith('category-not-found')) {
-        throw new HTTPNotFound(category.detail)
-    }
+    // if (category?.type?.endsWith('category-not-found')) {
+    //     throw new HTTPNotFound(category.detail)
+    // }
 
-    return {searchQuery: searchQuery, productSearchResult, category}
+    return {searchQuery: searchQuery, catId: categoryId}
 }
 
 ProductList.propTypes = {
@@ -621,7 +673,8 @@ ProductList.propTypes = {
     searchQuery: PropTypes.string,
     onAddToWishlistClick: PropTypes.func,
     onRemoveWishlistClick: PropTypes.func,
-    category: PropTypes.object
+    category: PropTypes.object,
+    catId: PropTypes.string
 }
 
 export default ProductList

@@ -570,9 +570,6 @@
   "header.button.assistive_msg.wishlist": {
     "defaultMessage": "Wishlist"
   },
-  "header.field.placeholder.search_for_products": {
-    "defaultMessage": "Search for products..."
-  },
   "header.popover.action.log_out": {
     "defaultMessage": "Log out"
   },

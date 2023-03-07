@@ -43,6 +43,7 @@ const {handler} = runtime.createHandler(options, (app) => {
                         "'self'",
                         '*.commercecloud.salesforce.com',
                         's3.amazonaws.com',
+                        'static.instyle.de',
                         'data:'
                     ],
                     'script-src': ["'self'", "'unsafe-eval'", 'storage.googleapis.com'],
