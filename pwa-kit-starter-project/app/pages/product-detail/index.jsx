@@ -32,6 +32,7 @@ import useEinstein from '../../commerce-api/hooks/useEinstein'
 // Project Components
 import RecommendedProducts from '../../components/recommended-products'
 import ProductView from '../../partials/product-view'
+import FrequentlyBoughtTogether from '../../components/algolia-recommend'
 
 // Others/Utils
 import {HTTPNotFound} from 'pwa-kit-react-sdk/ssr/universal/errors'
@@ -167,6 +168,24 @@ const ProductDetail = ({category, product, isLoading}) => {
                 {/* Information Accordion */}
                 <Stack direction="row" spacing={[0, 0, 0, 16]}>
                     <Accordion allowMultiple allowToggle maxWidth={'896px'} flex={[1, 1, 1, 5]}>
+                        {/* Frequently Bought Together */}
+                        <AccordionItem>
+                            <h2>
+                                <AccordionButton height="64px">
+                                    <Box flex="1" textAlign="left" fontWeight="bold" fontSize="lg">
+                                        {formatMessage({
+                                            defaultMessage: 'Frequently Bought Together',
+                                            id: 'product_detail.accordion.button.frequently_bought_together'
+                                        })}
+                                    </Box>
+                                    <AccordionIcon />
+                                </AccordionButton>
+                            </h2>
+                            <AccordionPanel mb={6} mt={4}>
+                                <FrequentlyBoughtTogether objectId={product.id} />
+                            </AccordionPanel>
+                        </AccordionItem>
+
                         {/* Details */}
                         <AccordionItem>
                             <h2>
