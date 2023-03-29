@@ -2181,6 +2181,12 @@
       "value": "ea"
     }
   ],
+  "product_detail.accordion.button.frequently_bought_together": [
+    {
+      "type": 0,
+      "value": "Frequently Bought Together"
+    }
+  ],
   "product_detail.accordion.button.product_detail": [
     {
       "type": 0,

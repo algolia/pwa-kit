@@ -12,13 +12,8 @@ import {FormattedMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
 import algoliasearch from 'algoliasearch/lite'
-import {
-    InstantSearch,
-    useHits,
-    SearchBox,
-    Index,
-    DynamicWidgets
-} from 'react-instantsearch-hooks-web'
+import {useHits, Index, Configure} from 'react-instantsearch-hooks-web'
+import {algoliaRouting} from '../../utils/algolia-routing'
 
 import AlgoliaCurrentRefinements from './partials/algolia-current-refinements'
 import AlgoliaRefinementsContainer from './partials/algolia-refinements-container'
@@ -28,6 +23,7 @@ import AlgoliaSizeRefinements from './partials/algolia-size-refinements'
 import AlgoliaRangeRefinements from './partials/algolia-range-refinements'
 import AlgoliaPagination from './partials/algolia-pagination'
 import AlgoliaSortBy from './partials/algolia-sort-by'
+import AlgoliaClearRefinements from './partials/algolia-clear-refinements'
 
 // Components
 import {
@@ -266,26 +262,32 @@ const ProductList = (props) => {
         selectedSortingOptionLabel = productSearchResult?.sortingOptions?.[0]
     }
 
-    let catJson = {}
+    // let catJson = {}
     let hierarchicalRootMenu = ''
-    let algoliaInitialState = {}
+    let filters = ''
+    let query = ''
 
     const searchIndex = 'zzsb_032_dx__NTOManaged__products__default'
     const articleIndex = 'sfcc_articles'
-    console.log('catId: ' + catId)
-    let categoryTitle = catId ? catId.charAt(0).toUpperCase() + catId.slice(1) : ''
-    if (catId == 'shoes') categoryTitle = 'Footwear'
+    let categoryTitle = ''
+    let titleSections = catId ? catId.split('-') : []
+    let categorySections = []
+    titleSections.forEach((section) => {
+        if (section == 'shoes') section = 'Footwear'
+        if (catId == 'men-jackets' && section == 'jackets') {
+            section = 'Jackets & Vests'
+        }
+        categorySections.push(section.charAt(0).toUpperCase() + section.slice(1))
+    })
+    categoryTitle = categorySections.join(' > ')
 
     if (catId && !searchQuery) {
         // build catJson
-        catJson = {'__primary_category.0': [categoryTitle]}
-        algoliaInitialState = {[searchIndex]: {hierarchicalMenu: catJson}}
+        filters = `'__primary_category.${categorySections.length - 1}':"${categoryTitle}"`
+        console.log(`filters: ${filters}`)
     } else if (searchQuery) {
-        algoliaInitialState = {[searchIndex]: {query: searchParams.q}}
+        query = `${searchParams.q}`
     }
-    console.log('initial state', algoliaInitialState)
-
-    const searchClient = algoliasearch('YH9KIEOW1H', 'b09d6dab074870f67f7682f4aabaa474')
 
     function CustomHits(props) {
         const {hits} = useHits(props)
@@ -369,6 +371,7 @@ const ProductList = (props) => {
             className="sf-product-list-page"
             data-testid="sf-product-list-page"
             layerStyle="page"
+            id="product-list-page"
             paddingTop={{base: 6, lg: 8}}
             {...rest}
         >
@@ -377,109 +380,105 @@ const ProductList = (props) => {
                 <meta name="description" content={category?.pageDescription} />
                 <meta name="keywords" content={category?.pageKeywords} />
             </Helmet>
-            <InstantSearch
-                searchClient={searchClient}
-                indexName={searchIndex}
-                initialUiState={algoliaInitialState}
-                routing={true}
+            <Configure filters={filters} query={query} />
+            <Stack
+                display={{base: 'none', lg: 'flex'}}
+                direction="row"
+                justify="flex-start"
+                align="flex-start"
+                spacing={6}
+                marginBottom={6}
             >
-                <Stack
-                    display={{base: 'none', lg: 'flex'}}
-                    direction="row"
-                    justify="flex-start"
-                    align="flex-start"
-                    spacing={6}
-                    marginBottom={6}
-                >
-                    <Flex align="left" width="290px">
-                        <PageHeader
-                            searchQuery={searchQuery}
-                            category={category}
-                            isLoading={isLoading}
-                        />
-                    </Flex>
+                <Flex align="left" width="290px">
+                    <PageHeader
+                        searchQuery={searchQuery}
+                        category={category}
+                        isLoading={isLoading}
+                    />
+                </Flex>
 
-                    <Box flex={1} paddingTop={'45px'}>
-                        <AlgoliaCurrentRefinements
-                            includedAttributes={['size', 'refinementColor', 'price.USD']}
-                            transformItems={transformCurrentRefinements}
-                        />
-                    </Box>
-                    <Box paddingTop={'45px'}>
-                        <AlgoliaSortBy
-                            items={[
-                                {
-                                    label: 'Sort By: Best Matches',
-                                    value: 'zzsb_032_dx__NTOManaged__products__default'
-                                },
-                                {
-                                    label: 'Sort By: Price Low to High',
-                                    value: 'zzsb_032_dx__NTOManaged__products__default_price_asc'
-                                },
-                                {
-                                    label: 'Sort By: Price High to Low',
-                                    value: 'zzsb_032_dx__NTOManaged__products__default_price_desc'
-                                }
+                <Box flex={1} paddingTop={'45px'}>
+                    <AlgoliaCurrentRefinements
+                        includedAttributes={['size', 'refinementColor', 'price.USD']}
+                        transformItems={transformCurrentRefinements}
+                    />
+                </Box>
+                <Box paddingTop={'45px'}>
+                    <AlgoliaSortBy
+                        items={[
+                            {
+                                label: 'Sort By: Best Matches',
+                                value: 'zzsb_032_dx__NTOManaged__products__default'
+                            },
+                            {
+                                label: 'Sort By: Price Low to High',
+                                value: 'zzsb_032_dx__NTOManaged__products__default_price_asc'
+                            },
+                            {
+                                label: 'Sort By: Price High to Low',
+                                value: 'zzsb_032_dx__NTOManaged__products__default_price_desc'
+                            }
+                        ]}
+                    />
+                </Box>
+            </Stack>
+            <Grid templateColumns={{base: '1fr', md: '290px 1fr'}} columnGap={6}>
+                <Stack spacing="6" divider={<Divider />} direction="column">
+                    <AlgoliaRefinementsContainer title="Category">
+                        <AlgoliaClearRefinements />
+                        <AlgoliaHierarchicalRefinements
+                            attributes={[
+                                '__primary_category.0',
+                                '__primary_category.1',
+                                '__primary_category.2'
                             ]}
+                            rootPath={hierarchicalRootMenu}
                         />
-                    </Box>
+                    </AlgoliaRefinementsContainer>
+                    <AlgoliaRefinementsContainer title="Color">
+                        <AlgoliaColorRefinements attribute="refinementColor" />
+                    </AlgoliaRefinementsContainer>
+                    <AlgoliaRefinementsContainer title="Size">
+                        <AlgoliaSizeRefinements attribute="size" />
+                    </AlgoliaRefinementsContainer>
+                    <AlgoliaRefinementsContainer title="Price">
+                        <AlgoliaRangeRefinements attribute="price.USD" />
+                    </AlgoliaRefinementsContainer>
                 </Stack>
-                <Grid templateColumns={{base: '1fr', md: '290px 1fr'}} columnGap={6}>
-                    <Stack spacing="6" divider={<Divider />} direction="column">
-                        <AlgoliaRefinementsContainer title="Category">
-                            <AlgoliaHierarchicalRefinements
-                                attributes={[
-                                    '__primary_category.0',
-                                    '__primary_category.1',
-                                    '__primary_category.2'
-                                ]}
-                                rootPath={hierarchicalRootMenu}
-                            />
-                        </AlgoliaRefinementsContainer>
-                        <AlgoliaRefinementsContainer title="Color">
-                            <AlgoliaColorRefinements attribute="refinementColor" />
-                        </AlgoliaRefinementsContainer>
-                        <AlgoliaRefinementsContainer title="Size">
-                            <AlgoliaSizeRefinements attribute="size" />
-                        </AlgoliaRefinementsContainer>
-                        <AlgoliaRefinementsContainer title="Price">
-                            <AlgoliaRangeRefinements attribute="price.USD" />
-                        </AlgoliaRefinementsContainer>
-                    </Stack>
-                    <Box>
-                        <Box mb={4}>
-                            <SearchBox />
-                        </Box>
-                        <Tabs>
-                            <TabList>
-                                <Tab>Products</Tab>
-                                <Tab>Articles</Tab>
-                            </TabList>
+                <Box>
+                    {/* <Box mb={4}>
+                        <SearchBox />
+                    </Box> */}
+                    <Tabs>
+                        <TabList>
+                            <Tab>Products</Tab>
+                            <Tab>Articles</Tab>
+                        </TabList>
 
-                            <TabPanels>
-                                <TabPanel>
-                                    <Index indexName={searchIndex}>
-                                        <CustomHits />
-                                        <Flex
-                                            justifyContent={['center', 'center', 'flex-start']}
-                                            marginTop={16}
-                                        >
-                                            <AlgoliaPagination
-                                                onPageChange={() => window.scrollTo(0, 0)}
-                                            />
-                                        </Flex>
-                                    </Index>
-                                </TabPanel>
-                                <TabPanel>
-                                    <Index indexName={articleIndex}>
-                                        <ArticleHits />
-                                    </Index>
-                                </TabPanel>
-                            </TabPanels>
-                        </Tabs>
-                    </Box>
-                </Grid>
-            </InstantSearch>
+                        <TabPanels>
+                            <TabPanel>
+                                <Index indexName={searchIndex}>
+                                    <CustomHits />
+                                    <Flex
+                                        justifyContent={['center', 'center', 'flex-start']}
+                                        marginTop={16}
+                                    >
+                                        <AlgoliaPagination
+                                            onPageChange={() => window.scrollTo(0, 0)}
+                                        />
+                                    </Flex>
+                                </Index>
+                            </TabPanel>
+                            <TabPanel>
+                                <Index indexName={articleIndex}>
+                                    <ArticleHits />
+                                </Index>
+                            </TabPanel>
+                        </TabPanels>
+                    </Tabs>
+                </Box>
+            </Grid>
+            {/* </InstantSearch> */}
             <Modal
                 isOpen={isOpen}
                 onClose={onClose}

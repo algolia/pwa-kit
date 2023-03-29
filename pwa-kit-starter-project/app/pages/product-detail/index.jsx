@@ -182,7 +182,7 @@ const ProductDetail = ({category, product, isLoading}) => {
                                 </AccordionButton>
                             </h2>
                             <AccordionPanel mb={6} mt={4}>
-                                <FrequentlyBoughtTogether objectId={product.id} />
+                                <FrequentlyBoughtTogether objectId={product ? product.id : ''} />
                             </AccordionPanel>
                         </AccordionItem>
 

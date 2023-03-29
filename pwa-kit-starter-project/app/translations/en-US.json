@@ -954,6 +954,9 @@
     "defaultMessage": "ea",
     "description": "Abbreviated 'each', follows price per item, like $10/ea"
   },
+  "product_detail.accordion.button.frequently_bought_together": {
+    "defaultMessage": "Frequently Bought Together"
+  },
   "product_detail.accordion.button.product_detail": {
     "defaultMessage": "Product Detail"
   },
