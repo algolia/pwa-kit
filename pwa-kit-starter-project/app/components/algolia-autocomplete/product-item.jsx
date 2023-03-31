@@ -7,7 +7,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import {Box, Img, Link, Text} from '@chakra-ui/react'
-import {productUrlBuilder} from '../../../utils/url'
+import {productUrlBuilder} from '../../utils/url'
 
 function formatPrice(value, currency) {
     return value.toLocaleString('en-US', {style: 'currency', currency})
