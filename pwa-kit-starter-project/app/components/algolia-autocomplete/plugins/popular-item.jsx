@@ -6,7 +6,7 @@
  */
 /* eslint-disable react/prop-types */
 import React from 'react'
-import {Box} from '@chakra-ui/react'
+import {Box, Link} from '@chakra-ui/react'
 
 function SearchIcon() {
     return (
@@ -16,19 +16,23 @@ function SearchIcon() {
     )
 }
 
-export function PopularItem({hit}) {
-    console.log('Popular Item ' + hit.query)
+export function PopularItem({hit, components}) {
+    const query = `/search?q=${hit.query}`
     return (
-        <Box className="aa-ItemWrapper">
-            <Box className="aa-ItemIcon aa-ItemIcon--noBorder">
-                <SearchIcon />
-            </Box>
-            <Box className="aa-ItemContent">
-                <Box className="aa-ItemContentBody">
-                    <Box className="aa-ItemContentTitle">{hit.query}</Box>
+        <Link className="aa-ItemLink" href={query}>
+            <Box className="aa-ItemWrapper">
+                <Box className="aa-ItemIcon aa-ItemIcon--noBorder">
+                    <SearchIcon />
+                </Box>
+                <Box className="aa-ItemContent">
+                    <Box className="aa-ItemContentBody">
+                        <Box className="aa-ItemContentTitle">
+                            <components.Highlight hit={hit} attribute="query" />
+                        </Box>
+                    </Box>
                 </Box>
             </Box>
-        </Box>
+        </Link>
     )
 }
 

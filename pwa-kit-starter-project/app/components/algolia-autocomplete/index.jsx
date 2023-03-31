@@ -7,58 +7,13 @@
 import {autocomplete, getAlgoliaResults} from '@algolia/autocomplete-js'
 import React, {createElement, Fragment, useEffect, useRef, useState} from 'react'
 import {render} from 'react-dom'
-import {createLocalStorageRecentSearchesPlugin} from '@algolia/autocomplete-plugin-recent-searches'
-import {createQuerySuggestionsPlugin} from '@algolia/autocomplete-plugin-query-suggestions'
 import {searchClient} from './searchClient'
-import {ProductItem} from './product-item'
-import {PopularItem} from './popular-item'
+import {ProductItem} from './plugins/product-item'
 import {Box, useMultiStyleConfig, Text} from '@chakra-ui/react'
 import {useSearchBox} from 'react-instantsearch-hooks-web'
 import useNavigation from '../../hooks/use-navigation'
-
-const recentSearchesPlugin = createLocalStorageRecentSearchesPlugin({
-    key: 'multi-column-layout-example',
-    limit: 4
-})
-
-const querySuggestionsPlugin = createQuerySuggestionsPlugin({
-    searchClient,
-    indexName: 'zzsb_032_dx__NTOManaged__products__default_query_suggestions',
-    getSearchParams() {
-        return {
-            ...recentSearchesPlugin.data.getAlgoliaSearchParams(),
-            hitsPerPage: 7
-        }
-    },
-    transformSource({source}) {
-        return {
-            ...source,
-            getItemUrl({item}) {
-                return `/search?q=${item.query}`
-            },
-            sourceId: 'popularPlugin',
-            getItemInputValue({item}) {
-                return item.query
-            },
-            onSelect({setIsOpen}) {
-                setIsOpen(true)
-            },
-            templates: {
-                header() {
-                    return (
-                        <Box>
-                            <Text className="aa-SourceHeaderTitle">Popular searches</Text>
-                            <Box className="aa-SourceHeaderLine" />
-                        </Box>
-                    )
-                },
-                item(item) {
-                    return <PopularItem hit={item} />
-                }
-            }
-        }
-    }
-})
+import {recentSearchesPlugin} from './plugins/recent-searches-plugin'
+import {querySuggestionsPlugin} from './plugins/query-suggestions-plugin'
 
 function AlgoliaAutocomplete(props) {
     const containerRef = useRef(null)
@@ -91,6 +46,14 @@ function AlgoliaAutocomplete(props) {
                     {
                         sourceId: 'products',
                         templates: {
+                            header() {
+                                return (
+                                    <Box>
+                                        <Text className="aa-SourceHeaderTitle">Products</Text>
+                                        <Box className="aa-SourceHeaderLine" />
+                                    </Box>
+                                )
+                            },
                             item({html, item, components}) {
                                 return (
                                     <ProductItem html={html} hit={item} components={components} />
