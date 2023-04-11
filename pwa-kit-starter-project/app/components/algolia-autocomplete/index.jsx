@@ -145,11 +145,11 @@ function AlgoliaAutocomplete(props) {
             container: containerRef.current,
             renderer: {createElement, Fragment, render},
             placeholder: 'Search products...',
-            autoFocus: true,
-            openOnFocus: true,
+            autoFocus: false,
+            openOnFocus: false,
             plugins: [recentSearchesPlugin, querySuggestionsPlugin],
             ...props,
-            debug: true,
+            debug: false,
             getSources({query}) {
                 return [
                     {
