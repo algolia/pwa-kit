@@ -12,7 +12,7 @@ import {FormattedMessage, useIntl} from 'react-intl'
 import {Helmet} from 'react-helmet'
 
 import algoliasearch from 'algoliasearch/lite'
-import {useHits, Index, Configure} from 'react-instantsearch-hooks-web'
+import {useHits, Index, Configure, Breadcrumb} from 'react-instantsearch-hooks-web'
 import {algoliaRouting} from '../../utils/algolia-routing'
 
 import AlgoliaCurrentRefinements from './partials/algolia-current-refinements'
@@ -392,7 +392,7 @@ const ProductList = (props) => {
                 <Flex align="left" width="290px">
                     <PageHeader
                         searchQuery={searchQuery}
-                        category={category}
+                        categoryId={catId}
                         isLoading={isLoading}
                     />
                 </Flex>

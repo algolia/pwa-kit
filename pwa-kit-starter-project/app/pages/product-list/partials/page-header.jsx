@@ -14,18 +14,23 @@ import {useIntl} from 'react-intl'
 import {Box, Heading, Flex, Text, Fade} from '@chakra-ui/react'
 
 // Project Components
-import Breadcrumb from '../../../components/breadcrumb'
-import {useHits} from 'react-instantsearch-hooks-web'
+import {useHits, Breadcrumb} from 'react-instantsearch-hooks-web'
 
-const PageHeader = ({category, isLoading, searchQuery, ...otherProps}) => {
+const PageHeader = ({categoryId, isLoading, searchQuery, ...otherProps}) => {
     const {results} = useHits()
     const intl = useIntl()
-    const title = (category?.name || searchQuery || '').trim()
+    const title = (categoryId || searchQuery || '').trim()
 
     return (
         <Box {...otherProps} data-testid="sf-product-list-breadcrumb">
             {/* Breadcrumb */}
-            {category && <Breadcrumb categories={category.parentCategoryTree} />}
+            <Breadcrumb
+                attributes={[
+                    '__primary_category.0',
+                    '__primary_category.1',
+                    '__primary_category.2'
+                ]}
+            />
             {searchQuery && <Text>Search Results</Text>}
             {/* Category Title */}
             <Flex>
@@ -43,7 +48,7 @@ const PageHeader = ({category, isLoading, searchQuery, ...otherProps}) => {
 }
 
 PageHeader.propTypes = {
-    category: PropTypes.object,
+    categoryId: PropTypes.string,
     isLoading: PropTypes.bool,
     searchQuery: PropTypes.string
 }
