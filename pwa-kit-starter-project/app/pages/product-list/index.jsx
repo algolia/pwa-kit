@@ -279,6 +279,7 @@ const ProductList = (props) => {
         }
         categorySections.push(section.charAt(0).toUpperCase() + section.slice(1))
     })
+    hierarchicalRootMenu = categorySections[0]
     categoryTitle = categorySections.join(' > ')
 
     if (catId && !searchQuery) {
@@ -391,9 +392,10 @@ const ProductList = (props) => {
             >
                 <Flex align="left" width="290px">
                     <PageHeader
-                        searchQuery={searchQuery}
                         categoryId={catId}
+                        searchQuery={searchQuery}
                         isLoading={isLoading}
+                        rootMenu={hierarchicalRootMenu}
                     />
                 </Flex>
 
@@ -647,7 +649,7 @@ ProductList.getProps = async ({res, params, location, api}) => {
     //     throw new HTTPNotFound(category.detail)
     // }
 
-    return {searchQuery: searchQuery, catId: categoryId}
+    return {searchQuery: searchQuery, catId: categoryId || ''}
 }
 
 ProductList.propTypes = {

@@ -14,9 +14,10 @@ import {useIntl} from 'react-intl'
 import {Box, Heading, Flex, Text, Fade} from '@chakra-ui/react'
 
 // Project Components
-import {useHits, Breadcrumb} from 'react-instantsearch-hooks-web'
+import {useHits} from 'react-instantsearch-hooks-web'
+import AlgoliaBreadcrumb from './algolia-breadcrumbs'
 
-const PageHeader = ({categoryId, isLoading, searchQuery, ...otherProps}) => {
+const PageHeader = ({categoryId, isLoading, searchQuery, rootMenu, ...otherProps}) => {
     const {results} = useHits()
     const intl = useIntl()
     const title = (categoryId || searchQuery || '').trim()
@@ -24,12 +25,13 @@ const PageHeader = ({categoryId, isLoading, searchQuery, ...otherProps}) => {
     return (
         <Box {...otherProps} data-testid="sf-product-list-breadcrumb">
             {/* Breadcrumb */}
-            <Breadcrumb
+            <AlgoliaBreadcrumb
                 attributes={[
                     '__primary_category.0',
                     '__primary_category.1',
                     '__primary_category.2'
                 ]}
+                rootPath={rootMenu}
             />
             {searchQuery && <Text>Search Results</Text>}
             {/* Category Title */}
@@ -50,7 +52,8 @@ const PageHeader = ({categoryId, isLoading, searchQuery, ...otherProps}) => {
 PageHeader.propTypes = {
     categoryId: PropTypes.string,
     isLoading: PropTypes.bool,
-    searchQuery: PropTypes.string
+    searchQuery: PropTypes.string,
+    rootMenu: PropTypes.string
 }
 
 export default PageHeader
