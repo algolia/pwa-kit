@@ -104,11 +104,11 @@
     "@algolia/recommend": "^4.15.0",
     "@algolia/recommend-js": "^1.8.1",
     "@algolia/recommend-react": "^1.8.1",
-    "algoliasearch": "4.14.3",
+    "algoliasearch": "^4.14.3",
     "blurhash": "^1.1.5",
     "dequal": "^2.0.3",
     "preact": "10.5.14",
     "ramda": "^0.28.0",
-    "react-instantsearch-hooks-web": "^6.39.3"
+    "react-instantsearch-hooks-web": "^6.43.0"
   }
 }

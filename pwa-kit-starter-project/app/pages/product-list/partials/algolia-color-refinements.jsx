@@ -77,7 +77,7 @@ const AlgoliaColorRefinements = (props) => {
 }
 
 AlgoliaColorRefinements.propTypes = {
-    attribute: PropTypes.arrayOf(PropTypes.string),
+    attribute: PropTypes.string,
     title: PropTypes.string
 }
 

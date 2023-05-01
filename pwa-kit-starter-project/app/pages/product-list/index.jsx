@@ -74,7 +74,6 @@ import AlgoliaPagination from './partials/algolia-pagination'
 import AlgoliaSortBy from './partials/algolia-sort-by'
 import AlgoliaClearRefinements from './partials/algolia-clear-refinements'
 import AlgoliaUiStateProvider from './partials/algolia-uistate-provider'
-
 /*
  * This is a simple product listing page. It displays a paginated list
  * of product hit objects. Allowing for sorting and filtering based on the
@@ -220,7 +219,12 @@ const ProductList = (props) => {
                 <meta name="description" content={category?.pageDescription} />
                 <meta name="keywords" content={category?.pageKeywords} />
             </Helmet>
-            <InstantSearch searchClient={searchClient} indexName={indexName} routing>
+            <InstantSearch
+                searchClient={searchClient}
+                indexName={indexName}
+                routing
+                insights={true}
+            >
                 <Configure query={query} filters={filters} />
                 <AlgoliaNoResultsBoundary
                     fallback={<EmptySearchResults searchQuery={searchQuery} category={category} />}
@@ -322,7 +326,7 @@ const ProductList = (props) => {
                                 >
                                     <AlgoliaHits
                                         isLoading={isLoading}
-                                        hitComponent={({hit}) => {
+                                        hitComponent={({hit, sendEvent}) => {
                                             const isInWishlist = !!wishlist.findItemByProductId(
                                                 hit.id
                                             )
@@ -336,6 +340,9 @@ const ProductList = (props) => {
                                                     isFavourite={isInWishlist}
                                                     currency={currency}
                                                     onClick={() => {
+                                                        console.log('here', hit)
+                                                        sendEvent('click', hit, 'Product Clicked')
+
                                                         if (searchQuery) {
                                                             einstein.sendClickSearch(
                                                                 searchQuery,
