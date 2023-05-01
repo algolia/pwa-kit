@@ -340,7 +340,6 @@ const ProductList = (props) => {
                                                     isFavourite={isInWishlist}
                                                     currency={currency}
                                                     onClick={() => {
-                                                        console.log('here', hit)
                                                         sendEvent('click', hit, 'Product Clicked')
 
                                                         if (searchQuery) {
