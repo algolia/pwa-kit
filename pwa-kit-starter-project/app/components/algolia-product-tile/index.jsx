@@ -143,7 +143,9 @@ const ProductTile = (props) => {
             </Box>
             <Box {...styles.detailsWrapper}>
                 {/* Title */}
-                <Text {...styles.title}>{localizedProductName}</Text>
+                <Text {...styles.title}>
+                    <span dangerouslySetInnerHTML={{__html: localizedProductName}} />
+                </Text>
 
                 {/* Price */}
                 <Text {...styles.price}>
@@ -165,6 +167,7 @@ ProductTile.propTypes = {
      * component.
      */
     product: PropTypes.shape({
+        id: PropTypes.string,
         image: PropTypes.shape({
             alt: PropTypes.string,
             disBaseLink: PropTypes.string,

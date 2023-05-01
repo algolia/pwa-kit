@@ -24,7 +24,7 @@ export default {
         },
         searchContainer: {
             order: [2, 2, 2, 'inherit'],
-            width: ['full', 'full', 'full', '40rem'],
+            width: ['full', 'full', 'full', 60],
             marginRight: [0, 0, 0, 4],
             marginBottom: [1, 1, 2, 0]
         },

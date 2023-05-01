@@ -5,25 +5,46 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import React from 'react'
-import {Box, Button, Text} from '@chakra-ui/react'
+import {Box, Button, Link} from '@chakra-ui/react'
+import {FormattedMessage} from 'react-intl'
 import {useClearRefinements} from 'react-instantsearch-hooks'
 import PropTypes from 'prop-types'
 
 const AlgoliaClearRefinements = (props) => {
-    const {canRefine, refine} = useClearRefinements()
+    const {variant, ...otherProps} = props
+    const {canRefine, refine} = useClearRefinements(otherProps)
+
+    if (variant === 'button') {
+        return (
+            <Button width="full" variant="outline" onClick={refine}>
+                <FormattedMessage
+                    defaultMessage="Clear Filters"
+                    id="product_list.modal.button.clear_filters"
+                />
+            </Button>
+        )
+    }
 
     return (
-        <Box>
-            <Button isActive={canRefine} size="sm" colorScheme="blue" onClick={refine}>
-                <Text>Clear Refinements</Text>
-            </Button>
-        </Box>
+        <>
+            {canRefine && (
+                <Box>
+                    <Link fontSize="14px" color="blue.600" onClick={refine}>
+                        <FormattedMessage
+                            defaultMessage="Clear Filters"
+                            id="selected_refinements.action.clear_all"
+                        />
+                    </Link>
+                </Box>
+            )}
+        </>
     )
 }
 
 AlgoliaClearRefinements.propTypes = {
-    attribute: PropTypes.string,
-    items: PropTypes.array
+    includedAttributes: PropTypes.arrayOf(PropTypes.string),
+    excludedAttributes: PropTypes.arrayOf(PropTypes.string),
+    variant: PropTypes.oneOf(['link', 'button'])
 }
 
 export default AlgoliaClearRefinements

@@ -47,6 +47,8 @@ export const cssColorGroups = {
     white: '#FFFFFFF',
     yellow: '#fbe85a',
     gold: '#ffd700',
+    violet: '#8f00ff',
+    multi: 'linear-gradient(90deg, #0700b8 0%, #00ff88 100%)',
     miscellaneous: 'linear-gradient(to right, orange , yellow, green, cyan, blue, violet)'
 }
 

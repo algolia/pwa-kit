@@ -17,6 +17,7 @@ import {useIntl} from 'react-intl'
 import {useCurrency} from '../../../hooks'
 import {useConnector} from 'react-instantsearch-hooks-web'
 import connectRange from 'instantsearch.js/es/connectors/range/connectRange'
+import AlgoliaRefinementsContainer from './algolia-refinements-container'
 import PropTypes from 'prop-types'
 
 const fnOpts = {
@@ -42,61 +43,63 @@ const AlgoliaRangeRefinements = (props) => {
     }, [range])
 
     return (
-        <Box>
-            <RangeSlider
-                aria-label={['min', 'max']}
-                defaultValue={start}
-                min={range.min}
-                max={range.max}
-                step={step}
-                onChange={(val) => {
-                    setSliderValue(val)
-                    refine(val)
-                }}
-            >
-                <RangeSliderMark
-                    value={sliderValue[0]}
-                    textAlign="center"
-                    bg="black"
-                    color="white"
-                    p="1"
-                    mt="0.5"
-                    fontSize="sm"
+        <AlgoliaRefinementsContainer title={props.title} attributes={[props.attribute]}>
+            <Box pb="1">
+                <RangeSlider
+                    aria-label={['min', 'max']}
+                    defaultValue={start}
+                    min={range.min}
+                    max={range.max}
+                    step={step}
+                    onChange={(val) => {
+                        setSliderValue(val)
+                        refine(val)
+                    }}
                 >
-                    {intl.formatNumber(sliderValue[0], {
-                        ...fnOpts,
-                        currency
-                    })}
-                </RangeSliderMark>
-                <RangeSliderMark
-                    value={sliderValue[1]}
-                    textAlign="center"
-                    bg="black"
-                    color="white"
-                    p="1"
-                    mt="0.5"
-                    fontSize="sm"
-                    left={isMax && 'auto !important'}
-                    right={isMax && '0'}
-                >
-                    {intl.formatNumber(sliderValue[1], {
-                        ...fnOpts,
-                        currency
-                    })}
-                </RangeSliderMark>
-                <RangeSliderTrack bg="black">
-                    <RangeSliderFilledTrack bg="black" />
-                </RangeSliderTrack>
-                <RangeSliderThumb boxSize={6} index={0} border="2px" borderColor="gray.200" />
-                <RangeSliderThumb boxSize={6} index={1} border="2px" borderColor="gray.200" />
-            </RangeSlider>
-        </Box>
+                    <RangeSliderMark
+                        value={sliderValue[0]}
+                        textAlign="center"
+                        bg="black"
+                        color="white"
+                        p="1"
+                        mt="0.5"
+                        fontSize="sm"
+                    >
+                        {intl.formatNumber(sliderValue[0], {
+                            ...fnOpts,
+                            currency
+                        })}
+                    </RangeSliderMark>
+                    <RangeSliderMark
+                        value={sliderValue[1]}
+                        textAlign="center"
+                        bg="black"
+                        color="white"
+                        p="1"
+                        mt="0.5"
+                        fontSize="sm"
+                        left={isMax && 'auto !important'}
+                        right={isMax && '0'}
+                    >
+                        {intl.formatNumber(sliderValue[1], {
+                            ...fnOpts,
+                            currency
+                        })}
+                    </RangeSliderMark>
+                    <RangeSliderTrack bg="gray.200">
+                        <RangeSliderFilledTrack bg="black" />
+                    </RangeSliderTrack>
+                    <RangeSliderThumb boxSize={6} index={0} border="2px" borderColor="gray.200" />
+                    <RangeSliderThumb boxSize={6} index={1} border="2px" borderColor="gray.200" />
+                </RangeSlider>
+            </Box>
+        </AlgoliaRefinementsContainer>
     )
 }
 
 AlgoliaRangeRefinements.propTypes = {
     attribute: PropTypes.string,
-    items: PropTypes.array
+    title: PropTypes.string
 }
 
 export default AlgoliaRangeRefinements

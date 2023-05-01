@@ -14,35 +14,29 @@ import {useIntl} from 'react-intl'
 import {Box, Heading, Flex, Text, Fade} from '@chakra-ui/react'
 
 // Project Components
-import {useHits} from 'react-instantsearch-hooks-web'
-import AlgoliaBreadcrumb from './algolia-breadcrumbs'
+import Breadcrumb from '../../../components/breadcrumb'
 
-const PageHeader = ({categoryId, isLoading, searchQuery, rootMenu, ...otherProps}) => {
-    const {results} = useHits()
+// Algolia
+import {useHits, useInstantSearch} from 'react-instantsearch-hooks-web'
+
+const PageHeader = ({category, isLoading, searchQuery, rootMenu, ...otherProps}) => {
     const intl = useIntl()
-    const title = (categoryId || searchQuery || '').trim()
+    const {results} = useHits()
+    const {status} = useInstantSearch()
+    const isReady = !isLoading && ['stalled', 'idle'].includes(status)
 
     return (
         <Box {...otherProps} data-testid="sf-product-list-breadcrumb">
             {/* Breadcrumb */}
-            <AlgoliaBreadcrumb
-                attributes={[
-                    '__primary_category.0',
-                    '__primary_category.1',
-                    '__primary_category.2'
-                ]}
-                rootPath={rootMenu}
-            />
-            {searchQuery && <Text>Search Results</Text>}
+            {category && <Breadcrumb categories={category.parentCategoryTree} />}
+            {searchQuery && <Text>Search Results for</Text>}
             {/* Category Title */}
             <Flex>
-                {title != '' && (
-                    <Heading as="h2" size="lg" marginRight={2}>
-                        {title}
-                    </Heading>
-                )}
                 <Heading as="h2" size="lg" marginRight={2}>
-                    {!isLoading && <Fade in={true}>({intl.formatNumber(results.nbHits)})</Fade>}
+                    {(category?.name || searchQuery || '').trim()}
+                </Heading>
+                <Heading as="h2" size="lg" marginRight={2}>
+                    {isReady && <Fade in={true}>({intl.formatNumber(results.nbHits)})</Fade>}
                 </Heading>
             </Flex>
         </Box>
@@ -50,10 +44,10 @@ const PageHeader = ({categoryId, isLoading, searchQuery, rootMenu, ...otherProps
 }
 
 PageHeader.propTypes = {
-    categoryId: PropTypes.string,
+    category: PropTypes.object,
     isLoading: PropTypes.bool,
-    searchQuery: PropTypes.string,
-    rootMenu: PropTypes.string
+    rootMenu: PropTypes.string,
+    searchQuery: PropTypes.string
 }
 
 export default PageHeader

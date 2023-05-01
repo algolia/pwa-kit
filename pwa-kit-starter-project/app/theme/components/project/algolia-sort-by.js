@@ -7,7 +7,11 @@
 export default {
     baseStyle: {
         '.select': {
-            borderColor: 'gray.100',
+            fontSize: 'sm',
+            fontWeight: 'semibold',
+            height: 11,
+            color: 'gray.900',
+            borderColor: 'gray.200',
             _focus: {
                 borderColor: 'black'
             }

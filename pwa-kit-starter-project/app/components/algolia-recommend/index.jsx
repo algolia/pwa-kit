@@ -13,7 +13,6 @@ import {useCurrency} from '../../hooks'
 import {SimpleGrid} from '@chakra-ui/react'
 
 function RelatedItem({item}) {
-    console.log('item', item)
     const productSearchItem = item
     const {currency} = useCurrency()
 

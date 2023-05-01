@@ -5,16 +5,23 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import React from 'react'
-import {Box, Text} from '@chakra-ui/react'
+import {Box, Divider, Text} from '@chakra-ui/react'
+import {useHits} from 'react-instantsearch-hooks-web'
+import {useHasRefinements} from '../../../hooks'
 import PropTypes from 'prop-types'
 
 const AlgoliaRefinementsContainer = (props) => {
+    const divider = props.divider === undefined ? true : divider
+    const {results} = useHits()
+    const hasRefinements = useHasRefinements(results, props.attributes)
+
     return (
-        <Box>
+        <Box display={hasRefinements ? 'block' : 'none'}>
             <Text fontSize="md" fontWeight={600}>
                 {props.title}
             </Text>
             <Box mt="4">{props.children}</Box>
+            {divider && <Divider mt="6" />}
         </Box>
     )
 }
@@ -22,6 +29,8 @@ const AlgoliaRefinementsContainer = (props) => {
 export default AlgoliaRefinementsContainer
 
 AlgoliaRefinementsContainer.propTypes = {
+    attributes: PropTypes.arrayOf(PropTypes.string),
     children: PropTypes.node,
+    divider: PropTypes.bool,
     title: PropTypes.string
 }

@@ -15,7 +15,8 @@ const Seo = ({title, description, noIndex, children, ...props}) => {
 
     return (
         <Helmet {...props}>
-            <title>{fullTitle} And then some??</title>
+            <meta charset="UTF-8" />
+            <title>{fullTitle}</title>
             <link
                 rel="stylesheet"
                 href="https://cdn.jsdelivr.net/npm/instantsearch.css@8.0.0/themes/reset-min.css"

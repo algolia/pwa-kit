@@ -71,7 +71,6 @@ const ProductTile = (props) => {
     // name as `productName`. ProductList provides a localized name as `productName` and does not
     // use the `name` property.
     const localizedProductName = product.name ?? product.productName
-
     const {currency: activeCurrency} = useCurrency()
     const [isFavouriteLoading, setFavouriteLoading] = useState(false)
     const styles = useMultiStyleConfig('ProductTile')
@@ -150,7 +149,7 @@ ProductTile.propTypes = {
             disBaseLink: PropTypes.string,
             link: PropTypes.string
         }),
-        price: PropTypes.number,
+        price: PropTypes.object,
         // `name` is present and localized when `product` is provided by a RecommendedProducts component
         // (from Shopper Products `getProducts` endpoint), but is not present when `product` is
         // provided by a ProductList component.

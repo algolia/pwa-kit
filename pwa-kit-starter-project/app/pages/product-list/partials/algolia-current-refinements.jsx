@@ -19,6 +19,7 @@ const AlgoliaCurrentRefinements = (props) => {
                 includedAttributes={includedAttributes}
                 transformItems={transformItems}
                 classNames={{
+                    label: 'label',
                     item: 'item',
                     category: 'category',
                     delete: 'delete'

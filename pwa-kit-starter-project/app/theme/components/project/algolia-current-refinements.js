@@ -6,6 +6,9 @@
  */
 export default {
     baseStyle: {
+        '.label': {
+            display: 'none'
+        },
         '.item': {
             gap: 2,
             color: 'black',
@@ -19,12 +22,13 @@ export default {
         '.category': {
             display: 'flex',
             justifyContent: 'center',
+            marginLeft: 0,
             alignItems: 'center'
         },
         '.delete': {
             color: 'black',
             fontWeight: 600,
-            fontSize: 'xs'
+            marginLeft: 2
         }
     }
 }
