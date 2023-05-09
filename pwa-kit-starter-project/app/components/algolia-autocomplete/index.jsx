@@ -145,7 +145,7 @@ function AlgoliaAutocomplete() {
             placeholder: 'Search products...',
             panelPlacement: 'full-width',
             autoFocus: false,
-            openOnFocus: false,
+            openOnFocus: true,
             debug: false,
             getSources({query}) {
                 return [
@@ -199,7 +199,9 @@ function AlgoliaAutocomplete() {
                                 {recentSearchesPlugin}
                                 {querySuggestionsPlugin}
                             </Box>
-                            <Box className="aa-PanelSection--right aa-Products">{products}</Box>
+                            <Box className="aa-PanelSection--right aa-Products">
+                                {products}
+                            </Box>
                         </Box>
                     </Box>,
                     root

@@ -46,13 +46,14 @@ const {handler} = runtime.createHandler(options, (app) => {
                         'static.instyle.de',
                         'data:'
                     ],
-                    'script-src': ["'self'", "'unsafe-eval'", 'storage.googleapis.com'],
+                    'script-src': ["'self'", "'unsafe-eval'", 'storage.googleapis.com','cdn.jsdelivr.net'],
                     'connect-src': [
                         "'self'",
                         'api.cquotient.com',
                         '*.algolianet.com',
                         '*.algolia.net',
-                        'insights.algolia.io'
+                        'insights.algolia.io',
+                        'cdn.jsdelivr.net'
                     ],
                     'default-src': ["'self'", '*.algolianet.com', '*.algolia.net'],
 
