@@ -6,7 +6,7 @@
  */
 
 import React from 'react'
-import {usePromotionsForCampaign} from 'commerce-sdk-react-preview'
+import {usePromotionsForCampaign} from '@salesforce/commerce-sdk-react'
 import Json from '../components/Json'
 
 const UsePromotionsForCampaign = () => {
@@ -18,7 +18,9 @@ const UsePromotionsForCampaign = () => {
         isLoading,
         error
     } = usePromotionsForCampaign({
-        campaignId
+        parameters: {
+            campaignId
+        }
     })
     if (isLoading) {
         return (

@@ -6,6 +6,9 @@
  */
 
 import PropTypes from 'prop-types'
+import {getAssetUrl} from '@salesforce/pwa-kit-react-sdk/ssr/universal/utils'
+import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
+import fetch from 'cross-fetch'
 
 /**
  * Dynamically import the translations/messages for a given locale
@@ -17,22 +20,30 @@ export const fetchTranslations = async (locale) => {
     const targetLocale =
         typeof window === 'undefined'
             ? process.env.USE_PSEUDOLOCALE === 'true'
-                ? 'en-XB'
+                ? 'en-XA'
                 : locale
             : locale
 
-    let module
     try {
-        module = await import(`../translations/compiled/${targetLocale}.json`)
+        const file = `${getAppOrigin()}${getAssetUrl(
+            `static/translations/compiled/${targetLocale}.json`
+        )}`
+        const response = await fetch(file)
+
+        if (!response.ok) {
+            throw new Error(
+                `Failed to fetch ${file}. Received the response: ${response.status} ${response.statusText}`
+            )
+        }
+
+        return await response.json()
     } catch (err) {
         console.error(err)
         console.log(
-            'Loading empty messages, so that react-intl would fall back to the inline default messages'
+            'Translation not found. Loading empty messages, so that react-intl would fall back to the inline default messages'
         )
         return {}
     }
-
-    return module.default
 }
 
 /**

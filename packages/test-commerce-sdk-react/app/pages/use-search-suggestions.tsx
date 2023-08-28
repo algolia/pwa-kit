@@ -5,13 +5,13 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import React from 'react'
-import {useSearchSuggestions} from 'commerce-sdk-react-preview'
+import {useSearchSuggestions} from '@salesforce/commerce-sdk-react'
 import Json from '../components/Json'
 
 const searchQuery = 'shirt'
 
 function UseSearchSuggestions() {
-    const {isLoading, error, data: result} = useSearchSuggestions({q: searchQuery})
+    const {isLoading, error, data: result} = useSearchSuggestions({parameters: {q: searchQuery}})
     if (isLoading) {
         return (
             <div>

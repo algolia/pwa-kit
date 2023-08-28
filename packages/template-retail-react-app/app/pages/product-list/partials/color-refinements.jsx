@@ -6,9 +6,17 @@
  */
 
 import React from 'react'
-import {Box, SimpleGrid, HStack, Text, Button, Center, useMultiStyleConfig} from '@chakra-ui/react'
+import {
+    Box,
+    SimpleGrid,
+    HStack,
+    Text,
+    Button,
+    Center,
+    useMultiStyleConfig
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 import PropTypes from 'prop-types'
-import {cssColorGroups} from '../../../constants'
+import {cssColorGroups} from '@salesforce/retail-react-app/app/constants'
 
 const ColorRefinements = ({filter, toggleFilter, selectedFilters}) => {
     const styles = useMultiStyleConfig('SwatchGroup', {
@@ -21,28 +29,20 @@ const ColorRefinements = ({filter, toggleFilter, selectedFilters}) => {
             {filter.values
                 .filter((refinementValue) => refinementValue.hitCount > 0)
                 .map((value, idx) => {
+                    const isSelected = selectedFilters.includes(value.value)
+
                     return (
                         <Box key={idx}>
                             <HStack
-                                onClick={() =>
-                                    toggleFilter(
-                                        value,
-                                        filter.attributeId,
-                                        selectedFilters?.includes(value.value)
-                                    )
-                                }
+                                onClick={() => toggleFilter(value, filter.attributeId, isSelected)}
                                 spacing={1}
                                 cursor="pointer"
                             >
                                 <Button
                                     {...styles.swatch}
-                                    color={
-                                        selectedFilters?.includes(value.value)
-                                            ? 'black'
-                                            : 'gray.200'
-                                    }
-                                    border={selectedFilters?.includes(value.value) ? '1px' : '0'}
-                                    aria-checked={selectedFilters?.includes(value.value)}
+                                    color={isSelected ? 'black' : 'gray.200'}
+                                    border={isSelected ? '1px' : '0'}
+                                    aria-checked={isSelected}
                                     variant="outline"
                                     marginRight={0}
                                     marginBottom="-1px"
@@ -90,7 +90,7 @@ const ColorRefinements = ({filter, toggleFilter, selectedFilters}) => {
 ColorRefinements.propTypes = {
     filter: PropTypes.object,
     toggleFilter: PropTypes.func,
-    selectedFilters: PropTypes.oneOfType([PropTypes.array, PropTypes.string])
+    selectedFilters: PropTypes.array
 }
 
 export default ColorRefinements

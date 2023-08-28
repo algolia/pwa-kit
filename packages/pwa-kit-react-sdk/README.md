@@ -1,13 +1,13 @@
 # The Progressive Web App (PWA) Kit SDK
 
-[![NPM](https://nodei.co/npm/pwa-kit-react-sdk.png?downloads=true&stars=true)](https://nodei.co/npm/pwa-kit-react-sdk/) [![SalesforceCommerceCloud/pwa-kit/test](https://github.com/SalesforceCommerceCloud/pwa-kit/actions/workflows/test.yml/badge.svg)](https://github.com/SalesforceCommerceCloud/pwa-kit/actions/workflows/test.yml)
+[![NPM](https://nodei.co/npm/@salesforce/pwa-kit-react-sdk.png?downloads=true&stars=true)](https://nodei.co/npm/@salesforce/pwa-kit-react-sdk/) [![SalesforceCommerceCloud/pwa-kit/test](https://github.com/SalesforceCommerceCloud/pwa-kit/actions/workflows/test.yml/badge.svg)](https://github.com/SalesforceCommerceCloud/pwa-kit/actions/workflows/test.yml)
 
 A library of components and utilities that supports the rendering pipeline for the Progressive Web App (PWA) Kit from Salesforce.
 
 ## Requirements
 
--   Node 14
--   npm 6.14.4 or later
+-   Node 16.11 or later
+-   npm 8 or later
 
 ## Install Dependencies
 

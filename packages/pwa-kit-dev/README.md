@@ -4,13 +4,13 @@ A command-line tool to develop, build, and deploy PWA Kit projects.
 
 ## Requirements
 
--   Node 14
--   npm 6.14.4 or later
+-   Node 16.11 or later
+-   npm 8 or later
 
 To see all the available commands, run:
 
 ```bash
-npx pwa-kit-dev --help
+npx @salesforce/pwa-kit-dev --help
 ```
 
 ## Documentation

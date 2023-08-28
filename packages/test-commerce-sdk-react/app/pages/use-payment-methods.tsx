@@ -5,13 +5,13 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import React from 'react'
-import {usePaymentMethodsForOrder} from 'commerce-sdk-react-preview'
+import {usePaymentMethodsForOrder} from '@salesforce/commerce-sdk-react'
 import Json from '../components/Json'
 import {useParams} from 'react-router-dom'
 
 function UsePaymentMethods() {
     const {orderNo}: {orderNo: string} = useParams()
-    const {data, isLoading, error} = usePaymentMethodsForOrder({orderNo: orderNo})
+    const {data, isLoading, error} = usePaymentMethodsForOrder({parameters: {orderNo: orderNo}})
     if (isLoading) {
         return (
             <div>

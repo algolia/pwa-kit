@@ -1,46 +1,49 @@
 {
-  "name": "pwa-kit-create-app",
-  "version": "2.7.0-dev",
+  "name": "@salesforce/pwa-kit-create-app",
+  "version": "3.2.0-dev",
   "description": "Salesforce's project generator tool",
-  "author": "cc-pwa-kit@salesforce.com",
-  "license": "See license in LICENSE",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SalesforceCommerceCloud/pwa-kit.git"
-  },
   "homepage": "https://github.com/SalesforceCommerceCloud/pwa-kit/tree/develop/packages/pwa-kit-create-app#readme",
   "bugs": {
     "url": "https://github.com/SalesforceCommerceCloud/pwa-kit/issues"
   },
-  "bin": "scripts/create-mobify-app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SalesforceCommerceCloud/pwa-kit.git"
+  },
+  "license": "See license in LICENSE",
+  "author": "cc-pwa-kit@salesforce.com",
+  "bin": {
+    "pwa-kit-create-app": "scripts/create-mobify-app.js"
+  },
   "files": [
     "assets",
     "templates"
   ],
   "scripts": {
-    "prepare": "node scripts/build.js",
     "format": "internal-lib-build format \"**/*.{js,jsx}\"",
     "lint": "npm run lint:js",
     "lint:fix": "npm run lint:js -- --fix",
-    "lint:js": "internal-lib-build lint .",
+    "lint:js": "pwa-kit-dev lint .",
+    "prepare": "node scripts/build.js",
     "test": "internal-lib-build test"
   },
-  "engines": {
-    "node": "^14.0.0",
-    "npm": "^6.14.4 || ^7.0.0 || ^8.0.0"
-  },
   "dependencies": {
-    "commander": "^2.20.0",
+    "commander": "^9.5.0",
     "deepmerge": "2.2.1",
-    "fs-extra": "^10.1.0",
-    "inquirer": "7.0.5",
-    "semver": "^7.3.2",
+    "handlebars": "^4.7.7",
+    "inquirer": "8.2.5",
+    "semver": "^7.5.2",
     "shelljs": "^0.8.5",
     "slugify": "^1.6.5",
-    "tar": "^6.1.11"
+    "tar": "^6.1.13"
   },
   "devDependencies": {
-    "internal-lib-build": "^2.7.0-dev",
-    "verdaccio": "^5.9.0"
+    "@salesforce/pwa-kit-dev": "3.2.0-dev",
+    "internal-lib-build": "3.2.0-dev",
+    "verdaccio": "^5.22.1"
+  },
+  "engines": {
+    "node": "^16.11.0 || ^18.0.0",
+    "npm": "^8.0.0 || ^9.0.0"
   }
 }

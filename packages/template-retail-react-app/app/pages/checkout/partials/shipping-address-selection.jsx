@@ -7,17 +7,25 @@
 import React, {useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
 import {defineMessage, FormattedMessage, useIntl} from 'react-intl'
-import {Box, Button, Container, Heading, SimpleGrid, Stack} from '@chakra-ui/react'
+import {
+    Box,
+    Button,
+    Container,
+    Heading,
+    SimpleGrid,
+    Stack
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {useForm, Controller} from 'react-hook-form'
-import {shallowEquals} from '../../../utils/utils'
-import {useCheckout} from '../util/checkout-context'
-import {RadioCard, RadioCardGroup} from '../../../components/radio-card'
-import ActionCard from '../../../components/action-card'
-import {PlusIcon} from '../../../components/icons'
-import AddressDisplay from '../../../components/address-display'
-import AddressFields from '../../../components/forms/address-fields'
-import FormActionButtons from '../../../components/forms/form-action-buttons'
-import {MESSAGE_PROPTYPE} from '../../../utils/locale'
+import {shallowEquals} from '@salesforce/retail-react-app/app/utils/utils'
+import {RadioCard, RadioCardGroup} from '@salesforce/retail-react-app/app/components/radio-card'
+import ActionCard from '@salesforce/retail-react-app/app/components/action-card'
+import {PlusIcon} from '@salesforce/retail-react-app/app/components/icons'
+import AddressDisplay from '@salesforce/retail-react-app/app/components/address-display'
+import AddressFields from '@salesforce/retail-react-app/app/components/forms/address-fields'
+import FormActionButtons from '@salesforce/retail-react-app/app/components/forms/form-action-buttons'
+import {MESSAGE_PROPTYPE} from '@salesforce/retail-react-app/app/utils/locale'
+import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
+import {useShopperCustomersMutation} from '@salesforce/commerce-sdk-react'
 
 const saveButtonMessage = defineMessage({
     defaultMessage: 'Save & Continue to Shipping Method',
@@ -104,29 +112,32 @@ const ShippingAddressSelection = ({
     onSubmit = async () => null
 }) => {
     const {formatMessage} = useIntl()
-    const {customer} = useCheckout()
-    const hasSavedAddresses = customer.addresses && customer.addresses.length > 0
-    const [isEditingAddress, setIsEditingAddress] = useState(!hasSavedAddresses)
-    const [selectedAddressId, setSelectedAddressId] = useState(false)
+    const {data: customer, isLoading, isFetching} = useCurrentCustomer()
+    const isLoadingRegisteredCustomer = isLoading && isFetching
 
-    form =
-        form ||
-        useForm({
-            mode: 'onChange',
-            shouldUnregister: false,
-            defaultValues: {
-                ...selectedAddress
-            }
-        })
+    const hasSavedAddresses = customer.addresses?.length > 0
+    const [isEditingAddress, setIsEditingAddress] = useState(false)
+    const [selectedAddressId, setSelectedAddressId] = useState(undefined)
+
+    const defaultForm = useForm({
+        mode: 'onChange',
+        shouldUnregister: false,
+        defaultValues: {...selectedAddress}
+    })
+    if (!form) form = defaultForm
 
     const matchedAddress =
         hasSavedAddresses &&
         selectedAddress &&
         customer.addresses.find((savedAddress) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const {addressId, creationDate, lastModified, preferred, ...address} = savedAddress
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const {id, _type, ...selectedAddr} = selectedAddress
             return shallowEquals(address, selectedAddr)
         })
+
+    const removeCustomerAddress = useShopperCustomersMutation('removeCustomerAddress')
 
     useEffect(() => {
         // Automatically select the customer's default/preferred shipping address
@@ -141,7 +152,7 @@ const ShippingAddressSelection = ({
     useEffect(() => {
         // If the customer deletes all their saved addresses during checkout,
         // we need to make sure to display the address form.
-        if (!customer?.addresses && !isEditingAddress) {
+        if (!isLoading && !customer?.addresses && !isEditingAddress) {
             setIsEditingAddress(true)
         }
     }, [customer])
@@ -191,7 +202,12 @@ const ShippingAddressSelection = ({
             form.reset({addressId: ''})
         }
 
-        await customer.removeSavedAddress(addressId)
+        await removeCustomerAddress.mutateAsync({
+            parameters: {
+                customerId: customer.customerId,
+                addressName: addressId
+            }
+        })
     }
 
     // Opens/closes the 'add address' form. Notice that when toggling either state,
@@ -210,6 +226,11 @@ const ShippingAddressSelection = ({
         form.trigger()
     }
 
+    if (isLoadingRegisteredCustomer) {
+        // Don't render anything yet, to make sure values like hasSavedAddresses are correct
+        return null
+    }
+
     return (
         <form onSubmit={form.handleSubmit(submitForm)}>
             <Stack spacing={4}>
@@ -219,7 +240,7 @@ const ShippingAddressSelection = ({
                         defaultValue=""
                         control={form.control}
                         rules={{required: !isEditingAddress}}
-                        render={({value}) => (
+                        render={({field: {value}}) => (
                             <RadioCardGroup value={value} onChange={handleAddressIdSelection}>
                                 <SimpleGrid
                                     columns={[1, 1, 2]}
@@ -311,7 +332,7 @@ const ShippingAddressSelection = ({
                     />
                 )}
 
-                {isEditingAddress && !selectedAddressId && (
+                {(customer.isGuest || (isEditingAddress && !selectedAddressId)) && (
                     <ShippingAddressEditForm
                         title={formatMessage({
                             defaultMessage: 'Add New Address',
@@ -325,7 +346,7 @@ const ShippingAddressSelection = ({
                     />
                 )}
 
-                {!isEditingAddress && !hideSubmitButton && (
+                {customer.isRegistered && !isEditingAddress && !hideSubmitButton && (
                     <Box pt={2}>
                         <Container variant="form">
                             <Button

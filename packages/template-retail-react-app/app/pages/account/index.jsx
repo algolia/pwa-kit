@@ -22,55 +22,38 @@ import {
     Stack,
     Text,
     Divider
-} from '@chakra-ui/react'
-import useCustomer from '../../commerce-api/hooks/useCustomer'
-import Seo from '../../components/seo'
-import Link from '../../components/link'
-import {ChevronDownIcon, ChevronUpIcon, SignoutIcon} from '../../components/icons'
-import AccountDetail from './profile'
-import AccountAddresses from './addresses'
-import AccountOrders from './orders'
-import AccountPaymentMethods from './payments'
-import AccountWishlist from './wishlist/index'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import Seo from '@salesforce/retail-react-app/app/components/seo'
+import Link from '@salesforce/retail-react-app/app/components/link'
+import {
+    ChevronDownIcon,
+    ChevronUpIcon,
+    SignoutIcon
+} from '@salesforce/retail-react-app/app/components/icons'
+import AccountDetail from '@salesforce/retail-react-app/app/pages/account/profile'
+import AccountAddresses from '@salesforce/retail-react-app/app/pages/account/addresses'
+import AccountOrders from '@salesforce/retail-react-app/app/pages/account/orders'
+import AccountWishlist from '@salesforce/retail-react-app/app/pages/account/wishlist/index'
 import {useLocation} from 'react-router-dom'
 
-import {messages, navLinks} from './constant'
-import useNavigation from '../../hooks/use-navigation'
-import LoadingSpinner from '../../components/loading-spinner'
-import useMultiSite from '../../hooks/use-multi-site'
-import useEinstein from '../../commerce-api/hooks/useEinstein'
+import {messages, navLinks} from '@salesforce/retail-react-app/app/pages/account/constant'
+import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
+import LoadingSpinner from '@salesforce/retail-react-app/app/components/loading-spinner'
+import useMultiSite from '@salesforce/retail-react-app/app/hooks/use-multi-site'
+import useEinstein from '@salesforce/retail-react-app/app/hooks/use-einstein'
+import {useAuthHelper, AuthHelpers} from '@salesforce/commerce-sdk-react'
+import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
+import {isHydrated} from '@salesforce/retail-react-app/app/utils/utils'
 
-const Account = () => {
-    const {path} = useRouteMatch()
+const onClient = typeof window !== 'undefined'
+const LogoutButton = ({onClick}) => {
     const {formatMessage} = useIntl()
-    const customer = useCustomer()
-    const location = useLocation()
-    const navigate = useNavigation()
-
-    const [mobileNavIndex, setMobileNavIndex] = useState(-1)
-    const [showLoading, setShowLoading] = useState(false)
-
-    const einstein = useEinstein()
-
-    const {buildUrl} = useMultiSite()
-
-    /**************** Einstein ****************/
-    useEffect(() => {
-        einstein.sendViewPage(location.pathname)
-    }, [location])
-
-    const onSignoutClick = async () => {
-        setShowLoading(true)
-        await customer.logout()
-        navigate('/login')
-    }
-
-    const LogoutButton = () => (
+    return (
         <>
             <Divider colorScheme={'gray'} marginTop={3} />
             <Button
                 fontWeight="500"
-                onClick={onSignoutClick}
+                onClick={onClick}
                 padding={4}
                 py={0}
                 variant="unstyled"
@@ -92,18 +75,49 @@ const Account = () => {
             </Button>
         </>
     )
+}
+
+LogoutButton.propTypes = {
+    onClick: PropTypes.func.isRequired
+}
+const Account = () => {
+    const {path} = useRouteMatch()
+    const {formatMessage} = useIntl()
+    const {data: customer} = useCurrentCustomer()
+    const {isRegistered, customerType} = customer
+
+    const logout = useAuthHelper(AuthHelpers.Logout)
+    const location = useLocation()
+    const navigate = useNavigation()
+
+    const [mobileNavIndex, setMobileNavIndex] = useState(-1)
+    const [showLoading, setShowLoading] = useState(false)
+
+    const einstein = useEinstein()
+
+    const {buildUrl} = useMultiSite()
+    /**************** Einstein ****************/
+    useEffect(() => {
+        einstein.sendViewPage(location.pathname)
+    }, [location])
+
+    const onSignoutClick = async () => {
+        setShowLoading(true)
+        await logout.mutateAsync()
+        navigate('/login')
+    }
 
     // If we have customer data and they are not registered, push to login page
     // Using Redirect allows us to store the directed page to location
     // so we can direct users back after they are successfully log in
-    if (customer.authType != null && !customer.isRegistered) {
+    // we don't want redirect on server side
+    if (customerType !== null && !isRegistered && onClient) {
         const path = buildUrl('/login')
-        return <Redirect to={{pathname: path, state: {directedFrom: location.pathname}}} />
+        return <Redirect to={{pathname: path, state: {directedFrom: '/account'}}} />
     }
-
     return (
         <Box
-            data-testid={customer.isRegistered ? 'account-page' : 'account-page-skeleton'}
+            data-testid={isRegistered && isHydrated() ? 'account-page' : 'account-page-skeleton'}
             layerStyle="page"
             paddingTop={[4, 4, 12, 12, 16]}
         >
@@ -156,7 +170,7 @@ const Account = () => {
                                             </Button>
                                         ))}
 
-                                        <LogoutButton justify="center" />
+                                        <LogoutButton justify="center" onClick={onSignoutClick} />
                                     </Flex>
                                 </AccordionPanel>
                             </>
@@ -191,7 +205,7 @@ const Account = () => {
                                 </Button>
                             )
                         })}
-                        <LogoutButton />
+                        <LogoutButton onClick={onSignoutClick} />
                     </Flex>
                 </Stack>
 
@@ -207,9 +221,6 @@ const Account = () => {
                     </Route>
                     <Route path={`${path}/orders`}>
                         <AccountOrders />
-                    </Route>
-                    <Route exact path={`${path}/payments`}>
-                        <AccountPaymentMethods />
                     </Route>
                 </Switch>
             </Grid>

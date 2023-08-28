@@ -14,17 +14,18 @@ import {
     rebuildPathWithParams,
     removeQueryParamsFromPath,
     absoluteUrl,
-    createUrlTemplate
-} from './url'
-import {getUrlConfig} from './utils'
-import mockConfig from '../../config/mocks/default'
+    createUrlTemplate,
+    removeSiteLocaleFromPath
+} from '@salesforce/retail-react-app/app/utils/url'
+import {getUrlConfig} from '@salesforce/retail-react-app/app/utils/site-utils'
+import mockConfig from '@salesforce/retail-react-app/config/mocks/default'
 
 afterEach(() => {
     jest.clearAllMocks()
 })
 
-jest.mock('pwa-kit-react-sdk/utils/url', () => {
-    const original = jest.requireActual('pwa-kit-react-sdk/utils/url')
+jest.mock('@salesforce/pwa-kit-react-sdk/utils/url', () => {
+    const original = jest.requireActual('@salesforce/pwa-kit-react-sdk/utils/url')
     return {
         ...original,
         getAppOrigin: jest.fn(() => 'https://www.example.com')
@@ -34,7 +35,14 @@ jest.mock('./utils', () => {
     const original = jest.requireActual('./utils')
     return {
         ...original,
-        getConfig: jest.fn(() => mockConfig),
+        getConfig: jest.fn(() => mockConfig)
+    }
+})
+
+jest.mock('./site-utils', () => {
+    const original = jest.requireActual('./site-utils')
+    return {
+        ...original,
         getUrlConfig: jest.fn()
     }
 })
@@ -108,24 +116,24 @@ describe('url builder test', () => {
     test('searchUrlBuilder returns expect', () => {
         const url = searchUrlBuilder('term')
 
-        expect(url).toEqual('/search?q=term')
+        expect(url).toBe('/search?q=term')
     })
 
     test('searchUrlBuilder returns expect with & symbol', () => {
         const url = searchUrlBuilder('term&term')
 
-        expect(url).toEqual('/search?q=term%26term')
+        expect(url).toBe('/search?q=term%26term')
     })
 
     test('productUrlBuilder returns expect', () => {
         const url = productUrlBuilder({id: 'productId'})
 
-        expect(url).toEqual('/product/productId')
+        expect(url).toBe('/product/productId')
     })
 
     test('categoryUrlBuilder returns expect', () => {
         const url = categoryUrlBuilder({id: 'men'})
-        expect(url).toEqual(`/category/men`)
+        expect(url).toBe(`/category/men`)
     })
 })
 
@@ -137,7 +145,7 @@ describe('getPathWithLocale', () => {
         const buildUrl = createUrlTemplate(mockConfig.app, 'uk', 'it-IT')
 
         const relativeUrl = getPathWithLocale('fr-FR', buildUrl, {location})
-        expect(relativeUrl).toEqual(`/uk/fr/category/newarrivals-womens`)
+        expect(relativeUrl).toBe(`/uk/fr/category/newarrivals-womens`)
     })
 
     test('getPathWithLocale uses default site for siteRef when it is no defined in the url', () => {
@@ -145,7 +153,7 @@ describe('getPathWithLocale', () => {
         const buildUrl = createUrlTemplate(mockConfig.app, 'uk', 'it-IT')
 
         const relativeUrl = getPathWithLocale('fr-FR', buildUrl, {location})
-        expect(relativeUrl).toEqual(`/uk/fr/category/newarrivals-womens`)
+        expect(relativeUrl).toBe(`/uk/fr/category/newarrivals-womens`)
     })
 
     test('getPathWithLocale returns expected for PLP without refine param', () => {
@@ -158,7 +166,7 @@ describe('getPathWithLocale', () => {
             disallowParams: ['refine'],
             location
         })
-        expect(relativeUrl).toEqual(
+        expect(relativeUrl).toBe(
             `/uk/fr/category/newarrivals-womens?limit=25&sort=best-matches&offset=25`
         )
     })
@@ -168,7 +176,7 @@ describe('getPathWithLocale', () => {
         const buildUrl = createUrlTemplate(mockConfig.app, 'uk', 'it-IT')
 
         const relativeUrl = getPathWithLocale('fr-FR', buildUrl, {location})
-        expect(relativeUrl).toEqual(`/uk/fr/`)
+        expect(relativeUrl).toBe(`/uk/fr/`)
     })
 
     test('getPathWithLocale returns / when both site and locale are default', () => {
@@ -176,7 +184,7 @@ describe('getPathWithLocale', () => {
         const buildUrl = createUrlTemplate(mockConfig.app, 'uk', 'en-GB')
 
         const relativeUrl = getPathWithLocale('en-GB', buildUrl, {location})
-        expect(relativeUrl).toEqual(`/`)
+        expect(relativeUrl).toBe(`/`)
     })
 })
 
@@ -366,7 +374,7 @@ describe('rebuildPathWithParams test', () => {
     test('returns updated url', () => {
         const url = '/en/product/25501032M?color=black&size=M'
         const updatedUrl = rebuildPathWithParams(url, {pid: undefined})
-        expect(updatedUrl).toEqual('/en/product/25501032M?color=black&size=M')
+        expect(updatedUrl).toBe('/en/product/25501032M?color=black&size=M')
     })
 })
 
@@ -374,18 +382,40 @@ describe('removeQueryParamsFromPath test', () => {
     test('returns updated url', () => {
         const url = '/en/product/25501032M?color=black&size=M&something=123'
         const updatedUrl = removeQueryParamsFromPath(url, ['color', 'size'])
-        expect(updatedUrl).toEqual('/en/product/25501032M?something=123')
+        expect(updatedUrl).toBe('/en/product/25501032M?something=123')
     })
 })
 
 describe('absoluteUrl', function () {
     test('return expected when path is a relative url', () => {
         const url = absoluteUrl('/uk/en/women/dresses')
-        expect(url).toEqual('https://www.example.com/uk/en/women/dresses')
+        expect(url).toBe('https://www.example.com/uk/en/women/dresses')
     })
 
     test('return expected when path is an absolute url', () => {
         const url = absoluteUrl('https://www.example.com/uk/en/women/dresses')
-        expect(url).toEqual('https://www.example.com/uk/en/women/dresses')
+        expect(url).toBe('https://www.example.com/uk/en/women/dresses')
+    })
+})
+
+describe('removeSiteLocaleFromPath', function () {
+    test('return path without site alias and locale', () => {
+        const pathName = removeSiteLocaleFromPath('/uk/en-GB/account/wishlist')
+        expect(pathName).toBe('/account/wishlist')
+    })
+
+    test('return path without site alias if they appear multiple times', () => {
+        const pathName = removeSiteLocaleFromPath('/uk/en-GB/uk/en-GB/account/wishlist')
+        expect(pathName).toBe('/account/wishlist')
+    })
+
+    test('return expected path name when no locale or site alias appear', () => {
+        const pathName = removeSiteLocaleFromPath('/account/wishlist')
+        expect(pathName).toBe('/account/wishlist')
+    })
+
+    test('return empty string when no path name is passed', () => {
+        const pathName = removeSiteLocaleFromPath()
+        expect(pathName).toBe('')
     })
 })

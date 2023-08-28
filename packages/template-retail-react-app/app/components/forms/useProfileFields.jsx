@@ -5,9 +5,15 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import {useIntl} from 'react-intl'
-import {formatPhoneNumber} from '../../utils/phone-utils'
+import {formatPhoneNumber} from '@salesforce/retail-react-app/app/utils/phone-utils'
 
-export default function useProfileFields({form: {control, errors}, prefix = ''}) {
+export default function useProfileFields({
+    form: {
+        control,
+        formState: {errors}
+    },
+    prefix = ''
+}) {
     const {formatMessage} = useIntl()
 
     const fields = {
@@ -67,7 +73,7 @@ export default function useProfileFields({form: {control, errors}, prefix = ''})
                 id: 'use_profile_fields.label.phone'
             }),
             defaultValue: '',
-            type: 'text',
+            type: 'tel',
             rules: {
                 required: formatMessage({
                     defaultMessage: 'Please enter your phone number.',
@@ -76,6 +82,7 @@ export default function useProfileFields({form: {control, errors}, prefix = ''})
             },
             error: errors[`${prefix}phone`],
             inputProps: ({onChange}) => ({
+                inputMode: 'numeric',
                 onChange(evt) {
                     onChange(formatPhoneNumber(evt.target.value))
                 }

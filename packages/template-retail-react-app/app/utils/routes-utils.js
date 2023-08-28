@@ -5,8 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import {getSites} from './site-utils'
-import {urlPartPositions} from '../constants'
+import {getSites} from '@salesforce/retail-react-app/app/utils/site-utils'
+import {urlPartPositions} from '@salesforce/retail-react-app/app/constants'
 
 /**
  * Construct literal routes based on url config
@@ -22,7 +22,7 @@ export const configureRoutes = (routes = [], config, {ignoredRoutes = []}) => {
     if (!routes.length) return []
     if (!config) return routes
 
-    const {url: urlConfig} = config?.app
+    const {url: urlConfig} = config.app
 
     const allSites = getSites()
     if (!allSites) return routes

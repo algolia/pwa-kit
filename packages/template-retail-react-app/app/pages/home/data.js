@@ -23,7 +23,7 @@ import {
     HeartIcon,
     LikeIcon,
     PlugIcon
-} from '../../components/icons'
+} from '@salesforce/retail-react-app/app/components/icons'
 
 export const heroFeatures = [
     {

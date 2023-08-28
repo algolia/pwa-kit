@@ -6,7 +6,7 @@
  */
 
 import React from 'react'
-import {useCategory} from 'commerce-sdk-react-preview'
+import {useCategory} from '@salesforce/commerce-sdk-react'
 import {Link, useParams} from 'react-router-dom'
 import Json from '../components/Json'
 import {flatten} from '../utils/utils'
@@ -14,7 +14,9 @@ import {flatten} from '../utils/utils'
 function UseShopperCategory() {
     const {categoryId}: {categoryId: string} = useParams()
     const {isLoading, error, data} = useCategory({
-        id: categoryId
+        parameters: {
+            id: categoryId
+        }
     })
     if (isLoading) {
         return (

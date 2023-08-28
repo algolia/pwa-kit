@@ -5,8 +5,14 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import React from 'react'
-import {AddToCartModal, AddToCartModalContext} from './use-add-to-cart-modal'
-import {renderWithProviders} from '../utils/test-utils'
+import {
+    AddToCartModal,
+    AddToCartModalContext
+} from '@salesforce/retail-react-app/app/hooks/use-add-to-cart-modal'
+import {renderWithProviders} from '@salesforce/retail-react-app/app/utils/test-utils'
+import {screen} from '@testing-library/react'
+import {rest} from 'msw'
+import {mockCustomerBaskets} from '@salesforce/retail-react-app/app/mocks/mock-data'
 
 const MOCK_PRODUCT = {
     currency: 'USD',
@@ -559,23 +565,49 @@ const MOCK_PRODUCT = {
     c_size: '9LG',
     c_width: 'Z'
 }
+beforeEach(() => {
+    jest.resetModules()
+    global.server.use(
+        rest.get('*/customers/:customerId/baskets', (req, res, ctx) => {
+            return res(ctx.delay(0), ctx.status(200), ctx.json(mockCustomerBaskets))
+        })
+    )
+})
 
-test('Renders AddToCartModal', () => {
-    const {getByText} = renderWithProviders(
+test('Renders AddToCartModal with multiple products', () => {
+    const MOCK_DATA = {
+        product: MOCK_PRODUCT,
+        itemsAdded: [
+            {
+                product: MOCK_PRODUCT,
+                variant: MOCK_PRODUCT.variants[0],
+                id: '701642811399M',
+                quantity: 22
+            },
+            {
+                product: MOCK_PRODUCT,
+                variant: MOCK_PRODUCT.variants[0],
+                quantity: 1
+            }
+        ]
+    }
+
+    renderWithProviders(
         <AddToCartModalContext.Provider
             value={{
                 isOpen: true,
-                data: {
-                    product: MOCK_PRODUCT,
-                    quantity: 22
-                }
+                data: MOCK_DATA
             }}
         >
             <AddToCartModal />
         </AddToCartModalContext.Provider>
     )
 
-    expect(getByText(MOCK_PRODUCT.name)).toBeInTheDocument()
+    expect(screen.getAllByText(MOCK_PRODUCT.name)[0]).toBeInTheDocument()
+    expect(screen.getByRole('dialog', {name: /23 items added to cart/i})).toBeInTheDocument()
+
+    const numOfRowsRendered = screen.getAllByTestId('product-added').length
+    expect(numOfRowsRendered).toEqual(MOCK_DATA.itemsAdded.length)
 })
 
 test('Do not render when isOpen is false', () => {

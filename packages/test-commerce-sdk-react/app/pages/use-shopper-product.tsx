@@ -5,13 +5,13 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import React from 'react'
-import {useProduct} from 'commerce-sdk-react-preview'
+import {useProduct} from '@salesforce/commerce-sdk-react'
 import Json from '../components/Json'
 import {Link, useParams} from 'react-router-dom'
 
 function UseShopperProduct() {
     const {productId}: {productId: string} = useParams()
-    const {data, isLoading, error} = useProduct({id: productId})
+    const {data, isLoading, error} = useProduct({parameters: {id: productId}})
     if (isLoading) {
         return (
             <div>

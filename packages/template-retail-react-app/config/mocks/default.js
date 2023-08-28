@@ -75,7 +75,7 @@ module.exports = {
             }
         },
         einsteinAPI: {
-            host: 'localhost:7777',
+            host: 'http://localhost:7777',
             einsteinId: '11111111',
             // This differs from the siteId in commerceAPIConfig for testing purposes
             siteId: 'EinsteinTestSite',
@@ -107,7 +107,7 @@ module.exports = {
     ],
     // Additional parameters that configure Express app behavior.
     ssrParameters: {
-        ssrFunctionNodeVersion: '14.x',
+        ssrFunctionNodeVersion: '18.x',
         proxyConfigs: [
             {
                 host: 'localhost:8888',
@@ -118,5 +118,14 @@ module.exports = {
                 path: 'ocapi'
             }
         ]
+    },
+    mockFetchOCAPISessions: (url) => {
+        if (url.includes('/sessions')) {
+            return {
+                ok: true,
+                status: 200
+            }
+        }
+        throw new Error(`Unhandled request: ${url}`)
     }
 }

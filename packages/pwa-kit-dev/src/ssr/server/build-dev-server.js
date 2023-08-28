@@ -17,19 +17,17 @@ import webpackHotServerMiddleware from 'webpack-hot-server-middleware'
 import webpackHotMiddleware from 'webpack-hot-middleware'
 import open from 'open'
 import requireFromString from 'require-from-string'
-import {RemoteServerFactory} from 'pwa-kit-runtime/ssr/server/build-remote-server'
-import {proxyConfigs} from 'pwa-kit-runtime/utils/ssr-shared'
+import {RemoteServerFactory} from '@salesforce/pwa-kit-runtime/ssr/server/build-remote-server'
+import {proxyConfigs} from '@salesforce/pwa-kit-runtime/utils/ssr-shared'
 import {
     SERVER,
     CLIENT,
     CLIENT_OPTIONAL,
     REQUEST_PROCESSOR
 } from '../../configs/webpack/config-names'
-import {randomUUID} from 'crypto'
-const projectDir = process.cwd()
-const projectWebpackPath = path.resolve(projectDir, 'webpack.config.js')
 
-const chalk = require('chalk')
+import {randomUUID} from 'crypto'
+import chalk from 'chalk'
 
 const CONTENT_TYPE = 'content-type'
 const CONTENT_ENCODING = 'content-encoding'
@@ -49,6 +47,15 @@ export const DevServerMixin = {
     /**
      * @private
      */
+    _getAllowCookies(options) {
+        return 'MRT_ALLOW_COOKIES' in process.env
+            ? process.env.MRT_ALLOW_COOKIES === 'true'
+            : options.localAllowCookies
+    },
+
+    /**
+     * @private
+     */
     _getProtocol(options) {
         return process.env.DEV_SERVER_PROTOCOL || options.protocol
     },
@@ -56,7 +63,8 @@ export const DevServerMixin = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _getDefaultCacheControl(options) {
         return NO_CACHE
     },
@@ -109,7 +117,8 @@ export const DevServerMixin = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _setupProxying(app, options) {
         proxyConfigs.forEach((config) => {
             app.use(config.proxyPath, config.proxy)
@@ -124,14 +133,19 @@ export const DevServerMixin = {
         // This is separated out because these routes must not have our SSR middleware applied to them.
         // But the SSR render function must!
 
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         let config = require('../../configs/webpack/config')
+
+        const projectWebpackPath = path.resolve(app.options.projectDir, 'webpack.config.js')
         if (fs.existsSync(projectWebpackPath)) {
             config = require(projectWebpackPath)
         }
         app.__compiler = webpack(config)
         app.__devMiddleware = webpackDevMiddleware(app.__compiler, {serverSideRender: true})
+        app.__isInitialBuild = true
         app.__webpackReady = () => Boolean(app.__devMiddleware.context.state)
         app.__devMiddleware.waitUntilValid(() => {
+            app.__isInitialBuild = false
             // Be just a little more generous before letting eg. Lighthouse hit it!
             setTimeout(() => {
                 console.log(chalk.cyan('First build complete'))
@@ -214,36 +228,37 @@ export const DevServerMixin = {
     },
 
     serveStaticFile(filePath, opts = {}) {
+        // Warning: Ugly part of the Bundle spec that we need to maintain.
+        //
+        // This function assumes that an SDK build step will copy all
+        // non-webpacked assets from the 'app' dir to the 'build' dir.
+        //
+        // If you look carefully through the history, this has never
+        // been true though – assets get copied from app/static to
+        // build/static but this isn't really clear from the API.
+        //
+        // To see where those assets get copied, see here:
+        //
+        // packages/pwa-kit-dev/src/configs/webpack/config.js
+        //
+        // We have plans to make a robust Bundle spec in 246!
+        //
+        // Discussion here:
+        //
+        // https://salesforce-internal.slack.com/archives/C8YDDMKFZ/p1677793769255659?thread_ts=1677791840.174309&cid=C8YDDMKFZ
+
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const pkg = require(path.resolve(process.cwd(), 'package.json'))
+
         return (req, res) => {
-            req.app.__devMiddleware.waitUntilValid(() => {
-                const options = req.app.options
-                const webpackStats = req.app.__devMiddleware.context.stats.stats
-
-                const serverCompilation = webpackStats.find(
-                    // static files are copied into bundle
-                    // in the server webpack config
-                    (stat) => stat.compilation.name === SERVER
-                ).compilation
-                const {assetsInfo} = serverCompilation
-                const assetInfo = assetsInfo.get(filePath)
-
-                // if the asset is not in the webpack bundle, then
-                // return 404, we don't care whether or not the file
-                // exists in the local file system
-                if (!assetInfo) {
-                    res.sendStatus(404)
-                    return
-                }
-                const {sourceFilename} = assetInfo
-                const sourceFilePath = path.resolve(sourceFilename)
-
-                res.sendFile(sourceFilePath, {
-                    headers: {
-                        'cache-control': options.defaultCacheControl
-                    },
-                    ...opts
-                })
-            })
+            const baseDir = path.resolve(
+                req.app.options.projectDir,
+                pkg?.ccExtensibility?.overridesDir
+                    ? pkg?.ccExtensibility?.overridesDir?.replace(/^\//, '')
+                    : '',
+                'app'
+            )
+            return this._serveStaticFile(req, res, baseDir, filePath, opts)
         }
     },
 
@@ -265,19 +280,27 @@ export const DevServerMixin = {
 
     render(req, res, next) {
         const app = req.app
-        if (app.__webpackReady()) {
-            app.__hotServerMiddleware(req, res, next)
-        } else {
+
+        if (app?.__isInitialBuild) {
             this._redirectToLoadingScreen(req, res, next)
+        } else {
+            // Ensure that we do not try to render anything until the webpack bundle is valid.
+            // There was a bug previously where developers would refresh the page while webpack was building,
+            // causing them to get redirected to the loading page and sometimes getting stuck,
+            // requiring them to restart their dev server
+            app.__devMiddleware.waitUntilValid(() => {
+                app.__hotServerMiddleware(req, res, next)
+            })
         }
     },
 
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _redirectToLoadingScreen(req, res, next) {
-        res.redirect('/__mrt/loading-screen/index.html?loading=1')
+        const path = encodeURIComponent(req.originalUrl)
+        res.redirect(`/__mrt/loading-screen/index.html?loading=1&path=${path}`)
     },
 
     /**

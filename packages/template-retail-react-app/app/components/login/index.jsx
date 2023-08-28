@@ -8,10 +8,16 @@
 import React, {Fragment} from 'react'
 import PropTypes from 'prop-types'
 import {FormattedMessage} from 'react-intl'
-import {Alert, Box, Button, Stack, Text} from '@chakra-ui/react'
-import {AlertIcon, BrandLogo} from '../icons'
-import LoginFields from '../../components/forms/login-fields'
-import {noop} from '../../utils/utils'
+import {
+    Alert,
+    Box,
+    Button,
+    Stack,
+    Text
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import {AlertIcon, BrandLogo} from '@salesforce/retail-react-app/app/components/icons'
+import LoginFields from '@salesforce/retail-react-app/app/components/forms/login-fields'
+import {noop} from '@salesforce/retail-react-app/app/utils/utils'
 
 const LoginForm = ({submitForm, clickForgotPassword = noop, clickCreateAccount = noop, form}) => {
     return (
@@ -31,11 +37,11 @@ const LoginForm = ({submitForm, clickForgotPassword = noop, clickCreateAccount =
                 data-testid="sf-auth-modal-form"
             >
                 <Stack spacing={8} paddingLeft={4} paddingRight={4}>
-                    {form.errors?.global && (
+                    {form.formState.errors?.global && (
                         <Alert status="error">
                             <AlertIcon color="red.500" boxSize={4} />
                             <Text fontSize="sm" ml={3}>
-                                {form.errors.global.message}
+                                {form.formState.errors.global.message}
                             </Text>
                         </Alert>
                     )}
@@ -54,7 +60,9 @@ const LoginForm = ({submitForm, clickForgotPassword = noop, clickCreateAccount =
                     <Stack spacing={6}>
                         <Button
                             type="submit"
-                            onClick={() => form.clearErrors('global')}
+                            onClick={() => {
+                                form.clearErrors('global')
+                            }}
                             isLoading={form.formState.isSubmitting}
                         >
                             <FormattedMessage

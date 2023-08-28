@@ -5,8 +5,10 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import '@testing-library/jest-dom'
-import {configure} from '@testing-library/dom'
 import nock from 'nock'
+
+// set jsdom in https context to allow read/write secure cookies
+global.jsdom.reconfigure({url: 'https://www.domain.com'})
 
 class LocalStorageMock {
     constructor() {
@@ -25,6 +27,9 @@ class LocalStorageMock {
         delete this.store[key]
     }
 }
+
+/* eslint-disable @typescript-eslint/no-var-requires */
+global.TextDecoder = require('util').TextDecoder
 
 const localStorageMock = new LocalStorageMock()
 

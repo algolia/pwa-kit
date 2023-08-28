@@ -5,7 +5,6 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-/* eslint-env jest */
 import fse from 'fs-extra'
 import https from 'https'
 import nock from 'nock'
@@ -44,7 +43,7 @@ const testFixtures = path.resolve(process.cwd(), 'src/ssr/server/test_fixtures')
  * An HTTPS.Agent that allows self-signed certificates
  * @type {module:https.Agent}
  */
-export const httpsAgent = new https.Agent({
+const httpsAgent = new https.Agent({
     rejectUnauthorized: false
 })
 
@@ -102,8 +101,6 @@ beforeAll(() => {
     // local mode here applies the correct patches for all tests.
     RemoteServerFactory._createApp(opts())
 })
-
-afterAll(() => {})
 
 describe('_createApp validates the options object', () => {
     let savedEnvironment
@@ -261,7 +258,7 @@ describe('SSRServer operation', () => {
             process.env[envVar] = 'value'
         })
         const app = RemoteServerFactory._createApp(opts({protocol: 'http'}))
-        expect(app.options.protocol).toEqual('https')
+        expect(app.options.protocol).toBe('https')
         process.env = savedEnvironment
     })
 
@@ -296,7 +293,7 @@ describe('SSRServer operation', () => {
             })
     })
 
-    test('SSRServer rendering gets and sends no cookies', () => {
+    test('SSRServer rendering blocks cookie setting by default', () => {
         const route = (req, res) => {
             res.setHeader('set-cookie', 'blah123')
             res.sendStatus(200)
@@ -310,8 +307,27 @@ describe('SSRServer operation', () => {
             .expect(200)
             .then((res) => {
                 expect(console.warn.mock.calls[0][0]).toContain(`Discarding "Set-Cookie: blah123"`)
-                expect(res.headers['Set-Cookie']).toBe(undefined)
-                expect(res.headers['set-cookie']).toBe(undefined)
+                expect(res.headers['Set-Cookie']).toBeUndefined()
+                expect(res.headers['set-cookie']).toBeUndefined()
+            })
+    })
+
+    test('SSRServer rendering allows setting cookies with MRT_ALLOW_COOKIES env', () => {
+        process.env = {
+            MRT_ALLOW_COOKIES: 'true'
+        }
+        const route = (req, res) => {
+            res.setHeader('set-cookie', 'blah123')
+            res.sendStatus(200)
+        }
+        const app = RemoteServerFactory._createApp(opts())
+        app.get('/*', route)
+
+        return request(app)
+            .get('/')
+            .expect(200)
+            .then((res) => {
+                expect(res.headers['set-cookie']).toEqual(['blah123'])
             })
     })
 
@@ -329,7 +345,7 @@ describe('SSRServer operation', () => {
             .get('/')
             .expect(200)
             .then((res) => {
-                expect(res.headers['content-type']).toEqual('text/plain; charset=utf-8')
+                expect(res.headers['content-type']).toBe('text/plain; charset=utf-8')
             })
     })
 
@@ -407,7 +423,7 @@ describe('SSRServer operation', () => {
         ]
 
         cases.forEach(({file, content, name, requestPath}) => {
-            test(name, () => {
+            test(`${name}`, () => {
                 const fixture = path.join(__dirname, 'test_fixtures')
                 const buildDir = path.join(tmpDir, 'build')
                 fse.copySync(fixture, buildDir)
@@ -434,7 +450,7 @@ describe('SSRServer operation', () => {
 
     test('SSRServer creates cache on demand', () => {
         const app = RemoteServerFactory._createApp(opts())
-        expect(app._applicationCache).toBe(undefined)
+        expect(app._applicationCache).toBeUndefined()
         expect(app.applicationCache).toBeInstanceOf(PersistentCache)
         expect(app._applicationCache).toBe(app.applicationCache)
     })
@@ -470,7 +486,7 @@ describe('SSRServer operation', () => {
                 expect(response.headers['location'].endsWith('/elsewhere')).toBe(true)
             })
     })
-    test('should warn about non-strict SSL ', () => {
+    test('should warn about non-strict SSL', () => {
         const app = RemoteServerFactory._createApp(opts())
         const route = (req, res) => {
             res.redirect(302, '/elsewhere')
@@ -497,10 +513,27 @@ describe('SSRServer operation', () => {
             })
     })
 
-    test('should strip cookies before passing the request to the handler', () => {
+    test('should strip cookies before passing the request to the handler by default', () => {
         const app = RemoteServerFactory._createApp(opts())
         const route = (req, res) => {
             expect(req.headers.cookie).toBeUndefined()
+            res.sendStatus(200)
+        }
+        app.get('/*', route)
+        return request(app)
+            .get('/')
+            .set('cookie', 'xyz=456')
+            .then((response) => {
+                expect(response.status).toBe(200)
+                expect(response.headers['set-cookie']).toBeUndefined()
+            })
+    })
+
+    test('should allow cookies in the request with MRT_ALLOW_COOKIES env', () => {
+        process.env = {MRT_ALLOW_COOKIES: 'true'}
+        const app = RemoteServerFactory._createApp(opts())
+        const route = (req, res) => {
+            expect(req.headers.cookie).toBe('xyz=456')
             res.sendStatus(200)
         }
         app.get('/*', route)
@@ -671,7 +704,7 @@ describe('SSRServer persistent caching', () => {
                 'x-rendered': 'true',
                 'content-type': 'text/html; charset=utf-8'
             },
-            expectToBeCached: true,
+            expectToBeCached: false,
             expectRenderCallCount: 1
         },
         {
@@ -682,7 +715,7 @@ describe('SSRServer persistent caching', () => {
                 'x-mobify-from-cache': 'false',
                 'content-type': 'image/png'
             },
-            expectToBeCached: true,
+            expectToBeCached: false,
             expectRenderCallCount: 1
         },
         {
@@ -713,18 +746,17 @@ describe('SSRServer persistent caching', () => {
             url: '/cacheme/?type=html',
             expectOk: true,
             expectHeaders: {
-                'x-precached': 'true',
-                'x-mobify-from-cache': 'true',
+                'x-mobify-from-cache': 'false',
                 'content-type': 'text/html; charset=utf-8'
             },
-            expectToBeCached: true,
-            expectRenderCallCount: 0,
+            expectToBeCached: false,
+            expectRenderCallCount: 1,
             preCache: {
                 data: Buffer.from('<html>456</html>'),
                 metadata: {
                     status: 200,
                     headers: {
-                        'x-precached': 'true',
+                        'x-precached': 'false',
                         'content-type': 'text/html; charset=utf-8'
                     }
                 }
@@ -735,10 +767,10 @@ describe('SSRServer persistent caching', () => {
             url: '/cacheme/?type=html',
             expectOk: true,
             expectHeaders: {
-                'x-mobify-from-cache': 'true'
+                'x-mobify-from-cache': 'false'
             },
-            expectToBeCached: true,
-            expectRenderCallCount: 0,
+            expectToBeCached: false,
+            expectRenderCallCount: 1,
             preCache: {
                 data: Buffer.from('<html>123</html>')
             }
@@ -748,11 +780,10 @@ describe('SSRServer persistent caching', () => {
             url: '/cacheme/?type=none',
             expectOk: true,
             expectHeaders: {
-                'x-precached': 'true',
-                'x-mobify-from-cache': 'true'
+                'x-mobify-from-cache': 'false'
             },
-            expectToBeCached: true,
-            expectRenderCallCount: 0,
+            expectToBeCached: false,
+            expectRenderCallCount: 1,
             preCache: {
                 data: undefined,
                 metadata: {
@@ -766,7 +797,7 @@ describe('SSRServer persistent caching', () => {
     ]
 
     testCases.forEach((testCase) =>
-        test(testCase.name, () => {
+        test(`${testCase.name}`, () => {
             let url = testCase.url
 
             return (
@@ -807,7 +838,7 @@ describe('SSRServer persistent caching', () => {
                     .then((response) => {
                         expect(response.ok).toEqual(testCase.expectOk)
 
-                        expect(route.mock.calls.length).toBe(testCase.expectRenderCallCount)
+                        expect(route.mock.calls).toHaveLength(testCase.expectRenderCallCount)
 
                         expect(response.headers).toMatchObject(testCase.expectHeaders)
 
@@ -819,21 +850,9 @@ describe('SSRServer persistent caching', () => {
                             })
                         ])
                     })
-                    .then(([response, entry]) => {
+                    .then(([, entry]) => {
                         // Verify the response data against the cache
-                        expect(entry.found).toBe(testCase.expectToBeCached)
-
-                        if (testCase.expectToBeCached) {
-                            const cachedHeaders = (entry.metadata && entry.metadata.headers) || {}
-                            expect(response.headers).toMatchObject(cachedHeaders)
-
-                            const responseAsBuffer = Buffer.from(response.body)
-                            if (responseAsBuffer.length) {
-                                expect(entry.data).toEqual(responseAsBuffer)
-                            } else {
-                                expect(entry.data).toBeFalsy()
-                            }
-                        }
+                        expect(entry.found).toBe(false)
                     })
             )
         })
@@ -882,7 +901,7 @@ describe('generateCacheKey', () => {
     }
 
     test('returns expected results', () => {
-        expect(generateCacheKey(mockRequest({url: '/test/1?id=abc'})).indexOf('/test/1')).toEqual(0)
+        expect(generateCacheKey(mockRequest({url: '/test/1?id=abc'})).indexOf('/test/1')).toBe(0)
     })
 
     test('path affects key', () => {
@@ -893,52 +912,6 @@ describe('generateCacheKey', () => {
     test('query affects key', () => {
         const result1 = generateCacheKey(mockRequest({url: '/test3?a=1'}))
         expect(generateCacheKey(mockRequest({url: '/test3?a=2'}))).not.toEqual(result1)
-    })
-
-    test('user agent affects key', () => {
-        const result1 = generateCacheKey(mockRequest())
-        const request2 = mockRequest({
-            headers: {
-                'user-agent':
-                    'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1'
-            }
-        })
-        expect(generateCacheKey(request2)).not.toEqual(result1)
-        // query string and device type is hashed
-        expect(generateCacheKey(request2)).toEqual(
-            `/test/${getHashForString(['a=1', 'device=PHONE'].join('-'))}`
-        )
-    })
-
-    test('CloudFront device headers affect key', () => {
-        const result1 = generateCacheKey(mockRequest())
-        const request2 = mockRequest({
-            headers: {
-                'CloudFront-Is-Desktop-Viewer': 'false',
-                'CloudFront-Is-Mobile-Viewer': 'true',
-                'CloudFront-Is-SmartTV-Viewer': 'false',
-                'CloudFront-Is-Tablet-Viewer': 'false'
-            }
-        })
-        expect(generateCacheKey(request2)).not.toEqual(result1)
-        expect(generateCacheKey(request2)).toEqual(
-            `/test/${getHashForString(['a=1', 'device=PHONE'].join('-'))}`
-        )
-    })
-
-    test('multiple CloudFront device headers affect key', () => {
-        const request1 = mockRequest({
-            headers: {
-                'CloudFront-Is-Desktop-Viewer': 'false',
-                'CloudFront-Is-Mobile-Viewer': 'true',
-                'CloudFront-Is-SmartTV-Viewer': 'false',
-                'CloudFront-Is-Tablet-Viewer': 'true'
-            }
-        })
-
-        expect(generateCacheKey(request1)).toEqual(
-            `/test/${getHashForString(['a=1', 'device=TABLET'].join('-'))}`
-        )
     })
 
     test('request class affects key', () => {
@@ -1027,5 +1000,38 @@ describe('getRuntime', () => {
         const mockDevRuntime = getRuntime()
         const func = mockDevRuntime.returnMyName
         expect(func()).toBe(MockDevServerFactory.name)
+    })
+})
+
+describe('DevServer middleware', () => {
+    afterEach(() => {
+        jest.restoreAllMocks()
+    })
+    test('_validateConfiguration protocol', () => {
+        let protocol = 'ftp'
+        let error = `Invalid local development server protocol ${protocol}. Valid protocols are http and https.`
+        expect(() => {
+            RemoteServerFactory._validateConfiguration(opts({protocol}))
+        }).toThrow(error)
+    })
+
+    test('_validateConfiguration sslFilePath', () => {
+        let sslFilePath = './does/not/exist'
+        let error =
+            'The sslFilePath option passed to the SSR server constructor ' +
+            'must be a path to an SSL certificate file ' +
+            'in PEM format, whose name ends with ".pem". ' +
+            'See the "cert" and "key" options on ' +
+            'https://nodejs.org/api/tls.html#tls_tls_createsecurecontext_options'
+        expect(() => {
+            RemoteServerFactory._validateConfiguration(opts({sslFilePath}))
+        }).toThrow(error)
+    })
+    test('_validateConfiguration strictSSL', () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
+        RemoteServerFactory._validateConfiguration(opts({strictSSL: false}))
+        expect(warn.mock.calls).toEqual([
+            ['The SSR Server has _strictSSL turned off for https requests']
+        ])
     })
 })

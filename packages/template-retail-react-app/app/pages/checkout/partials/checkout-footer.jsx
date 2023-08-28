@@ -17,10 +17,15 @@ import {
     Flex,
     Spacer,
     useStyles
-} from '@chakra-ui/react'
-import LinksList from '../../../components/links-list'
-import {VisaIcon, MastercardIcon, AmexIcon, DiscoverIcon} from '../../../components/icons'
-import {HideOnDesktop, HideOnMobile} from '../../../components/responsive'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import LinksList from '@salesforce/retail-react-app/app/components/links-list'
+import {
+    VisaIcon,
+    MastercardIcon,
+    AmexIcon,
+    DiscoverIcon
+} from '@salesforce/retail-react-app/app/components/icons'
+import {HideOnDesktop, HideOnMobile} from '@salesforce/retail-react-app/app/components/responsive'
 
 const CheckoutFooter = ({...otherProps}) => {
     const styles = useMultiStyleConfig('CheckoutFooter')

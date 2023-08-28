@@ -9,11 +9,39 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 import Json from '../components/Json'
 import {
+    AuthHelpers,
+    useOrder,
     useShopperOrdersMutation,
-    useShopperLoginHelper,
-    ShopperLoginHelpers
-} from 'commerce-sdk-react-preview'
+    useAuthHelper,
+    ShopperOrdersMutation
+} from '@salesforce/commerce-sdk-react'
 const orderNos = ['00014202', '00014103']
+
+const renderQueryHook = (name: string, {data, isLoading, error}: any) => {
+    if (isLoading) {
+        return (
+            <div key={name}>
+                <h1 id={name}>{name}</h1>
+                <hr />
+                <h2 style={{background: 'aqua'}}>Loading...</h2>
+            </div>
+        )
+    }
+
+    if (error) {
+        return <h1 style={{color: 'red'}}>Something is wrong</h1>
+    }
+
+    return (
+        <div key={name}>
+            <h2 id={name}>{name}</h2>
+            <h3>{data?.name}</h3>
+            <hr />
+            <h3>Returned data</h3>
+            <Json data={{isLoading, error, data}} />
+        </div>
+    )
+}
 
 const renderMutationHooks = ({name, hook, body, parameters}: any) => {
     return (
@@ -41,28 +69,42 @@ const renderMutationHooks = ({name, hook, body, parameters}: any) => {
 }
 
 function UseShopperOrders() {
-    const loginRegisteredUser = useShopperLoginHelper(ShopperLoginHelpers.LoginRegisteredUserB2C)
+    const loginRegisteredUser = useAuthHelper(AuthHelpers.LoginRegisteredUserB2C)
     React.useEffect(() => {
         loginRegisteredUser.mutate({username: 'alex@test.com', password: 'Test1234#'})
     }, [])
+
     const mutationHooks = [
         {
             action: 'createOrder',
+            body: {basketId: '0fb0df8ad1df3d7741081ada63'},
+            parameters: {}
+        },
+        {
+            action: 'createPaymentInstrumentForOrder',
             body: {basketId: '0fb0df8ad1df3d7741081ada63'},
             parameters: {}
         }
     ].map(({action, body, parameters}) => {
         return {
             name: action,
-            hook: useShopperOrdersMutation({
-                action,
-                headers: {'test-header': 'value'},
-                rawResponse: false
-            }),
+            // This is essentially a shorthand to avoid writing out a giant object;
+            // it *technically* violates the rules of hooks, but not in an impactful way.
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            hook: useShopperOrdersMutation(action as ShopperOrdersMutation),
             body,
             parameters
         }
     })
+
+    const queryHooks = [
+        {
+            name: 'useOrder',
+            hook: useOrder({
+                parameters: {orderNo: orderNos[0]}
+            })
+        }
+    ]
 
     return (
         <>
@@ -79,7 +121,15 @@ function UseShopperOrders() {
                         <Link to={`/orders/${orderNo}`}>{orderNo}</Link>
                     </div>
                 ))}
-                <Link to="/orders/abcdef">abcdef</Link>
+            </div>
+
+            <hr />
+
+            <div>
+                <h1>Query hooks</h1>
+                {queryHooks.map(({name, hook}) => {
+                    return renderQueryHook(name, {...hook})
+                })}
             </div>
 
             <hr />

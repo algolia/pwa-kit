@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import React, {useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import PropTypes from 'prop-types'
 import {
     Alert,
@@ -20,35 +20,37 @@ import {
     Container,
     Stack,
     Text
-} from '@chakra-ui/react'
-import {useHistory} from 'react-router-dom'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {useForm} from 'react-hook-form'
 import {FormattedMessage, useIntl} from 'react-intl'
-import {useCheckout} from '../util/checkout-context'
-import useLoginFields from '../../../components/forms/useLoginFields'
-import {ToggleCard, ToggleCardEdit, ToggleCardSummary} from '../../../components/toggle-card'
-import Field from '../../../components/field'
-import {AuthModal, useAuthModal} from '../../../hooks/use-auth-modal'
+import {useCheckout} from '@salesforce/retail-react-app/app/pages/checkout/util/checkout-context'
+import useLoginFields from '@salesforce/retail-react-app/app/components/forms/useLoginFields'
+import {
+    ToggleCard,
+    ToggleCardEdit,
+    ToggleCardSummary
+} from '@salesforce/retail-react-app/app/components/toggle-card'
+import Field from '@salesforce/retail-react-app/app/components/field'
+import {AuthModal, useAuthModal} from '@salesforce/retail-react-app/app/hooks/use-auth-modal'
+import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
+import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
+import {useCurrentBasket} from '@salesforce/retail-react-app/app/hooks/use-current-basket'
+import {AuthHelpers, useAuthHelper, useShopperBasketsMutation} from '@salesforce/commerce-sdk-react'
 
 const ContactInfo = () => {
     const {formatMessage} = useIntl()
-    const history = useHistory()
     const authModal = useAuthModal('password')
+    const navigate = useNavigation()
+    const {data: customer} = useCurrentCustomer()
+    const {data: basket} = useCurrentBasket()
+    const login = useAuthHelper(AuthHelpers.LoginRegisteredUserB2C)
+    const logout = useAuthHelper(AuthHelpers.Logout)
+    const updateCustomerForBasket = useShopperBasketsMutation('updateCustomerForBasket')
 
-    const {
-        customer,
-        basket,
-        isGuestCheckout,
-        setIsGuestCheckout,
-        step,
-        login,
-        checkoutSteps,
-        setCheckoutStep,
-        goToNextStep
-    } = useCheckout()
+    const {step, STEPS, goToStep, goToNextStep} = useCheckout()
 
     const form = useForm({
-        defaultValues: {email: customer?.email || basket.customerInfo?.email || '', password: ''}
+        defaultValues: {email: customer?.email || basket?.customerInfo?.email || '', password: ''}
     })
 
     const fields = useLoginFields({form})
@@ -60,10 +62,17 @@ const ContactInfo = () => {
     const submitForm = async (data) => {
         setError(null)
         try {
-            await login(data)
+            if (!data.password) {
+                await updateCustomerForBasket.mutateAsync({
+                    parameters: {basketId: basket.basketId},
+                    body: {email: data.email}
+                })
+            } else {
+                await login.mutateAsync({username: data.email, password: data.password})
+            }
             goToNextStep()
         } catch (error) {
-            if (/invalid credentials/i.test(error.message)) {
+            if (/Unauthorized/i.test(error.message)) {
                 setError(
                     formatMessage({
                         defaultMessage: 'Incorrect username or password, please try again.',
@@ -76,17 +85,22 @@ const ContactInfo = () => {
         }
     }
 
-    const toggleGuestCheckout = () => {
+    const togglePasswordField = () => {
         if (error) {
             setError(null)
         }
         setShowPasswordField(!showPasswordField)
-        setIsGuestCheckout(!isGuestCheckout)
     }
 
     const onForgotPasswordClick = () => {
         authModal.onOpen()
     }
+
+    useEffect(() => {
+        if (!showPasswordField) {
+            form.unregister('password')
+        }
+    }, [showPasswordField])
 
     return (
         <ToggleCard
@@ -95,17 +109,17 @@ const ContactInfo = () => {
                 defaultMessage: 'Contact Info',
                 id: 'contact_info.title.contact_info'
             })}
-            editing={step === checkoutSteps.Contact_Info}
+            editing={step === STEPS.CONTACT_INFO}
             isLoading={form.formState.isSubmitting}
             onEdit={() => {
-                if (!isGuestCheckout) {
+                if (customer.isRegistered) {
                     setSignOutConfirmDialogIsOpen(true)
                 } else {
-                    setCheckoutStep(checkoutSteps.Contact_Info)
+                    goToStep(STEPS.CONTACT_INFO)
                 }
             }}
             editLabel={
-                !isGuestCheckout ? (
+                customer.isRegistered ? (
                     <FormattedMessage defaultMessage="Sign Out" id="contact_info.action.sign_out" />
                 ) : undefined
             }
@@ -156,7 +170,7 @@ const ContactInfo = () => {
                                         />
                                     )}
                                 </Button>
-                                <Button variant="outline" onClick={toggleGuestCheckout}>
+                                <Button variant="outline" onClick={togglePasswordField}>
                                     {!showPasswordField ? (
                                         <FormattedMessage
                                             defaultMessage="Already have an account? Log in"
@@ -182,9 +196,8 @@ const ContactInfo = () => {
                     isOpen={signOutConfirmDialogIsOpen}
                     onClose={() => setSignOutConfirmDialogIsOpen(false)}
                     onConfirm={async () => {
-                        await customer.logout()
-                        await basket.getOrCreateBasket()
-                        history.replace('/')
+                        await logout.mutateAsync()
+                        navigate('/login')
                         setSignOutConfirmDialogIsOpen(false)
                     }}
                 />

@@ -9,3 +9,8 @@ packages/*/out
 packages/*/docs/www
 lerna-debug.log
 .idea/
+.vscode/
+*.orig
+/test-results/
+/playwright-report/
+/playwright/.cache/

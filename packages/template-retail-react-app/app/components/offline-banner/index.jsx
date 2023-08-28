@@ -15,10 +15,10 @@ import {
 
     // Hooks
     useStyleConfig
-} from '@chakra-ui/react'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 
 // Icons
-import {AlertIcon} from '../icons'
+import {AlertIcon} from '@salesforce/retail-react-app/app/components/icons'
 
 const OfflineBanner = () => {
     const intl = useIntl()

@@ -19,7 +19,6 @@ import {
     isRemote,
     MetricsSender,
     outgoingRequestHook,
-    PerformanceTimer,
     processLambdaResponse,
     responseSend,
     configureProxyConfigs,
@@ -87,6 +86,9 @@ export const RemoteServerFactory = {
          * testing, or to handle non-standard projects.
          */
         const defaults = {
+            // For test only – allow the project dir to be overridden.
+            projectDir: process.cwd(),
+
             // Absolute path to the build directory
             buildDir: path.resolve(process.cwd(), BUILD),
 
@@ -110,7 +112,10 @@ export const RemoteServerFactory = {
             // be no use-case for SDK users to set this.
             strictSSL: true,
 
-            mobify: undefined
+            mobify: undefined,
+
+            // Toggle cookies being passed and set
+            localAllowCookies: false
         }
 
         options = Object.assign({}, defaults, options)
@@ -136,13 +141,18 @@ export const RemoteServerFactory = {
         // This is the ORIGIN under which we are serving the page.
         // because it's an origin, it does not end with a slash.
         options.appOrigin = process.env.APP_ORIGIN = `${options.protocol}://${options.appHostname}`
+
+        // Toggle cookies being passed and set. Can be overridden locally,
+        // always uses MRT_ALLOW_COOKIES env remotely
+        options.allowCookies = this._getAllowCookies(options)
+
         return options
     },
 
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _logStartupMessage(options) {
         // Hook for the DevServer
     },
@@ -150,7 +160,15 @@ export const RemoteServerFactory = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _getAllowCookies(options) {
+        return 'MRT_ALLOW_COOKIES' in process.env ? process.env.MRT_ALLOW_COOKIES == 'true' : false
+    },
+
+    /**
+     * @private
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _getProtocol(options) {
         return 'https'
     },
@@ -165,7 +183,7 @@ export const RemoteServerFactory = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _strictSSL(options) {
         return true
     },
@@ -173,7 +191,7 @@ export const RemoteServerFactory = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _setCompression(app) {
         // Let the CDN do it
     },
@@ -181,7 +199,7 @@ export const RemoteServerFactory = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+
     _setupLogging(app) {
         app.use(
             expressLogging(
@@ -227,7 +245,7 @@ export const RemoteServerFactory = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _setupMetricsFlushing(app) {
         // Hook for the dev-server
     },
@@ -235,7 +253,6 @@ export const RemoteServerFactory = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
     _updatePackageMobify(options) {
         updatePackageMobify(options.mobify)
     },
@@ -345,14 +362,7 @@ export const RemoteServerFactory = {
 
             get applicationCache() {
                 if (!this._applicationCache) {
-                    const bucket = process.env.CACHE_BUCKET_NAME
-                    const useLocalCache = !(isRemote() || bucket)
-                    this._applicationCache = new PersistentCache({
-                        useLocalCache,
-                        bucket,
-                        prefix: process.env.CACHE_BUCKET_PREFIX,
-                        sendMetric: app.sendMetric.bind(app)
-                    })
+                    this._applicationCache = new PersistentCache()
                 }
                 return this._applicationCache
             }
@@ -364,15 +374,15 @@ export const RemoteServerFactory = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
-    _addSDKInternalHandlers(app) {},
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _addSDKInternalHandlers(app) {
+        // This method is used by the dev server, but is not needed here.
+    },
 
     /**
      * @private
      */
     _setupSSRRequestProcessorMiddleware(app) {
-        const that = this
-
         // Attach this middleware as early as possible. It does timing
         // and applies some early processing that must occur before
         // anything else.
@@ -413,7 +423,8 @@ export const RemoteServerFactory = {
             }
 
             // Apply the request processor
-            const requestProcessor = that._getRequestProcessor(req)
+            // `this` is bound to the calling context, usually RemoteServerFactory
+            const requestProcessor = this._getRequestProcessor(req)
             const parsed = URL.parse(req.url)
             const originalQuerystring = parsed.query
             let updatedQuerystring = originalQuerystring
@@ -502,14 +513,10 @@ export const RemoteServerFactory = {
             locals.afterResponseCalled = false
             locals.responseCaching = {}
 
-            locals.timer = new PerformanceTimer(`req${locals.requestId}`)
             locals.originalUrl = req.originalUrl
 
             // Track this response
             req.app._requestMonitor._responseStarted(res)
-
-            // Start timing
-            locals.timer.start('express-overall')
 
             // If the path is /, we enforce that the only methods
             // allowed are GET, HEAD or OPTIONS. This is a restriction
@@ -526,8 +533,6 @@ export const RemoteServerFactory = {
             const afterResponse = () => {
                 /* istanbul ignore else */
                 if (!locals.afterResponseCalled) {
-                    locals.timer.end('express-overall')
-                    locals.timingResponse && locals.timer.end('express-response')
                     locals.afterResponseCalled = true
                     // Emit timing unless the request is for a proxy
                     // or bundle path. We don't want to emit metrics
@@ -554,9 +559,6 @@ export const RemoteServerFactory = {
                         }
                         req.app.sendMetric(metricName)
                     }
-                    locals.timer.finish()
-                    // Release reference to timer
-                    locals.timer = null
                 }
             }
 
@@ -583,7 +585,7 @@ export const RemoteServerFactory = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _setupProxying(app, options) {
         app.all('/mobify/proxy/*', (_, res) => {
             return res.status(501).json({
@@ -758,15 +760,23 @@ export const RemoteServerFactory = {
      */
     serveStaticFile(filePath, opts = {}) {
         return (req, res) => {
-            const options = req.app.options
-            const file = path.resolve(options.buildDir, filePath)
-            res.sendFile(file, {
-                headers: {
-                    [CACHE_CONTROL]: options.defaultCacheControl
-                },
-                ...opts
-            })
+            const baseDir = req.app.options.buildDir
+            return this._serveStaticFile(req, res, baseDir, filePath, opts)
         }
+    },
+
+    /**
+     * @private
+     */
+    _serveStaticFile(req, res, baseDir, filePath, opts = {}) {
+        const options = req.app.options
+        const file = path.resolve(baseDir, filePath)
+        res.sendFile(file, {
+            headers: {
+                [CACHE_CONTROL]: options.defaultCacheControl
+            },
+            ...opts
+        })
     },
 
     /**
@@ -905,6 +915,9 @@ export const RemoteServerFactory = {
      * contain both the certificate and the private key.
      * @param {function} customizeApp - a callback that takes an express app
      * as an argument. Use this to customize the server.
+     * @param {Boolean} [options.allowCookies] - This boolean value indicates
+     * whether or not we strip cookies from requests and block setting of cookies. Defaults
+     * to 'false'.
      */
     createHandler(options, customizeApp) {
         process.on('unhandledRejection', catchAndLog)
@@ -916,7 +929,7 @@ export const RemoteServerFactory = {
     /**
      * @private
      */
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _getRequestProcessor(req) {
         return null
     }
@@ -926,8 +939,9 @@ export const RemoteServerFactory = {
  * ExpressJS middleware that processes any non-proxy request passing
  * through the Express app.
  *
- * Strips Cookie headers from incoming requests, and configures the
- * Response so that it cannot have cookies set on it.
+ * If allowCookies is false, strips Cookie headers from incoming requests, and
+ * configures the Response so that it cannot have cookies set on it.
+ *
  * Sets the Host header to the application host.
  * If there's an Origin header, rewrites it to be the application
  * Origin.
@@ -939,8 +953,27 @@ export const RemoteServerFactory = {
  */
 const prepNonProxyRequest = (req, res, next) => {
     const options = req.app.options
-    // Strip cookies from the request
-    delete req.headers.cookie
+    if (!options.allowCookies) {
+        // Strip cookies from the request
+        delete req.headers.cookie
+        // In an Express Response, all cookie setting ends up
+        // calling setHeader, so we override that to allow us
+        // to intercept and discard cookie setting.
+        const setHeader = Object.getPrototypeOf(res).setHeader
+        const remote = isRemote()
+        res.setHeader = function (header, value) {
+            /* istanbul ignore else */
+            if (header && header.toLowerCase() !== SET_COOKIE && value) {
+                setHeader.call(this, header, value)
+            } /* istanbul ignore else */ else if (!remote) {
+                console.warn(
+                    `Req ${res.locals.requestId}: ` +
+                        `Cookies cannot be set on responses sent from ` +
+                        `the SSR Server. Discarding "Set-Cookie: ${value}"`
+                )
+            }
+        }
+    }
 
     // Set the Host header
     req.headers.host = options.appHostname
@@ -950,23 +983,6 @@ const prepNonProxyRequest = (req, res, next) => {
         req.headers.origin = options.appOrigin
     }
 
-    // In an Express Response, all cookie setting ends up
-    // calling setHeader, so we override that to allow us
-    // to intercept and discard cookie setting.
-    const setHeader = Object.getPrototypeOf(res).setHeader
-    const remote = isRemote()
-    res.setHeader = function (header, value) {
-        /* istanbul ignore else */
-        if (header && header.toLowerCase() !== SET_COOKIE && value) {
-            setHeader.call(this, header, value)
-        } /* istanbul ignore else */ else if (!remote) {
-            console.warn(
-                `Req ${res.locals.requestId}: ` +
-                    `Cookies cannot be set on responses sent from ` +
-                    `the SSR Server. Discarding "Set-Cookie: ${value}"`
-            )
-        }
-    }
     next()
 }
 
@@ -976,16 +992,12 @@ const prepNonProxyRequest = (req, res, next) => {
  * @private
  */
 const ssrMiddleware = (req, res, next) => {
-    const timer = res.locals.timer
-    timer.start('ssr-overall')
-
     setDefaultHeaders(req, res)
     const renderStartTime = Date.now()
 
     const done = () => {
         const elapsedRenderTime = Date.now() - renderStartTime
         req.app.sendMetric('RenderTime', elapsedRenderTime, 'Milliseconds')
-        timer.end('ssr-overall')
     }
 
     res.on('finish', done)
@@ -993,7 +1005,7 @@ const ssrMiddleware = (req, res, next) => {
     next()
 }
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const errorHandlerMiddleware = (err, req, res, next) => {
     catchAndLog(err)
     req.app.sendMetric('RenderErrors')
@@ -1056,6 +1068,7 @@ const applyPatches = once((options) => {
 
     // Patch the whatwg-encoding decode function so that it will accept plain
     // JS strings and return them as-is.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const whatWGEncoding = require('whatwg-encoding')
     const originalDecode = whatWGEncoding.decode
     whatWGEncoding.decode = (buffer, fallbackEncodingName) => {

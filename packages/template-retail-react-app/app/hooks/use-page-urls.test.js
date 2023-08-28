@@ -9,7 +9,7 @@ import {Router} from 'react-router'
 
 import {render} from '@testing-library/react'
 import {createMemoryHistory} from 'history'
-import {usePageUrls} from './use-page-urls'
+import {usePageUrls} from '@salesforce/retail-react-app/app/hooks/use-page-urls'
 
 const MockComponent = () => {
     const urls = usePageUrls({total: 100})
@@ -32,7 +32,7 @@ describe('The usePageUrls', () => {
             </Router>
         )
 
-        expect(wrapper.getByTestId('limits').text).toEqual(
+        expect(wrapper.getByTestId('limits').text).toBe(
             '["/test/path?limit=25&offset=0","/test/path?limit=25&offset=25","/test/path?limit=25&offset=50","/test/path?limit=25&offset=75"]'
         )
     })

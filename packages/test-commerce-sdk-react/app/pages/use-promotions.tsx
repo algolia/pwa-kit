@@ -6,11 +6,15 @@
  */
 
 import React from 'react'
-import {usePromotions} from 'commerce-sdk-react-preview'
+import {usePromotions} from '@salesforce/commerce-sdk-react'
 import Json from '../components/Json'
 
 function UsePromotions() {
-    const {data: result, isLoading, error} = usePromotions({ids: '10offsuits,50%offorder'})
+    const {
+        data: result,
+        isLoading,
+        error
+    } = usePromotions({parameters: {ids: '10offsuits,50%offorder'}})
     if (isLoading) {
         return (
             <div>

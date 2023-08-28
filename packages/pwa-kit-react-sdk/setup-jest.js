@@ -4,19 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+/* eslint-env jest */
 
-import Enzyme from 'enzyme'
 import 'regenerator-runtime/runtime'
-
-// DANGEROUS: this enzyme React 17 adapter is unofficial
-// because the official adaptor is still in development
-// see https://github.com/enzymejs/enzyme/issues/2429
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17'
-
-Enzyme.configure({adapter: new Adapter()})
-
+import '@testing-library/jest-dom'
 // Mock the application configuration to be used in all tests.
-jest.mock('pwa-kit-runtime/utils/ssr-config', () => {
+jest.mock('@salesforce/pwa-kit-runtime/utils/ssr-config', () => {
     return {
         getConfig: () => ({
             externals: [],
@@ -31,7 +24,7 @@ jest.mock('pwa-kit-runtime/utils/ssr-config', () => {
                 '**/*.json'
             ],
             ssrParameters: {
-                ssrFunctionNodeVersion: '14.x',
+                ssrFunctionNodeVersion: '18.x',
                 proxyConfigs: [
                     {
                         host: 'kv7kzm78.api.commercecloud.salesforce.com',

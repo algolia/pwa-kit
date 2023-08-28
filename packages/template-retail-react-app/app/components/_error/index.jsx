@@ -7,9 +7,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {Helmet} from 'react-helmet'
-import {Box, Button, Flex, Heading, IconButton, Stack, Text} from '@chakra-ui/react'
+import {
+    Box,
+    Button,
+    Flex,
+    Heading,
+    IconButton,
+    Stack,
+    Text
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 
-import {BrandLogo, FileIcon} from '../icons'
+import {BrandLogo, FileIcon} from '@salesforce/retail-react-app/app/components/icons'
 import {useHistory} from 'react-router-dom'
 
 // <Error> is rendered when:

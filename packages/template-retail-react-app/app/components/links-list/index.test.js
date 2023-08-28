@@ -6,11 +6,14 @@
  */
 import React from 'react'
 import PropTypes from 'prop-types'
-import {StylesProvider, useMultiStyleConfig} from '@chakra-ui/react'
+import {
+    StylesProvider,
+    useMultiStyleConfig
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {screen} from '@testing-library/react'
 
-import {renderWithProviders} from '../../utils/test-utils'
-import LinksList from './index'
+import {renderWithProviders} from '@salesforce/retail-react-app/app/utils/test-utils'
+import LinksList from '@salesforce/retail-react-app/app/components/links-list/index'
 
 const links = [
     {

@@ -6,11 +6,9 @@
  */
 import React from 'react'
 import {OuterApp} from './main'
-import {shallow, mount} from 'enzyme'
+import {render, screen} from '@testing-library/react'
 import {getRoutes, routeComponent} from '../universal/components/route-component'
-import Switch from '../universal/components/switch'
 import * as errors from '../universal/errors'
-import AppErrorBoundary from '../universal/components/app-error-boundary'
 import {uuidv4} from '../../utils/uuidv4.client'
 
 jest.mock('../../utils/uuidv4.client')
@@ -29,8 +27,8 @@ describe('main', function () {
             routes: getRoutes(locals),
             WrappedApp: routeComponent(App, false, locals)
         }
-        const wrapper = mount(<OuterApp {...props} />)
-        expect(wrapper.find(App).length).toBe(1)
+        render(<OuterApp {...props} />)
+        expect(screen.getByText('App')).toBeInTheDocument()
         window.__PRELOADED_STATE__ = oldPreloadedState
     })
 
@@ -45,8 +43,8 @@ describe('main', function () {
             routes: getRoutes(locals),
             WrappedApp: routeComponent(App, false, locals)
         }
-        const wrapper = mount(<OuterApp {...props} />)
-        expect(wrapper.find(AppErrorBoundary).length).toBe(1)
+        render(<OuterApp {...props} />)
+        expect(screen.getByText('Error Status: 404')).toBeInTheDocument()
         window.__ERROR__ = oldWindowError
     })
 })

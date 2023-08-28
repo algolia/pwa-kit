@@ -1,468 +1,192 @@
 /*
- * Copyright (c) 2022, Salesforce, Inc.
+ * Copyright (c) 2023, Salesforce, Inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import {ApiClients, Argument, DataType} from '../types'
+import {ApiClients, ApiMethod, Argument, CacheUpdateGetter, DataType, MergedOptions} from '../types'
 import {useMutation} from '../useMutation'
-import {MutationFunction, UseMutationResult, useQueryClient} from '@tanstack/react-query'
-import {CacheUpdateMatrixElement, NotImplementedError, updateCache} from '../utils'
-import useCustomerId from '../useCustomerId'
+import {UseMutationResult} from '@tanstack/react-query'
+import useCommerceApi from '../useCommerceApi'
+import {cacheUpdateMatrix} from './cache'
 
 type Client = ApiClients['shopperBaskets']
 
+/**
+ * Mutations available for Shopper Baskets.
+ * @group ShopperBaskets
+ * @category Mutation
+ * @enum
+ */
 export const ShopperBasketsMutations = {
     /**
-     * Creates a new basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=createBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#createbasket} for more information on the parameters and returned data type.
-     */
+      * Creates a new basket.
+
+      The created basket is initialized with default values.
+      */
     CreateBasket: 'createBasket',
     /**
-     * Transfer the previous shopper's basket to the current shopper by updating the basket's owner. No other values change. You must obtain the shopper authorization token via SLAS, and it must contain both the previous and current shopper IDs.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=mergeBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#mergebasket} for more information on the parameters and returned data type.
-     */
+      * Transfer the previous shopper's basket to the current shopper by updating the basket's owner. No other values change. You must obtain the shopper authorization token via SLAS and you must provide the ‘guest usid‘ in both the ‘/oauth2/login‘ and ‘/oauth2/token‘ calls while fetching the registered user JWT token.
+
+      A success response contains the transferred basket.
+
+      If the current shopper has an active basket, and the `overrideExisting` request parameter is `false`, then the transfer request returns a BasketTransferException (HTTP status 409). You can proceed with one of these options:
+      - Keep the current shopper's active basket.
+      - Merge the previous and current shoppers' baskets by calling the `baskets/merge` endpoint.
+      - Force the transfer by calling the `baskets/transfer` endpoint again, with the parameter `overrideExisting=true`. Forcing the transfer deletes the current shopper's active basket.
+   */
     TransferBasket: 'transferBasket',
     /**
-     * Merge data from the previous shopper's basket into the current shopper's active basket and delete the previous shopper's basket. This endpoint doesn't merge Personally Identifiable Information (PII). You must obtain the shopper authorization token via SLAS, and it must contain both the previous and current shopper IDs. After the merge, all basket amounts are recalculated and totaled, including lookups for prices, taxes, shipping, and promotions.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=mergeBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#mergebasket} for more information on the parameters and returned data type.
+     * Merge data from the previous shopper's basket into the current shopper's active basket and delete the previous shopper's basket. This endpoint doesn't merge Personally Identifiable Information (PII). You must obtain the shopper authorization token via SLAS and you must provide the ‘guest usid‘ in both the ‘/oauth2/login‘ and ‘/oauth2/token‘ calls while fetching the registered user JWT token. After the merge, all basket amounts are recalculated and totaled, including lookups for prices, taxes, shipping, and promotions.
      */
     MergeBasket: 'mergeBasket',
     /**
      * Removes a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=deleteBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#deletebasket} for more information on the parameters and returned data type.
      */
     DeleteBasket: 'deleteBasket',
     /**
-     * Updates a basket. Only the currency of the basket, source code, the custom properties of the basket, and the shipping items will be considered.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=updateBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#updatebasket} for more information on the parameters and returned data type.
-     */
+      * Updates a basket. Only the currency of the basket, source code, the custom
+      properties of the basket, and the shipping items will be considered.
+      */
     UpdateBasket: 'updateBasket',
     /**
      * Sets the billing address of a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=updateBillingAddressForBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#updatebillingaddressforbasket} for more information on the parameters and returned data type.
      */
     UpdateBillingAddressForBasket: 'updateBillingAddressForBasket',
     /**
      * Adds a coupon to an existing basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=addCouponToBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#addcoupontobasket} for more information on the parameters and returned data type.
      */
     AddCouponToBasket: 'addCouponToBasket',
     /**
      * Removes a coupon from the basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=removeCouponFromBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#removecouponfrombasket} for more information on the parameters and returned data type.
      */
     RemoveCouponFromBasket: 'removeCouponFromBasket',
     /**
      * Sets customer information for an existing basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=updateCustomerForBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#updatecustomerforbasket} for more information on the parameters and returned data type.
      */
     UpdateCustomerForBasket: 'updateCustomerForBasket',
     /**
-     *
-     * * WARNING: This method is not implemented.
-     *
      * Adds a gift certificate item to an existing basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=addGiftCertificateItemToBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#addgiftcertificateitemtobasket} for more information on the parameters and returned data type.
      */
     AddGiftCertificateItemToBasket: 'addGiftCertificateItemToBasket',
     /**
      * Deletes a gift certificate item from an existing basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=removeGiftCertificateItemFromBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#removegiftcertificateitemfrombasket} for more information on the parameters and returned data type.
      */
     RemoveGiftCertificateItemFromBasket: 'removeGiftCertificateItemFromBasket',
     /**
      * Updates a gift certificate item of an existing basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=updateGiftCertificateItemInBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#updategiftcertificateiteminbasket} for more information on the parameters and returned data type.
      */
     UpdateGiftCertificateItemInBasket: 'updateGiftCertificateItemInBasket',
     /**
      * Adds new items to a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=addItemToBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#additemtobasket} for more information on the parameters and returned data type.
      */
     AddItemToBasket: 'addItemToBasket',
     /**
      * Removes a product item from the basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=removeItemFromBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#removeitemfrombasket} for more information on the parameters and returned data type.
      */
     RemoveItemFromBasket: 'removeItemFromBasket',
     /**
      * Updates an item in a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=updateItemInBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#updateiteminbasket} for more information on the parameters and returned data type.
      */
     UpdateItemInBasket: 'updateItemInBasket',
     /**
      * This method allows you to apply external taxation data to an existing basket to be able to pass tax rates and optional values for a specific taxable line item. This endpoint can be called only if external taxation mode was used for basket creation. See POST /baskets for more information.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=addTaxesForBasketItem} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#addtaxesforbasketitem} for more information on the parameters and returned data type.
      */
     AddTaxesForBasketItem: 'addTaxesForBasketItem',
     /**
      * Adds a payment instrument to a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=addPaymentInstrumentToBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#addpaymentinstrumenttobasket} for more information on the parameters and returned data type.
      */
     AddPaymentInstrumentToBasket: 'addPaymentInstrumentToBasket',
     /**
      * Removes a payment instrument of a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=removePaymentInstrumentFromBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#removepaymentinstrumentfrombasket} for more information on the parameters and returned data type.
      */
     RemovePaymentInstrumentFromBasket: 'removePaymentInstrumentFromBasket',
     /**
      * Updates payment instrument of an existing basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=updatePaymentInstrumentInBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#updatepaymentinstrumentinbasket} for more information on the parameters and returned data type.
      */
     UpdatePaymentInstrumentInBasket: 'updatePaymentInstrumentInBasket',
     /**
      * This method allows you to put an array of priceBookIds to an existing basket, which will be used for basket calculation.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=addPriceBooksToBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#addpricebookstobasket} for more information on the parameters and returned data type.
      */
     AddPriceBooksToBasket: 'addPriceBooksToBasket',
     /**
-     * Creates a new shipment for a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=createShipmentForBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#createshipmentforbasket} for more information on the parameters and returned data type.
-     */
+      * Creates a new shipment for a basket.
+
+      The created shipment is initialized with values provided in the body
+      document and can be updated with further data API calls. Considered from
+      the body are the following properties if specified:
+
+      - the ID
+      - the shipping address
+      - the shipping method
+      - gift boolean flag
+      - gift message
+      - custom properties
+      */
     CreateShipmentForBasket: 'createShipmentForBasket',
     /**
-     * Removes a specified shipment and all associated product, gift certificate, shipping, and price adjustment line items from a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=removeShipmentFromBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#removeshipmentfrombasket} for more information on the parameters and returned data type.
-     */
+      * Removes a specified shipment and all associated product, gift certificate,
+      shipping, and price adjustment line items from a basket.
+      It is not allowed to remove the default shipment.
+      */
     RemoveShipmentFromBasket: 'removeShipmentFromBasket',
     /**
-     * Updates a shipment for a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=updateShipmentForBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#updateshipmentforbasket} for more information on the parameters and returned data type.
-     */
+      * Updates a shipment for a basket.
+
+      The shipment is initialized with values provided in the body
+      document and can be updated with further data API calls. Considered from
+      the body are the following properties if specified:
+      - the ID
+      - the shipping address
+      - the shipping method
+      - gift boolean flag
+      - gift message
+      - custom properties
+      */
     UpdateShipmentForBasket: 'updateShipmentForBasket',
     /**
      * Sets a shipping address of a specific shipment of a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=updateShippingAddressForShipment} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#updateshippingaddressforshipment} for more information on the parameters and returned data type.
      */
     UpdateShippingAddressForShipment: 'updateShippingAddressForShipment',
     /**
      * Sets a shipping method to a specific shipment of a basket.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=updateShippingMethodForShipment} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#updateshippingmethodforshipment} for more information on the parameters and returned data type.
      */
     UpdateShippingMethodForShipment: 'updateShippingMethodForShipment',
     /**
      * This method allows you to apply external taxation data to an existing basket to be able to pass tax rates and optional values for all taxable line items. This endpoint can be called only if external taxation mode was used for basket creation. See POST /baskets for more information.
-     * @see {@link https://developer.salesforce.com/docs/commerce/commerce-api/references/shopper-baskets?meta=addTaxesForBasket} for more information about the API endpoint.
-     * @see {@link https://salesforcecommercecloud.github.io/commerce-sdk-isomorphic/classes/shopperbaskets.shopperbaskets-1.html#addtaxesforbasket} for more information on the parameters and returned data type.
      */
     AddTaxesForBasket: 'addTaxesForBasket'
 } as const
 
-type UseShopperBasketsMutationHeaders = NonNullable<Argument<Client['createBasket']>>['headers']
-type UseShopperBasketsMutationArg = {
-    headers?: UseShopperBasketsMutationHeaders
-    rawResponse?: boolean
-    action: ShopperBasketsMutationType
-}
-
-type ShopperBasketsClient = ApiClients['shopperBaskets']
-export type ShopperBasketsMutationType =
+/**
+ * Type for Shopper Baskets Mutation.
+ * @group ShopperBaskets
+ * @category Mutation
+ */
+export type ShopperBasketsMutation =
     (typeof ShopperBasketsMutations)[keyof typeof ShopperBasketsMutations]
 
 /**
- * @private
+ * Mutation hook for Shopper Baskets.
+ * @group ShopperBaskets
+ * @category Mutation
  */
-export const getCacheUpdateMatrix = (customerId: string | null) => {
-    const updateBasketQuery = (basketId?: string) => {
-        // TODO: we're missing headers, rawResponse -> not only {basketId}
-        const arg = {basketId}
-        return basketId
-            ? {
-                  update: [
-                      {
-                          name: 'basket',
-                          key: ['/baskets', basketId, arg]
-                      }
-                  ]
-              }
-            : {}
-    }
+export function useShopperBasketsMutation<Mutation extends ShopperBasketsMutation>(
+    mutation: Mutation
+): UseMutationResult<DataType<Client[Mutation]>, unknown, Argument<Client[Mutation]>> {
+    const getCacheUpdates = cacheUpdateMatrix[mutation]
 
-    const removeBasketQuery = (basketId?: string) => {
-        const arg = {basketId}
-        return basketId
-            ? {
-                  remove: [
-                      {
-                          name: 'basket',
-                          key: ['/baskets', basketId, arg]
-                      }
-                  ]
-              }
-            : {}
-    }
-
-    const invalidateCustomerBasketsQuery = (customerId: string | null) => {
-        // TODO: should we use arg here or not? The invalidate method does not need exact query key.
-        const arg = {customerId}
-        return customerId
-            ? {
-                  invalidate: [
-                      {
-                          name: 'customerBaskets',
-                          key: ['/customers', customerId, '/baskets', arg]
-                      }
-                  ]
-              }
-            : {}
-    }
-
-    return {
-        addCouponToBasket: (
-            params: Argument<Client['addCouponToBasket']>,
-            response: DataType<Client['addCouponToBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        addItemToBasket: (
-            params: Argument<Client['addItemToBasket']>,
-            response: DataType<Client['addItemToBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        removeItemFromBasket: (
-            params: Argument<Client['removeItemFromBasket']>,
-            response: DataType<Client['removeItemFromBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params?.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        addPaymentInstrumentToBasket: (
-            params: Argument<Client['addPaymentInstrumentToBasket']>,
-            response: DataType<Client['addPaymentInstrumentToBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        createBasket: (
-            params: Argument<Client['createBasket']>,
-            response: DataType<Client['createBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = response.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        deleteBasket: (
-            params: Argument<Client['deleteBasket']>,
-            response: DataType<Client['deleteBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params?.parameters.basketId
-
-            return {
-                ...invalidateCustomerBasketsQuery(customerId),
-                ...removeBasketQuery(basketId)
-            }
-        },
-        mergeBasket: (
-            params: Argument<Client['mergeBasket']>,
-            response: DataType<Client['mergeBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = response.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        removeCouponFromBasket: (
-            params: Argument<Client['removeCouponFromBasket']>,
-            response: DataType<Client['removeCouponFromBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params?.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        removePaymentInstrumentFromBasket: (
-            params: Argument<Client['removePaymentInstrumentFromBasket']>,
-            response: DataType<Client['removePaymentInstrumentFromBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params?.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        updateBasket: (
-            params: Argument<Client['updateBasket']>,
-            response: DataType<Client['updateBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        updateBillingAddressForBasket: (
-            params: Argument<Client['updateBillingAddressForBasket']>,
-            response: DataType<Client['updateBillingAddressForBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        updateCustomerForBasket: (
-            params: Argument<Client['updateCustomerForBasket']>,
-            response: DataType<Client['updateCustomerForBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        updateItemInBasket: (
-            params: Argument<Client['updateItemInBasket']>,
-            response: DataType<Client['updateItemInBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        updatePaymentInstrumentInBasket: (
-            params: Argument<Client['updatePaymentInstrumentInBasket']>,
-            response: DataType<Client['updatePaymentInstrumentInBasket']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        updateShippingAddressForShipment: (
-            params: Argument<Client['updateShippingAddressForShipment']>,
-            response: DataType<Client['updateShippingAddressForShipment']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        },
-        updateShippingMethodForShipment: (
-            params: Argument<Client['updateShippingMethodForShipment']>,
-            response: DataType<Client['updateShippingMethodForShipment']>
-        ): CacheUpdateMatrixElement => {
-            const basketId = params.parameters.basketId
-
-            return {
-                ...updateBasketQuery(basketId),
-                ...invalidateCustomerBasketsQuery(customerId)
-            }
-        }
-    }
-}
-
-export const SHOPPER_BASKETS_NOT_IMPLEMENTED = [
-    'addGiftCertificateItemToBasket',
-    'addPriceBooksToBasket',
-    'addTaxesForBasket',
-    'addTaxesForBasketItem',
-    'createShipmentForBasket',
-    'removeGiftCertificateItemFromBasket',
-    'removeShipmentFromBasket',
-    'transferBasket',
-    'updateGiftCertificateItemInBasket',
-    'updateShipmentForBasket'
-]
-
-/**
- * A hook for performing mutations with the Shopper Baskets API.
- */
-export function useShopperBasketsMutation<Action extends ShopperBasketsMutationType>(
-    arg: UseShopperBasketsMutationArg
-): UseMutationResult<
-    DataType<ShopperBasketsClient[Action]> | Response,
-    Error,
-    Argument<ShopperBasketsClient[Action]>
-> {
-    const {headers, rawResponse, action} = arg
-
-    type Params = Argument<ShopperBasketsClient[Action]>
-    type Data = DataType<ShopperBasketsClient[Action]>
-
-    if (SHOPPER_BASKETS_NOT_IMPLEMENTED.includes(action)) {
-        NotImplementedError()
-    }
-    const queryClient = useQueryClient()
-    const customerId = useCustomerId()
-    const cacheUpdateMatrix = getCacheUpdateMatrix(customerId)
-
-    return useMutation<Data, Error, Params>(
-        (params, apiClients) => {
-            const method = apiClients['shopperBaskets'][action] as MutationFunction<Data, Params>
-            return (
-                method.call as (
-                    apiClient: ShopperBasketsClient,
-                    params: Params,
-                    rawResponse: boolean | undefined
-                ) => any
-            )(apiClients['shopperBaskets'], {...params, headers}, rawResponse)
-        },
-        {
-            onSuccess: (data, params) => {
-                updateCache(queryClient, action, cacheUpdateMatrix, data, params)
-            }
-        }
-    )
+    // The `Options` and `Data` types for each mutation are similar, but distinct, and the union
+    // type generated from `Client[Mutation]` seems to be too complex for TypeScript to handle.
+    // I'm not sure if there's a way to avoid the type assertions in here for the methods that
+    // use them. However, I'm fairly confident that they are safe to do, as they seem to be simply
+    // re-asserting what we already have.
+    const {shopperBaskets: client} = useCommerceApi()
+    type Options = Argument<Client[Mutation]>
+    type Data = DataType<Client[Mutation]>
+    return useMutation({
+        client,
+        method: (opts: Options) => (client[mutation] as ApiMethod<Options, Data>)(opts),
+        getCacheUpdates: getCacheUpdates as CacheUpdateGetter<MergedOptions<Client, Options>, Data>
+    })
 }

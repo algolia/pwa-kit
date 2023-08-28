@@ -6,9 +6,9 @@
  */
 import React, {useState} from 'react'
 import PropTypes from 'prop-types'
-import {Stack, Box, Button} from '@chakra-ui/react'
+import {Stack, Box, Button} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {FormattedMessage} from 'react-intl'
-import LoadingSpinner from '../loading-spinner'
+import LoadingSpinner from '@salesforce/retail-react-app/app/components/loading-spinner'
 
 /**
  * Renders a card-style box with optional edit and remove buttons. Used for
@@ -20,12 +20,11 @@ const ActionCard = ({children, onEdit, onRemove, ...props}) => {
     const [showLoading, setShowLoading] = useState(false)
 
     const handleRemove = async () => {
-        setShowLoading(!showLoading)
+        setShowLoading(true)
         try {
             return await Promise.resolve(onRemove())
-        } catch (err) {
-            setShowLoading(!showLoading)
-            throw err
+        } finally {
+            setShowLoading(false)
         }
     }
 

@@ -15,15 +15,15 @@ import {
     AccordionButton,
     AccordionPanel,
     AccordionIcon
-} from '@chakra-ui/react'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 import PropTypes from 'prop-types'
-import ColorRefinements from './color-refinements'
-import SizeRefinements from './size-refinements'
-import RadioRefinements from './radio-refinements'
-import CheckboxRefinements from './checkbox-refinements'
-import LinkRefinements from './link-refinements'
-import {isServer} from '../../../utils/utils'
-import {FILTER_ACCORDION_SATE} from '../../../constants'
+import ColorRefinements from '@salesforce/retail-react-app/app/pages/product-list/partials/color-refinements'
+import SizeRefinements from '@salesforce/retail-react-app/app/pages/product-list/partials/size-refinements'
+import RadioRefinements from '@salesforce/retail-react-app/app/pages/product-list/partials/radio-refinements'
+import CheckboxRefinements from '@salesforce/retail-react-app/app/pages/product-list/partials/checkbox-refinements'
+import LinkRefinements from '@salesforce/retail-react-app/app/pages/product-list/partials/link-refinements'
+import {isServer} from '@salesforce/retail-react-app/app/utils/utils'
+import {FILTER_ACCORDION_SATE} from '@salesforce/retail-react-app/app/constants'
 
 const componentMap = {
     cgid: LinkRefinements,
@@ -70,14 +70,19 @@ const Refinements = ({filters, toggleFilter, selectedFilters, isLoading}) => {
                     onChange={updateAccordionState}
                     opacity={isLoading ? 0.2 : 1}
                     allowMultiple={true}
-                    allowToggle={true}
                     defaultIndex={filtersIndexes}
                     reduceMotion={true}
                 >
                     {filters?.map((filter, idx) => {
                         // Render the appropriate component for the refinement type, fallback to checkboxes
                         const Values = componentMap[filter.attributeId] || CheckboxRefinements
-                        const selectedFiltersArray = selectedFilters?.[filter.attributeId]
+                        let selectedFiltersArray = selectedFilters?.[filter.attributeId] ?? []
+
+                        // Catch any non-array values and wrap them in an array
+                        if (!Array.isArray(selectedFiltersArray)) {
+                            selectedFiltersArray = [selectedFiltersArray]
+                        }
+
                         if (filter.values) {
                             return (
                                 <Stack key={filter.attributeId} divider={<Divider />}>

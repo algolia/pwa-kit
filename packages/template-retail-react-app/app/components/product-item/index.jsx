@@ -9,23 +9,23 @@ import PropTypes from 'prop-types'
 import {FormattedMessage} from 'react-intl'
 
 // Chakra Components
-import {Box, Fade, Flex, Stack, Text} from '@chakra-ui/react'
+import {Box, Fade, Flex, Stack, Text} from '@salesforce/retail-react-app/app/components/shared/ui'
 
 // Project Components
-import {HideOnDesktop, HideOnMobile} from '../responsive'
-import ItemVariantProvider from '../item-variant'
-import CartItemVariantImage from '../item-variant/item-image'
-import CartItemVariantName from '../item-variant/item-name'
-import CartItemVariantAttributes from '../item-variant/item-attributes'
-import CartItemVariantPrice from '../item-variant/item-price'
-import LoadingSpinner from '../loading-spinner'
-import QuantityPicker from '../quantity-picker'
+import {HideOnDesktop, HideOnMobile} from '@salesforce/retail-react-app/app/components/responsive'
+import ItemVariantProvider from '@salesforce/retail-react-app/app/components/item-variant'
+import CartItemVariantImage from '@salesforce/retail-react-app/app/components/item-variant/item-image'
+import CartItemVariantName from '@salesforce/retail-react-app/app/components/item-variant/item-name'
+import CartItemVariantAttributes from '@salesforce/retail-react-app/app/components/item-variant/item-attributes'
+import CartItemVariantPrice from '@salesforce/retail-react-app/app/components/item-variant/item-price'
+import LoadingSpinner from '@salesforce/retail-react-app/app/components/loading-spinner'
+import QuantityPicker from '@salesforce/retail-react-app/app/components/quantity-picker'
 
 // Utilities
-import {noop} from '../../utils/utils'
+import {noop} from '@salesforce/retail-react-app/app/utils/utils'
 
 // Hooks
-import {useProduct} from '../../hooks'
+import {useDerivedProduct} from '@salesforce/retail-react-app/app/hooks'
 
 /**
  * Component representing a product item usually in a list with details about the product - name, variant, pricing, etc.
@@ -44,8 +44,7 @@ const ProductItem = ({
     showLoading = false
 }) => {
     const {stepQuantity, showInventoryMessage, inventoryMessage, quantity, setQuantity} =
-        useProduct(product)
-
+        useDerivedProduct(product)
     return (
         <Box position="relative" data-testid={`sf-cart-item-${product.productId}`}>
             <ItemVariantProvider variant={product}>

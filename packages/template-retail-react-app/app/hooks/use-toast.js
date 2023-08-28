@@ -12,7 +12,7 @@ import {
     CloseButton,
     Spacer,
     useToast as useChakraToast
-} from '@chakra-ui/react'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 
 /**
  * Display a toast message on the screen.
@@ -50,7 +50,7 @@ export function useToast() {
         if (action) {
             toastConfig = {
                 ...toastConfig,
-                /* eslint-disable-next-line react/display-name, react/prop-types */
+
                 render: ({onClose}) => (
                     <Alert status={status} variant="subtle" borderRadius="md" py={3} width="sm">
                         <AlertIcon />

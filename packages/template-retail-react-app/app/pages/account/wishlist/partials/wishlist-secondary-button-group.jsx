@@ -6,16 +6,22 @@
  */
 import React from 'react'
 import PropTypes from 'prop-types'
-import {Button, ButtonGroup, useDisclosure} from '@chakra-ui/react'
+import {
+    Button,
+    ButtonGroup,
+    useDisclosure
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {useIntl, defineMessage, FormattedMessage} from 'react-intl'
+import {useShopperCustomersMutation} from '@salesforce/commerce-sdk-react'
 
-import useWishlist from '../../../../hooks/use-wishlist'
-import {useToast} from '../../../../hooks/use-toast'
+import {useToast} from '@salesforce/retail-react-app/app/hooks/use-toast'
+import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
+import {useWishList} from '@salesforce/retail-react-app/app/hooks/use-wish-list'
 
-import ConfirmationModal from '../../../../components/confirmation-modal/index'
-import {useItemVariant} from '../../../../components/item-variant'
-import {noop} from '../../../../utils/utils'
-import {API_ERROR_MESSAGE} from '../../../../constants'
+import ConfirmationModal from '@salesforce/retail-react-app/app/components/confirmation-modal/index'
+import {useItemVariant} from '@salesforce/retail-react-app/app/components/item-variant'
+import {noop} from '@salesforce/retail-react-app/app/utils/utils'
+import {API_ERROR_MESSAGE} from '@salesforce/retail-react-app/app/constants'
 
 export const REMOVE_WISHLIST_ITEM_CONFIRMATION_DIALOG_CONFIG = {
     dialogTitle: defineMessage({
@@ -43,7 +49,8 @@ export const REMOVE_WISHLIST_ITEM_CONFIRMATION_DIALOG_CONFIG = {
  */
 const WishlistSecondaryButtonGroup = ({productListItemId, onClick = noop}) => {
     const variant = useItemVariant()
-    const wishlist = useWishlist()
+    const {data: customer} = useCurrentCustomer()
+    const {data: wishList} = useWishList()
     const modalProps = useDisclosure()
     const toast = useToast()
     const {formatMessage} = useIntl()
@@ -52,10 +59,23 @@ const WishlistSecondaryButtonGroup = ({productListItemId, onClick = noop}) => {
         modalProps.onOpen()
     }
 
+    const deleteCustomerProductListItem = useShopperCustomersMutation(
+        'deleteCustomerProductListItem'
+    )
+
     const handleItemRemove = async () => {
-        onClick(variant.id)
         try {
-            await wishlist.removeListItem(productListItemId)
+            const promise = deleteCustomerProductListItem.mutateAsync({
+                parameters: {
+                    customerId: customer.customerId,
+                    listId: wishList?.id,
+                    itemId: productListItemId
+                }
+            })
+            onClick(variant.id, promise)
+
+            await promise
+
             toast({
                 title: formatMessage({
                     defaultMessage: 'Item removed from wishlist',
@@ -64,12 +84,8 @@ const WishlistSecondaryButtonGroup = ({productListItemId, onClick = noop}) => {
                 status: 'success'
             })
         } catch {
-            toast({
-                title: formatMessage(API_ERROR_MESSAGE),
-                status: 'error'
-            })
+            toast({title: formatMessage(API_ERROR_MESSAGE), status: 'error'})
         }
-        onClick('')
     }
 
     return (

@@ -17,8 +17,8 @@ import {
     InputRightElement,
     Select,
     Checkbox
-} from '@chakra-ui/react'
-import {VisibilityIcon, VisibilityOffIcon} from '../icons'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import {VisibilityIcon, VisibilityOffIcon} from '@salesforce/retail-react-app/app/components/icons'
 
 const Field = ({
     name,
@@ -39,14 +39,13 @@ const Field = ({
     const PasswordIcon = hidePassword ? VisibilityIcon : VisibilityOffIcon
     const inputType =
         type === 'password' && hidePassword ? 'password' : type === 'password' ? 'text' : type
-
     return (
         <Controller
             name={name}
             control={control}
             rules={rules}
             defaultValue={defaultValue}
-            render={({onChange, value, ref}) => {
+            render={({field: {onChange, value, ref}}) => {
                 const _inputProps =
                     typeof inputProps === 'function' ? inputProps({value, onChange}) : inputProps
 

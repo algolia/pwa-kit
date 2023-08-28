@@ -5,10 +5,14 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 
-import {getAppOrigin} from 'pwa-kit-react-sdk/utils/url'
-import {getLocaleByReference, getParamsFromPath} from './utils'
-import {getDefaultSite, getSiteByReference} from './site-utils'
-import {HOME_HREF, urlPartPositions} from '../constants'
+import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
+import {
+    getLocaleByReference,
+    getParamsFromPath,
+    getDefaultSite,
+    getSiteByReference
+} from '@salesforce/retail-react-app/app/utils/site-utils'
+import {HOME_HREF, urlPartPositions} from '@salesforce/retail-react-app/app/constants'
 
 /**
  * A function that takes a path and qualifies it with the current host and protocol.
@@ -46,23 +50,24 @@ export const rebuildPathWithParams = (url, extraParams) => {
     const [pathname, search] = url.split('?')
     const params = new URLSearchParams(search)
 
-    // Apply any extra params.
-    Object.keys(extraParams).forEach((key) => {
-        const value = extraParams[key]
-
-        // 0 is a valid value as for a param
-        if (!value && value !== 0) {
-            params.delete(key)
-        } else {
-            params.set(key, value)
-        }
-    })
+    updateSearchParams(params, extraParams)
 
     // Clean up any trailing `=` for params without values.
     const paramStr = params.toString().replace(/=&/g, '&').replace(/=$/, '')
 
     // Generate the newly updated url.
     return `${pathname}${Array.from(paramStr).length > 0 ? `?${paramStr}` : ''}`
+}
+
+export const updateSearchParams = (searchParams, newParams) => {
+    Object.entries(newParams).forEach(([key, value]) => {
+        // 0 is a valid value as for a param
+        if (!value && value !== 0) {
+            searchParams.delete(key)
+        } else {
+            searchParams.set(key, value)
+        }
+    })
 }
 
 /**
@@ -257,4 +262,30 @@ export const removeQueryParamsFromPath = (path, keys) => {
     const paramStr = params.toString().replace(/=&/g, '&').replace(/=$/, '')
 
     return `${pathname}${paramStr && '?'}${paramStr}`
+}
+
+/*
+ * Remove site alias and locale from a given url, to be used for "navigate" urls
+ *
+ * @param {string} pathName - The part of url to have site alias and locale removed from
+ * @returns {string} - the path after site alias and locale have been removed
+ * @example
+ * import {removeSiteLocaleFromPath} from /path/to/util/url
+ *
+ * removeSiteLocaleFromPath(/RefArch/en-US/account/wishlist)
+ * // returns '/account/wishlist'
+ */
+export const removeSiteLocaleFromPath = (pathName = '') => {
+    let {siteRef, localeRef} = getParamsFromPath(pathName)
+
+    // remove the site alias from the current pathName
+    if (siteRef) {
+        pathName = pathName.replace(new RegExp(`/${siteRef}`, 'g'), '')
+    }
+    // remove the locale from the current pathName
+    if (localeRef) {
+        pathName = pathName.replace(new RegExp(`/${localeRef}`, 'g'), '')
+    }
+
+    return pathName
 }

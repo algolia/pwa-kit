@@ -7,9 +7,15 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
-import {Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay} from '@chakra-ui/react'
-import ProductView from '../../partials/product-view'
-import {useProductViewModal} from '../../hooks/use-product-view-modal'
+import {
+    Modal,
+    ModalBody,
+    ModalCloseButton,
+    ModalContent,
+    ModalOverlay
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import ProductView from '@salesforce/retail-react-app/app/components/product-view'
+import {useProductViewModal} from '@salesforce/retail-react-app/app/hooks/use-product-view-modal'
 
 /**
  * A Modal that contains Product View
@@ -17,9 +23,9 @@ import {useProductViewModal} from '../../hooks/use-product-view-modal'
 const ProductViewModal = ({product, isOpen, onClose, ...props}) => {
     const productViewModalData = useProductViewModal(product)
     return (
-        <Modal data-testid={'sf-product-view-modal'} size="4xl" isOpen={isOpen} onClose={onClose}>
+        <Modal size="4xl" isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent containerProps={{'data-testid': 'product-view-modal'}}>
                 <ModalCloseButton />
                 <ModalBody pb={8} bg="white" paddingBottom={6} marginTop={6}>
                     <ProductView

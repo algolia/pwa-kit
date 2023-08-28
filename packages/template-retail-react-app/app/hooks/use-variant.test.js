@@ -10,7 +10,7 @@ import {Router} from 'react-router'
 
 import {render} from '@testing-library/react'
 import {createMemoryHistory} from 'history'
-import {useVariant} from './use-variant'
+import {useVariant} from '@salesforce/retail-react-app/app/hooks/use-variant'
 
 // Below is a partial product used for mocking purposes. Note: only the properties
 // that are used in the hook at defined.
@@ -61,7 +61,7 @@ describe('The useVariant', () => {
             </Router>
         )
 
-        expect(wrapper.getByTestId('variant').text).toEqual('')
+        expect(wrapper.getByTestId('variant').text).toBe('')
     })
 
     test('returns the correct variant when one can be deduced from the location search params.', () => {
@@ -74,7 +74,7 @@ describe('The useVariant', () => {
             </Router>
         )
 
-        expect(wrapper.getByTestId('variant').text).toEqual(
+        expect(wrapper.getByTestId('variant').text).toBe(
             '{"orderable":true,"price":195,"productId":"883360492148M","variationValues":{"color":"DKL","size":"34"}}'
         )
     })

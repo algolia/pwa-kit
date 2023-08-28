@@ -8,10 +8,10 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import {screen, fireEvent, waitFor} from '@testing-library/react'
-import ImageGallery from './index'
-import {Skeleton as ImageGallerySkeleton} from './index'
+import ImageGallery from '@salesforce/retail-react-app/app/components/image-gallery/index'
+import {Skeleton as ImageGallerySkeleton} from '@salesforce/retail-react-app/app/components/image-gallery/index'
 import {createMemoryHistory} from 'history'
-import {renderWithProviders} from '../../utils/test-utils'
+import {renderWithProviders} from '@salesforce/retail-react-app/app/utils/test-utils'
 
 const MockComponent = ({imageGroups = [], selectedVariationAttributes = {}}) => {
     return !imageGroups.length ? (
@@ -30,7 +30,7 @@ MockComponent.propTypes = {
 describe('Image Gallery Component', () => {
     test('renders component with all images', () => {
         renderWithProviders(<MockComponent imageGroups={data} selectedVariationAttributes={{}} />)
-        expect(screen.getAllByAltText(/Ruffle Front V-Neck Cardigan/).length).toEqual(3)
+        expect(screen.getAllByAltText(/Ruffle Front V-Neck Cardigan/)).toHaveLength(3)
     })
 
     test('render skeleton', () => {

@@ -6,12 +6,12 @@
  */
 import React from 'react'
 import PropTypes from 'prop-types'
-import {FormattedMessage, FormattedNumber} from 'react-intl'
-import {Stack, Text} from '@chakra-ui/react'
-import useBasket from '../../commerce-api/hooks/useBasket'
+import {FormattedMessage, FormattedNumber, useIntl} from 'react-intl'
+import {Stack, Text} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {useItemVariant} from '.'
-import {HideOnDesktop, HideOnMobile} from '../responsive'
-import {useCurrency} from '../../hooks'
+import {HideOnDesktop, HideOnMobile} from '@salesforce/retail-react-app/app/components/responsive'
+import {useCurrency} from '@salesforce/retail-react-app/app/hooks'
+import {useCurrentBasket} from '@salesforce/retail-react-app/app/hooks/use-current-basket'
 
 const PricePerItem = ({currency, basket, basePrice}) => {
     const {currency: activeCurrency} = useCurrency()
@@ -19,7 +19,7 @@ const PricePerItem = ({currency, basket, basePrice}) => {
         <Text fontSize={{base: '12px', lg: '14px'}}>
             <FormattedNumber
                 style="currency"
-                currency={currency || basket.currency || activeCurrency}
+                currency={currency || basket?.currency || activeCurrency}
                 value={basePrice}
             />
             <FormattedMessage
@@ -43,12 +43,15 @@ PricePerItem.propTypes = {
  */
 const ItemPrice = ({currency, align = 'right', baseDirection = 'column', ...props}) => {
     const variant = useItemVariant()
-    const basket = useBasket()
+    const {data: basket} = useCurrentBasket()
     const {currency: activeCurrency} = useCurrency()
+    const intl = useIntl()
 
     const {price, basePrice, priceAfterItemDiscount} = variant
+    const isProductASet = variant?.type?.set
 
-    const displayPrice = priceAfterItemDiscount ? Math.min(price, priceAfterItemDiscount) : price
+    const displayPrice =
+        typeof priceAfterItemDiscount === 'number' ? Math.min(price, priceAfterItemDiscount) : price
 
     const hasDiscount = displayPrice !== price
 
@@ -59,7 +62,7 @@ const ItemPrice = ({currency, align = 'right', baseDirection = 'column', ...prop
             justifyContent={align === 'left' ? 'flex-start' : 'flex-end'}
             alignItems="baseline"
             spacing={hasDiscount ? 0 : 1}
-            wrap="row"
+            wrap="nowrap"
             {...props}
         >
             {basePrice && price !== basePrice && (
@@ -68,9 +71,15 @@ const ItemPrice = ({currency, align = 'right', baseDirection = 'column', ...prop
                 </HideOnDesktop>
             )}
             <Text fontWeight="bold" lineHeight={{base: '0.5', lg: '24px'}}>
+                {isProductASet &&
+                    `${intl.formatMessage({
+                        defaultMessage: 'Starting at',
+                        id: 'item_price.label.starting_at'
+                    })} `}
+
                 <FormattedNumber
                     style="currency"
-                    currency={currency || basket.currency || activeCurrency}
+                    currency={currency || basket?.currency || activeCurrency}
                     value={displayPrice}
                 />
                 {hasDiscount && (
@@ -84,7 +93,7 @@ const ItemPrice = ({currency, align = 'right', baseDirection = 'column', ...prop
                     >
                         <FormattedNumber
                             style="currency"
-                            currency={currency || basket.currency || activeCurrency}
+                            currency={currency || basket?.currency || activeCurrency}
                             value={price}
                         />
                     </Text>

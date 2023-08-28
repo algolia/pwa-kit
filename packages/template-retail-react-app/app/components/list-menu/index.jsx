@@ -9,10 +9,9 @@ import React, {Fragment, useRef, forwardRef, useEffect, useState} from 'react'
 import PropTypes from 'prop-types'
 import {useIntl} from 'react-intl'
 import {Link as RouteLink} from 'react-router-dom'
-import {useCategories} from '../../hooks/use-categories'
 
 // Project Components
-import LinksList from '../links-list'
+import LinksList from '@salesforce/retail-react-app/app/components/links-list'
 
 // Components
 import {
@@ -32,11 +31,11 @@ import {
     // Hooks
     useTheme,
     useDisclosure
-} from '@chakra-ui/react'
-import Link from '../link'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import Link from '@salesforce/retail-react-app/app/components/link'
 // Others
-import {categoryUrlBuilder} from '../../utils/url'
-import {ChevronDownIcon} from '../icons'
+import {categoryUrlBuilder} from '@salesforce/retail-react-app/app/utils/url'
+import {ChevronDownIcon} from '@salesforce/retail-react-app/app/components/icons'
 
 const MAXIMUM_NUMBER_COLUMNS = 5
 
@@ -65,7 +64,6 @@ const ListMenuTrigger = ({item, name, isOpen, onOpen, onClose, hasItems}) => {
                 onMouseOver={onOpen}
                 {...baseStyle.listMenuTriggerLink}
                 {...(hasItems ? {name: name + ' __'} : {name: name})}
-                {...(!hasItems ? baseStyle.listMenuTriggerLinkWithIcon : {})}
                 {...(isOpen ? baseStyle.listMenuTriggerLinkActive : {})}
             >
                 {name}
@@ -81,7 +79,7 @@ const ListMenuTrigger = ({item, name, isOpen, onOpen, onClose, hasItems}) => {
                 {...baseStyle.listMenuTriggerLinkIcon}
             >
                 <PopoverTrigger>
-                    <Fade in={hasItems && item.loaded}>
+                    <Fade in={hasItems}>
                         <ChevronIconTrigger {...baseStyle.selectedButtonIcon} />
                     </Fade>
                 </PopoverTrigger>
@@ -220,15 +218,16 @@ ListMenuPopover.propTypes = {
  * users use the keyboard Tab key to focus over the chevron icon and press Enter.
  *
  * @param maxColumns The maximum number of columns that we want to use per row inside the ListMenu.
+ * @param root
  */
-const ListMenu = ({maxColumns = MAXIMUM_NUMBER_COLUMNS}) => {
-    const {root, itemsKey} = useCategories()
+const ListMenu = ({root, maxColumns = MAXIMUM_NUMBER_COLUMNS}) => {
+    const itemsKey = 'categories'
     const theme = useTheme()
     const {baseStyle} = theme.components.ListMenu
-    const [ariaBusy, setAriaBusy] = useState('true')
+    const [ariaBusy, setAriaBusy] = useState(true)
 
     useEffect(() => {
-        setAriaBusy('false')
+        setAriaBusy(false)
     }, [])
 
     return (
@@ -260,7 +259,7 @@ const ListMenu = ({maxColumns = MAXIMUM_NUMBER_COLUMNS}) => {
                     </Stack>
                 ) : (
                     <Center p="2">
-                        <Spinner opacity="0" size="lg" />
+                        <Spinner size="lg" />
                     </Center>
                 )}
             </Flex>
@@ -271,6 +270,7 @@ const ListMenu = ({maxColumns = MAXIMUM_NUMBER_COLUMNS}) => {
 ListMenu.displayName = 'ListMenu'
 
 ListMenu.propTypes = {
+    root: PropTypes.object,
     /**
      * The maximum number of columns that we want to use per row in the menu.
      */

@@ -8,11 +8,17 @@
 import React, {Fragment} from 'react'
 import PropTypes from 'prop-types'
 import {FormattedMessage} from 'react-intl'
-import {Alert, Button, Stack, Text, Link as ChakraLink} from '@chakra-ui/react'
-import {AlertIcon, BrandLogo} from '../icons'
-import {noop} from '../../utils/utils'
-import RegistrationFields from '../forms/registration-fields'
-import Link from '../link'
+import {
+    Alert,
+    Button,
+    Stack,
+    Text,
+    Link as ChakraLink
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import {AlertIcon, BrandLogo} from '@salesforce/retail-react-app/app/components/icons'
+import {noop} from '@salesforce/retail-react-app/app/utils/utils'
+import RegistrationFields from '@salesforce/retail-react-app/app/components/forms/registration-fields'
+import Link from '@salesforce/retail-react-app/app/components/link'
 
 const RegisterForm = ({submitForm, clickSignIn = noop, form}) => {
     return (
@@ -34,13 +40,16 @@ const RegisterForm = ({submitForm, clickSignIn = noop, form}) => {
                     </Text>
                 </Stack>
             </Stack>
-            <form onSubmit={form.handleSubmit(submitForm)} data-testid="sf-auth-modal-form">
+            <form
+                onSubmit={form.handleSubmit(submitForm)}
+                data-testid="sf-auth-modal-form-register"
+            >
                 <Stack paddingTop={8} spacing={8} paddingLeft={4} paddingRight={4}>
-                    {form.errors?.global && (
+                    {form.formState.errors?.global && (
                         <Alert status="error">
                             <AlertIcon color="red.500" boxSize={4} />
                             <Text fontSize="sm" ml={3}>
-                                {form.errors.global.message}
+                                {form.formState.errors.global.message}
                             </Text>
                         </Alert>
                     )}
@@ -77,13 +86,12 @@ const RegisterForm = ({submitForm, clickSignIn = noop, form}) => {
                                 id="register_form.message.agree_to_policy_terms"
                                 defaultMessage="By creating an account, you agree to Salesforce <policy>Privacy Policy</policy> and <terms>Terms & Conditions</terms>"
                                 values={{
-                                    // eslint-disable-next-line react/display-name
                                     policy: (chunks) => (
                                         <ChakraLink as={Link} to="/privacy-policy" color="blue.600">
                                             {chunks}
                                         </ChakraLink>
                                     ),
-                                    // eslint-disable-next-line react/display-name
+
                                     terms: (chunks) => (
                                         <ChakraLink
                                             as={Link}

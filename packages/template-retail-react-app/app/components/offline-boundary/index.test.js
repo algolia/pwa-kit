@@ -8,8 +8,8 @@ import React from 'react'
 import {screen} from '@testing-library/react'
 // import userEvent from '@testing-library/user-event'
 
-import OfflineBoundary from './index'
-import {renderWithRouter} from '../../utils/test-utils'
+import OfflineBoundary from '@salesforce/retail-react-app/app/components/offline-boundary/index'
+import {renderWithRouter} from '@salesforce/retail-react-app/app/utils/test-utils'
 
 // class ChunkLoadError extends Error {
 //     constructor(...params) {
@@ -40,6 +40,8 @@ describe('The OfflineBoundary', () => {
         expect(screen.getByText(/child/i)).toBeInTheDocument()
     })
 
+    // TODO: Fix flaky/broken test
+    // eslint-disable-next-line jest/no-commented-out-tests
     // test('should render the error splash when a child throws a chunk load error', () => {
     //     const ThrowingComponent = () => {
     //         throw new ChunkLoadError()
@@ -60,6 +62,8 @@ describe('The OfflineBoundary', () => {
     //     expect(screen.queryByText(/child/i)).not.toBeInTheDocument()
     // })
 
+    // TODO: Fix flaky/broken test
+    // eslint-disable-next-line jest/no-commented-out-tests
     // test('should re-throw errors that are not chunk load errors', () => {
     //     const ThrowingComponent = () => {
     //         throw new Error('Anything else')
@@ -76,6 +80,8 @@ describe('The OfflineBoundary', () => {
     //     }).toThrow()
     // })
 
+    // TODO: Fix flaky/broken test
+    // eslint-disable-next-line jest/no-commented-out-tests
     // test('should attempt to reload the page when the user clicks retry', () => {
     //     let firstRender = true
     //     const ThrowingOnceComponent = () => {
@@ -106,6 +112,8 @@ describe('The OfflineBoundary', () => {
     //     ).not.toBeInTheDocument()
     // })
 
+    // TODO: Fix flaky/broken test
+    // eslint-disable-next-line jest/no-commented-out-tests
     // test('should derive state from a chunk load error', () => {
     //     const derived = UnwrappedOfflineBoundary.getDerivedStateFromError(
     //         new ChunkLoadError('test')

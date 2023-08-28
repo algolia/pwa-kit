@@ -18,10 +18,10 @@ import {
 
     // Hooks
     useStyleConfig
-} from '@chakra-ui/react'
-import Link from '../link'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import Link from '@salesforce/retail-react-app/app/components/link'
 // Icons
-import {ChevronDownIcon, ChevronRightIcon} from '../icons'
+import {ChevronDownIcon, ChevronRightIcon} from '@salesforce/retail-react-app/app/components/icons'
 
 /**
  * The nested accordion allows you to create, as the name suggest, a nests
@@ -51,7 +51,7 @@ const NestedAccordion = (props) => {
         typeof itemsFilter === 'function' ? itemsFilter(item) : !!item[itemsFilter]
 
     return (
-        <Accordion className="sf-nested-accordion" allowToggle={true} {...rest}>
+        <Accordion className="sf-nested-accordion" {...rest}>
             {/* Optional accordion items before others in items list.  */}
             {typeof itemsBefore === 'function' ? itemsBefore({item, depth}) : itemsBefore}
 

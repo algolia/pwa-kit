@@ -6,8 +6,8 @@ Developers don’t have to worry about the underlying infrastructure, whether th
 
 ## Requirements
 
--   Node 14
--   npm 6.14.4 or later
+-   Node 16.11 or later
+-   npm 8 or later
 
 ## Get Started
 
@@ -23,7 +23,7 @@ Now that the development server is running, you can open a browser and preview y
 
 ## Localization
 
-See the [Localization README.md](./app/translations/README.md) for important setup instructions for localization.
+See the [Localization README.md](./translations/README.md) for important setup instructions for localization.
 
 ## Configuration Files
 

@@ -10,7 +10,7 @@ import {Router} from 'react-router'
 
 import {render} from '@testing-library/react'
 import {createMemoryHistory} from 'history'
-import {useSortUrls} from './use-sort-urls'
+import {useSortUrls} from '@salesforce/retail-react-app/app/hooks/use-sort-urls'
 
 const MOCK_SORT_OPTIONS = [{id: 'high-to-low'}, {id: 'low-to-high'}]
 
@@ -35,7 +35,7 @@ describe('The useSortUrls', () => {
             </Router>
         )
 
-        expect(wrapper.getByTestId('limits').text).toEqual(
+        expect(wrapper.getByTestId('limits').text).toBe(
             '["/test/path?sort=high-to-low&offset=0","/test/path?sort=low-to-high&offset=0"]'
         )
     })

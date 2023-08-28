@@ -6,11 +6,11 @@
  */
 import React from 'react'
 import {screen} from '@testing-library/react'
-import {renderWithProviders} from '../../utils/test-utils'
-import Error from './index'
+import {renderWithProviders} from '@salesforce/retail-react-app/app/utils/test-utils'
+import Error from '@salesforce/retail-react-app/app/components/_error/index'
 
 test('Error renders without errors', () => {
-    expect(renderWithProviders(<Error />))
+    expect(renderWithProviders(<Error />)).toBeDefined()
 })
 
 test('Error status 500', () => {

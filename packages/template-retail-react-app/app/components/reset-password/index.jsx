@@ -8,10 +8,10 @@
 import React, {Fragment} from 'react'
 import PropTypes from 'prop-types'
 import {FormattedMessage} from 'react-intl'
-import {Alert, Button, Stack, Text} from '@chakra-ui/react'
-import {AlertIcon, BrandLogo} from '../icons'
-import {noop} from '../../utils/utils'
-import ResetPasswordFields from '../forms/reset-password-fields'
+import {Alert, Button, Stack, Text} from '@salesforce/retail-react-app/app/components/shared/ui'
+import {AlertIcon, BrandLogo} from '@salesforce/retail-react-app/app/components/icons'
+import {noop} from '@salesforce/retail-react-app/app/utils/utils'
+import ResetPasswordFields from '@salesforce/retail-react-app/app/components/forms/reset-password-fields'
 
 const ResetPasswordForm = ({submitForm, clickSignIn = noop, form}) => {
     return (
@@ -35,11 +35,11 @@ const ResetPasswordForm = ({submitForm, clickSignIn = noop, form}) => {
             </Stack>
             <form onSubmit={form.handleSubmit(submitForm)} data-testid="sf-auth-modal-form">
                 <Stack paddingTop={8} spacing={8} paddingLeft={4} paddingRight={4}>
-                    {form.errors?.global && (
+                    {form.formState.errors?.global && (
                         <Alert status="error">
                             <AlertIcon color="red.500" boxSize={4} />
                             <Text fontSize="sm" ml={3}>
-                                {form.errors.global.message}
+                                {form.formState.errors.global.message}
                             </Text>
                         </Alert>
                     )}

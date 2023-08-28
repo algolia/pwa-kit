@@ -6,9 +6,15 @@
  */
 import React, {Fragment} from 'react'
 import {FormattedMessage} from 'react-intl'
-import {Flex, Button} from '@chakra-ui/react'
-import {AmexIcon, DiscoverIcon, LockIcon, MastercardIcon, VisaIcon} from '../../../components/icons'
-import Link from '../../../components/link'
+import {Flex, Button} from '@salesforce/retail-react-app/app/components/shared/ui'
+import {
+    AmexIcon,
+    DiscoverIcon,
+    LockIcon,
+    MastercardIcon,
+    VisaIcon
+} from '@salesforce/retail-react-app/app/components/icons'
+import Link from '@salesforce/retail-react-app/app/components/link'
 
 const CartCta = () => {
     return (

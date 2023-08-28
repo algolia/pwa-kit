@@ -7,9 +7,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {FormattedMessage} from 'react-intl'
-import {Box, Button} from '@chakra-ui/react'
-import usePromoCodeFields from './usePromoCodeFields'
-import Field from '../field'
+import {Box, Button} from '@salesforce/retail-react-app/app/components/shared/ui'
+import usePromoCodeFields from '@salesforce/retail-react-app/app/components/forms/usePromoCodeFields'
+import Field from '@salesforce/retail-react-app/app/components/field'
 
 const PromoCodeFields = ({form, prefix = '', ...props}) => {
     const fields = usePromoCodeFields({form, prefix})

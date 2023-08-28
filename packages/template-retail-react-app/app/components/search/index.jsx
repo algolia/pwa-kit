@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import React, {useRef, useState, useEffect} from 'react'
+import React, {useEffect, useMemo, useRef, useState} from 'react'
+import {useSearchSuggestions} from '@salesforce/commerce-sdk-react'
 import {
     Input,
     InputGroup,
@@ -17,17 +18,29 @@ import {
     Flex,
     HStack,
     Spinner
-} from '@chakra-ui/react'
-import SearchSuggestions from './partials/search-suggestions'
-import {SearchIcon} from '../icons'
-import useSearchSuggestions from '../../commerce-api/hooks/useSearchSuggestions'
-import {capitalize, boldString, getSessionJSONItem, setSessionJSONItem} from '../../utils/utils'
-import useNavigation from '../../hooks/use-navigation'
-import {HideOnDesktop, HideOnMobile} from '../responsive'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import SearchSuggestions from '@salesforce/retail-react-app/app/components/search/partials/search-suggestions'
+import {SearchIcon} from '@salesforce/retail-react-app/app/components/icons'
+import {
+    capitalize,
+    boldString,
+    getSessionJSONItem,
+    setSessionJSONItem
+} from '@salesforce/retail-react-app/app/utils/utils'
+import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
+import {HideOnDesktop, HideOnMobile} from '@salesforce/retail-react-app/app/components/responsive'
 import {FormattedMessage} from 'react-intl'
 import debounce from 'lodash/debounce'
-import {RECENT_SEARCH_KEY, RECENT_SEARCH_LIMIT, RECENT_SEARCH_MIN_LENGTH} from '../../constants'
-import {productUrlBuilder, searchUrlBuilder, categoryUrlBuilder} from '../../utils/url'
+import {
+    RECENT_SEARCH_KEY,
+    RECENT_SEARCH_LIMIT,
+    RECENT_SEARCH_MIN_LENGTH
+} from '@salesforce/retail-react-app/app/constants'
+import {
+    productUrlBuilder,
+    searchUrlBuilder,
+    categoryUrlBuilder
+} from '@salesforce/retail-react-app/app/utils/url'
 
 const formatSuggestions = (searchSuggestions, input) => {
     return {
@@ -72,27 +85,30 @@ const formatSuggestions = (searchSuggestions, input) => {
  * @return  {React.ReactElement} - SearchInput component
  */
 const Search = (props) => {
-    const navigate = useNavigation()
-    const searchSuggestion = useSearchSuggestions()
-    const searchInputRef = useRef()
     const [isOpen, setIsOpen] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
+    const navigate = useNavigation()
+    const searchSuggestion = useSearchSuggestions(
+        {
+            parameters: {
+                q: searchQuery
+            }
+        },
+        {
+            enabled: searchQuery?.length >= RECENT_SEARCH_MIN_LENGTH
+        }
+    )
+    const searchInputRef = useRef()
     const recentSearches = getSessionJSONItem(RECENT_SEARCH_KEY)
-    const searchSuggestions = formatSuggestions(
-        searchSuggestion.results,
-        searchInputRef?.current?.value
+    const searchSuggestions = useMemo(
+        () => formatSuggestions(searchSuggestion.data, searchInputRef?.current?.value),
+        [searchSuggestion]
     )
 
     // check if popover should open if we have suggestions
     useEffect(() => {
         shouldOpenPopover()
-    }, [searchSuggestions])
-
-    // Want to make sure we clear the suggestions when we are deleting characters
-    useEffect(() => {
-        if (searchInputRef?.current?.value <= 2) {
-            searchSuggestion.clearSuggestedSearch()
-        }
-    }, [searchInputRef?.current?.value])
+    }, [searchQuery, searchSuggestion.data])
 
     const searchSuggestionsAvailable =
         searchSuggestions &&
@@ -105,7 +121,7 @@ const Search = (props) => {
 
         // Check if term is already in the saved searches
         searches = searches.filter((savedSearchTerm) => {
-            searchText.toLowerCase() !== savedSearchTerm.toLowerCase()
+            return searchText.toLowerCase() !== savedSearchTerm.toLowerCase()
         })
 
         // Create a new array consisting of the search text and up to 4 other resent searches.
@@ -116,18 +132,22 @@ const Search = (props) => {
         setSessionJSONItem(RECENT_SEARCH_KEY, searches)
     }
 
-    const debouncedSearch = debounce((input) => searchSuggestion.getSearchSuggestions(input), 300)
+    const debouncedSearch = debounce((input) => {
+        debouncedSearch.cancel()
+        setSearchQuery(input)
+    }, 300)
 
     const onSearchChange = async (e) => {
         const input = e.target.value
         if (input.length >= RECENT_SEARCH_MIN_LENGTH) {
             debouncedSearch(input)
+        } else {
+            setSearchQuery('')
         }
     }
 
     const clearInput = () => {
         searchInputRef.current.blur()
-        searchSuggestion.clearSuggestedSearch()
         setIsOpen(false)
     }
 

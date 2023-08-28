@@ -40,7 +40,7 @@ export const outgoingRequestHook = (wrapped, options) => {
         const {appHostname, proxyKeepAliveAgent} = options || {}
 
         if (!(appHostname && accessKey)) {
-            return wrapped.apply(this, arguments) // eslint-disable-line prefer-rest-params
+            return wrapped.apply(this, arguments)
         }
 
         // request and get can be called with (options[, callback])
@@ -48,7 +48,7 @@ export const outgoingRequestHook = (wrapped, options) => {
         let workingUrl = ''
         let workingOptions
         let workingCallback
-        const args = arguments // eslint-disable-line prefer-rest-params
+        const args = arguments
 
         // The options will be in the first 'object' argument
         for (let i = 0; i < args.length; i++) {
@@ -95,7 +95,7 @@ export const outgoingRequestHook = (wrapped, options) => {
             (workingUrl && workingUrl.includes(`//${appHostname}`))
 
         if (!isLoopback) {
-            return wrapped.apply(this, arguments) // eslint-disable-line prefer-rest-params
+            return wrapped.apply(this, arguments)
         }
 
         // We must inject the 'x-mobify-access-key' header into the
@@ -115,7 +115,7 @@ export const outgoingRequestHook = (wrapped, options) => {
                     ? httpAgent
                     : httpsAgent
 
-            // `node-fetch` and potentially other libraries add connection: close heaaders
+            // `node-fetch` and potentially other libraries add connection: close headers
             // remove them to keep the connection alive. NOTE: There are variations in
             // whether or not the connection header is upper or lower case, so handle both.
             delete workingOptions?.headers?.connection

@@ -9,18 +9,17 @@ import {
     ShopperBaskets,
     ShopperContexts,
     ShopperCustomers,
+    ShopperExperience,
     ShopperLogin,
     ShopperOrders,
     ShopperProducts,
     ShopperPromotions,
-    ShopperDiscoverySearch,
     ShopperGiftCertificates,
     ShopperSearch,
     ShopperBasketsTypes
 } from 'commerce-sdk-isomorphic'
 import Auth from './auth'
 import {ApiClientConfigParams, ApiClients} from './hooks/types'
-import {ReactQueryDevtools} from '@tanstack/react-query-devtools'
 
 export interface CommerceApiProviderProps extends ApiClientConfigParams {
     children: React.ReactNode
@@ -30,6 +29,8 @@ export interface CommerceApiProviderProps extends ApiClientConfigParams {
     redirectURI: string
     fetchOptions?: ShopperBasketsTypes.FetchOptions
     headers?: Record<string, string>
+    fetchedToken?: string
+    OCAPISessionsURL?: string
 }
 
 /**
@@ -50,7 +51,33 @@ export const AuthContext = React.createContext({} as Auth)
 /**
  * Initialize a set of Commerce API clients and make it available to all of descendant components
  *
- * @param props
+ * @group Components
+ * 
+ * @example
+ * ```js
+    import {CommerceApiProvider} from '@salesforce/commerce-sdk-react'
+
+
+    const App = ({children}) => {
+        return (
+                <CommerceApiProvider
+                    clientId="12345678-1234-1234-1234-123412341234"
+                    organizationId="f_ecom_aaaa_001"
+                    proxy="localhost:3000/mobify/proxy/api"
+                    redirectURI="localhost:3000/callback"
+                    siteId="RefArch"
+                    shortCode="12345678"
+                    locale="en-US"
+                    currency="USD"
+                >
+                    {children}
+                </CommerceApiProvider>
+        )
+    } 
+
+    export default App
+ * ```
+ * 
  * @returns Provider to wrap your app with
  */
 const CommerceApiProvider = (props: CommerceApiProviderProps): ReactElement => {
@@ -65,7 +92,9 @@ const CommerceApiProvider = (props: CommerceApiProviderProps): ReactElement => {
         siteId,
         shortCode,
         locale,
-        currency
+        currency,
+        fetchedToken,
+        OCAPISessionsURL
     } = props
 
     const config = {
@@ -75,7 +104,9 @@ const CommerceApiProvider = (props: CommerceApiProviderProps): ReactElement => {
             clientId,
             organizationId,
             shortCode,
-            siteId
+            siteId,
+            locale,
+            currency
         },
         throwOnBadResponse: true,
         fetchOptions
@@ -85,7 +116,7 @@ const CommerceApiProvider = (props: CommerceApiProviderProps): ReactElement => {
             shopperBaskets: new ShopperBaskets(config),
             shopperContexts: new ShopperContexts(config),
             shopperCustomers: new ShopperCustomers(config),
-            shopperDiscoverySearch: new ShopperDiscoverySearch(config),
+            shopperExperience: new ShopperExperience(config),
             shopperGiftCertificates: new ShopperGiftCertificates(config),
             shopperLogin: new ShopperLogin(config),
             shopperOrders: new ShopperOrders(config),
@@ -100,6 +131,8 @@ const CommerceApiProvider = (props: CommerceApiProviderProps): ReactElement => {
         siteId,
         proxy,
         fetchOptions,
+        locale,
+        currency,
         headers?.['correlation-id']
     ])
 
@@ -111,13 +144,24 @@ const CommerceApiProvider = (props: CommerceApiProviderProps): ReactElement => {
             siteId,
             proxy,
             redirectURI,
-            fetchOptions
+            fetchOptions,
+            fetchedToken,
+            OCAPISessionsURL
         })
-    }, [clientId, organizationId, shortCode, siteId, proxy, redirectURI, fetchOptions])
+    }, [
+        clientId,
+        organizationId,
+        shortCode,
+        siteId,
+        proxy,
+        redirectURI,
+        fetchOptions,
+        fetchedToken,
+        OCAPISessionsURL
+    ])
 
-    useEffect(() => {
-        auth.ready()
-    }, [auth])
+    // Initialize the session
+    useEffect(() => void auth.ready(), [auth])
 
     return (
         <ConfigContext.Provider
@@ -137,7 +181,6 @@ const CommerceApiProvider = (props: CommerceApiProviderProps): ReactElement => {
             <CommerceApiContext.Provider value={apiClients}>
                 <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>
             </CommerceApiContext.Provider>
-            <ReactQueryDevtools />
         </ConfigContext.Provider>
     )
 }

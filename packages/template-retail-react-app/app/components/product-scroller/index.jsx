@@ -6,9 +6,16 @@
  */
 import React, {forwardRef, useRef} from 'react'
 import PropTypes from 'prop-types'
-import {AspectRatio, Box, Heading, IconButton, Skeleton, Stack} from '@chakra-ui/react'
-import ProductTile from '../../components/product-tile'
-import {ChevronLeftIcon, ChevronRightIcon} from '../icons'
+import {
+    AspectRatio,
+    Box,
+    Heading,
+    IconButton,
+    Skeleton,
+    Stack
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import ProductTile from '@salesforce/retail-react-app/app/components/product-tile'
+import {ChevronLeftIcon, ChevronRightIcon} from '@salesforce/retail-react-app/app/components/icons'
 
 /**
  * Renders a scrollable, horizontal container of products with native scroll

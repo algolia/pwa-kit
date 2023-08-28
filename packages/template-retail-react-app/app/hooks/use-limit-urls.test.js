@@ -10,7 +10,7 @@ import {Router} from 'react-router'
 
 import {render} from '@testing-library/react'
 import {createMemoryHistory} from 'history'
-import {useLimitUrls} from './use-limit-urls'
+import {useLimitUrls} from '@salesforce/retail-react-app/app/hooks/use-limit-urls'
 
 const MockComponent = () => {
     const urls = useLimitUrls()
@@ -33,7 +33,7 @@ describe('The useLimitUrls', () => {
             </Router>
         )
 
-        expect(wrapper.getByTestId('limits').text).toEqual(
+        expect(wrapper.getByTestId('limits').text).toBe(
             '["/test/path?limit=25&offset=0","/test/path?limit=50&offset=0","/test/path?limit=100&offset=0"]'
         )
     })

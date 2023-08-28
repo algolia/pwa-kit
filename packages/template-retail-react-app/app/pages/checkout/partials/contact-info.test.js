@@ -6,10 +6,8 @@
  */
 import React from 'react'
 import {screen, within} from '@testing-library/react'
-import user from '@testing-library/user-event'
-
-import ContactInfo from './contact-info'
-import {renderWithProviders} from '../../../utils/test-utils'
+import ContactInfo from '@salesforce/retail-react-app/app/pages/checkout/partials/contact-info'
+import {renderWithProviders} from '@salesforce/retail-react-app/app/utils/test-utils'
 
 jest.mock('../util/checkout-context', () => {
     return {
@@ -20,24 +18,24 @@ jest.mock('../util/checkout-context', () => {
             setIsGuestCheckout: jest.fn(),
             step: 0,
             login: null,
-            checkoutSteps: {Contact_Info: 0},
-            setCheckoutStep: null,
+            STEPS: {CONTACT_INFO: 0},
+            goToStep: null,
             goToNextStep: null
         })
     }
 })
 
-test('renders component', () => {
-    renderWithProviders(<ContactInfo />)
+test('renders component', async () => {
+    const {user} = renderWithProviders(<ContactInfo />)
 
     // switch to login
     const trigger = screen.getByText(/Already have an account\? Log in/i)
-    user.click(trigger)
+    await user.click(trigger)
 
     // open forgot password modal
     const withinCard = within(screen.getByTestId('sf-toggle-card-step-0'))
     const openModal = withinCard.getByText(/Forgot password\?/i)
-    user.click(openModal)
+    await user.click(openModal)
 
     // check that forgot password modal is open
     const withinForm = within(screen.getByTestId('sf-auth-modal-form'))

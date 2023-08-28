@@ -1,0 +1,409 @@
+/*
+ * Copyright (c) 2022, Salesforce, Inc.
+ * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+import os from 'os'
+import path from 'path'
+import archiver, {EntryData} from 'archiver'
+import {default as _fetch, Response} from 'node-fetch'
+import {URL} from 'url'
+import {readFile, stat, mkdtemp, rm, readdir} from 'fs/promises'
+import {createWriteStream, Stats, Dirent, existsSync} from 'fs'
+import {readJson} from 'fs-extra'
+import {Minimatch} from 'minimatch'
+import git from 'git-rev-sync'
+import validator from 'validator'
+
+export const DEFAULT_CLOUD_ORIGIN = 'https://cloud.mobify.com'
+export const DEFAULT_DOCS_URL =
+    'https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/pushing-and-deploying-bundles.html'
+
+interface Credentials {
+    username: string
+    api_key: string
+}
+
+interface CloudAPIClientOpts {
+    credentials: Credentials
+    origin?: string
+    // _fetch is a function and a namespace, we want to use the function here
+    fetch?: typeof _fetch
+}
+
+interface StringMap {
+    [key: string]: string
+}
+
+interface Bundle {
+    message: string
+    encoding: string
+    data: string
+    ssr_parameters: object
+    ssr_only: string[]
+    ssr_shared: string[]
+}
+
+interface Pkg {
+    name: string
+    version: string
+    ccExtensibility?: {extends: string; overridesDir: string}
+    dependencies?: {[key: string]: string}
+    devDependencies?: {[key: string]: string}
+}
+
+/**
+ * Get the package info for pwa-kit-dev.
+ */
+export const getPkgJSON = async (): Promise<Pkg> => {
+    const candidates = [
+        path.join(__dirname, '..', 'package.json'),
+        path.join(__dirname, '..', '..', 'package.json')
+    ]
+    for (const candidate of candidates) {
+        try {
+            const data = await readJson(candidate)
+            return data as Pkg
+        } catch {
+            // Keep looking
+        }
+    }
+    return {name: '@salesforce/pwa-kit-dev', version: 'unknown'}
+}
+
+/**
+ * Get the package info for the current project.
+ */
+export const getProjectPkg = async (): Promise<Pkg> => {
+    const p = path.join(process.cwd(), 'package.json')
+    try {
+        const data = await readJson(p)
+        return data as Pkg
+    } catch {
+        throw new Error(`Could not read project package at "${p}"`)
+    }
+}
+
+/**
+ * Get the set of file paths within a specific directory
+ * @param dir Directory to walk
+ * @returns Set of file paths within the directory
+ */
+export const walkDir = async (
+    dir: string,
+    baseDir: string,
+    fileSet?: Set<string>
+): Promise<Set<string>> => {
+    fileSet = fileSet || new Set<string>()
+    const entries: Dirent[] = await readdir(dir, {withFileTypes: true})
+
+    await Promise.all(
+        entries.map(async (entry) => {
+            const entryPath = path.join(dir, entry.name)
+            if (entry.isDirectory()) {
+                await walkDir(entryPath, baseDir, fileSet)
+            } else {
+                fileSet?.add(entryPath.replace(baseDir + path.sep, ''))
+            }
+        })
+    )
+
+    return fileSet
+}
+
+export class CloudAPIClient {
+    private opts: Required<CloudAPIClientOpts>
+
+    constructor(params: CloudAPIClientOpts) {
+        this.opts = {
+            origin: params.origin || DEFAULT_CLOUD_ORIGIN,
+            fetch: params.fetch || _fetch,
+            credentials: params.credentials
+        }
+    }
+
+    private getAuthHeader(): StringMap {
+        const {username, api_key} = this.opts.credentials
+        const encoded = Buffer.from(`${username}:${api_key}`, 'binary').toString('base64')
+        return {Authorization: `Basic ${encoded}`}
+    }
+
+    private async getHeaders(): Promise<StringMap> {
+        const pkg = await getPkgJSON()
+        return {
+            'User-Agent': `${pkg.name}@${pkg.version}`,
+            ...this.getAuthHeader()
+        }
+    }
+
+    private async throwForStatus(res: Response) {
+        if (res.status < 400) {
+            return
+        }
+
+        const body = await res.text()
+        let error: {message?: string; docs_url?: string}
+        try {
+            error = JSON.parse(body)
+        } catch {
+            error = {} // Cloud doesn't always return JSON
+        }
+
+        if (res.status === 403) {
+            error.docs_url =
+                'https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/mrt-overview.html#users,-abilities,-and-roles'
+        }
+
+        throw new Error(
+            [
+                `HTTP ${res.status}`,
+                error.message || body,
+                `For more information visit ${error.docs_url || DEFAULT_DOCS_URL}`
+            ].join('\n')
+        )
+    }
+
+    async push(bundle: Bundle, projectSlug: string, target?: string) {
+        const base = `api/projects/${projectSlug}/builds/`
+        const pathname = target ? base + `${target}/` : base
+        const url = new URL(this.opts.origin)
+        url.pathname = pathname
+
+        const body = Buffer.from(JSON.stringify(bundle))
+        const headers = {
+            ...(await this.getHeaders()),
+            'Content-Length': body.length.toString()
+        }
+
+        const res = await this.opts.fetch(url.toString(), {
+            body,
+            method: 'POST',
+            headers
+        })
+        await this.throwForStatus(res)
+        return await res.json()
+    }
+
+    async createLoggingToken(project: string, environment: string): Promise<string> {
+        const url = new URL(this.opts.origin)
+        url.pathname = `/api/projects/${project}/target/${environment}/jwt/`
+        const headers = {
+            ...(await this.getHeaders()),
+            // Annoyingly, the new logging endpoint only accepts an
+            // Authorization header that is inconsistent with our older APIs!
+            Authorization: `Bearer ${this.opts.credentials.api_key}`
+        }
+        const res = await this.opts.fetch(url.toString(), {
+            method: 'POST',
+            headers
+        })
+        await this.throwForStatus(res)
+        const data = await res.json()
+        return data['token']
+    }
+}
+
+export const defaultMessage = (gitInstance: typeof git = git): string => {
+    try {
+        return `${gitInstance.branch()}: ${gitInstance.short()}`
+    } catch (err: any) {
+        if (err?.code === 'ENOENT') {
+            console.log(
+                'Using default bundle message as no message was provided and not in a Git repo.'
+            )
+        }
+        return 'PWA Kit Bundle'
+    }
+}
+
+interface CreateBundleArgs {
+    message: string | null | undefined
+    ssr_parameters: any
+    ssr_only: string[]
+    ssr_shared: string[]
+    buildDirectory: string
+    projectSlug: string
+}
+
+export const createBundle = async ({
+    message,
+    ssr_parameters,
+    ssr_only,
+    ssr_shared,
+    buildDirectory,
+    projectSlug
+}: CreateBundleArgs): Promise<Bundle | any> => {
+    message = message || defaultMessage()
+
+    const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'pwa-kit-dev-'))
+    const destination = path.join(tmpDir, 'build.tar')
+    const filesInArchive: string[] = []
+    let bundle_metadata: {[key: string]: any} = {}
+
+    if (ssr_only.length === 0 || ssr_shared.length === 0) {
+        throw new Error('no ssrOnly or ssrShared files are defined')
+    }
+
+    return (
+        Promise.resolve()
+            .then(() => stat(buildDirectory))
+            .catch(() => {
+                const fullPath = path.join(process.cwd(), buildDirectory)
+                throw new Error(
+                    `Build directory at path "${fullPath}" not found.\n` +
+                        'Run `pwa-kit-dev build` first!'
+                )
+            })
+            .then(
+                () =>
+                    new Promise((resolve, reject) => {
+                        const output = createWriteStream(destination)
+                        const archive = archiver('tar')
+
+                        archive.pipe(output)
+
+                        // See https://web.archive.org/web/20160712064705/http://archiverjs.com/docs/global.html#TarEntryData
+                        const newRoot = path.join(projectSlug, 'bld', '')
+                        // WARNING: There are a lot of type assertions here because we use a very old
+                        // version of archiver, and the types provided don't match the docs. :\
+                        archive.directory(buildDirectory, '', ((entry: EntryData) => {
+                            const stats = entry.stats as unknown as Stats | undefined
+                            if (stats?.isFile() && entry.name) {
+                                filesInArchive.push(entry.name)
+                            }
+                            entry.prefix = newRoot
+                            return entry
+                        }) as unknown as EntryData)
+
+                        archive.on('error', reject)
+                        output.on('finish', resolve)
+
+                        archive.finalize()
+                    })
+            )
+            .then(async () => {
+                const {
+                    dependencies = {},
+                    devDependencies = {},
+                    ccExtensibility = {extends: '', overridesDir: ''}
+                } = await getProjectPkg()
+                const extendsTemplate = 'node_modules/' + ccExtensibility.extends
+
+                let cc_overrides: string[] = []
+                if (ccExtensibility.overridesDir) {
+                    const overrides_files = await walkDir(
+                        ccExtensibility.overridesDir,
+                        ccExtensibility.overridesDir
+                    )
+                    cc_overrides = Array.from(overrides_files).filter((item) =>
+                        existsSync(path.join(extendsTemplate, item))
+                    )
+                }
+                bundle_metadata = {
+                    dependencies: {...dependencies, ...devDependencies},
+                    cc_overrides: cc_overrides
+                }
+            })
+            .then(() => readFile(destination))
+            .then((data) => {
+                const encoding = 'base64'
+                return {
+                    message,
+                    encoding,
+                    data: data.toString(encoding),
+                    ssr_parameters,
+                    ssr_only: filesInArchive.filter(glob(ssr_only)),
+                    ssr_shared: filesInArchive.filter(glob(ssr_shared)),
+                    bundle_metadata
+                }
+            })
+            // This is a false positive. The promise returned by `.finally()` won't resolve until
+            // the `rm()` completes!
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
+            .finally(() => rm(tmpDir, {recursive: true}))
+    )
+}
+
+export const glob = (patterns?: string[]): ((str: string) => boolean) => {
+    // The patterns can include negations, so matching is done against all
+    // the patterns. A match is true if a given path matches any pattern and
+    // does not match any negating patterns.
+
+    const allPatterns = (patterns || [])
+        .map((pattern) => new Minimatch(pattern, {nocomment: true}))
+        .filter((pattern) => !pattern.empty)
+    const positivePatterns = allPatterns.filter((pattern) => !pattern.negate)
+    const negativePatterns = allPatterns.filter((pattern) => pattern.negate)
+
+    return (path: string) => {
+        if (path) {
+            const positive = positivePatterns.some((pattern) => pattern.match(path))
+            const negative = negativePatterns.some((pattern) => !pattern.match(path))
+            return positive && !negative
+        }
+        return false
+    }
+}
+
+export const getCredentialsFile = (cloudOrigin: string, credentialsFile?: string): string => {
+    if (credentialsFile) {
+        return credentialsFile
+    } else {
+        const url = new URL(cloudOrigin)
+        const host = url.host
+        const suffix = host === 'cloud.mobify.com' ? '' : `--${host}`
+        return path.join(os.homedir(), `.mobify${suffix}`)
+    }
+}
+
+export const readCredentials = async (filepath: string): Promise<Credentials> => {
+    try {
+        const data = await readJson(filepath)
+        return {
+            username: data.username,
+            api_key: data.api_key
+        }
+    } catch (e) {
+        throw new Error(
+            `Credentials file "${filepath}" not found.\n` +
+                'Visit https://runtime.commercecloud.com/account/settings for ' +
+                'steps on authorizing your computer to push bundles.'
+        )
+    }
+}
+
+interface LogRecord {
+    level: string | undefined
+    message: string
+    shortRequestId?: string
+}
+
+export const parseLog = (log: string): LogRecord => {
+    const parts = log.trim().split('\t')
+    let requestId, shortRequestId, level
+
+    if (
+        parts.length >= 3 &&
+        validator.isISO8601(parts[0]) &&
+        validator.isUUID(parts[1]) &&
+        validator.isAlpha(parts[2])
+    ) {
+        // An application log
+        parts.shift()
+        requestId = parts.shift()
+        level = parts.shift()
+    } else {
+        // A platform log
+        const words = parts[0].split(' ')
+        level = words.shift()
+        parts[0] = words.join(' ')
+    }
+    const message = parts.join('\t')
+
+    const match = /(?<id>[a-f\d]{8})/.exec(requestId || message)
+    if (match) {
+        shortRequestId = match.groups?.id
+    }
+    return {level, message, shortRequestId}
+}

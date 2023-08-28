@@ -18,7 +18,6 @@ import {StaticRouter as Router, matchPath} from 'react-router-dom'
 import serialize from 'serialize-javascript'
 
 import {getAssetUrl} from '../universal/utils'
-import DeviceContext from '../universal/device-context'
 import {ServerContext, CorrelationIdProvider} from '../universal/contexts'
 
 import Document from '../universal/components/_document'
@@ -29,9 +28,9 @@ import {getAppConfig} from '../universal/compatibility'
 import Switch from '../universal/components/switch'
 import {getRoutes, routeComponent} from '../universal/components/route-component'
 import * as errors from '../universal/errors'
-import {detectDeviceType, isRemote} from 'pwa-kit-runtime/utils/ssr-server'
-import {proxyConfigs} from 'pwa-kit-runtime/utils/ssr-shared'
-import {getConfig} from 'pwa-kit-runtime/utils/ssr-config'
+import {isRemote} from '@salesforce/pwa-kit-runtime/utils/ssr-server'
+import {proxyConfigs} from '@salesforce/pwa-kit-runtime/utils/ssr-shared'
+import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 import sprite from 'svg-sprite-loader/runtime/sprite.build'
 import PropTypes from 'prop-types'
 
@@ -73,6 +72,31 @@ const logAndFormatError = (err) => {
     }
 }
 
+// Because multi-value params are not supported in `aws-serverless-express` create a proper
+// search string using the `query` property. We pay special attention to the order the params
+// as best as we can.
+const getLocationSearch = (req) => {
+    const [_, search] = req.originalUrl.split('?')
+    const params = new URLSearchParams(search)
+    const newParams = new URLSearchParams()
+    const orderedKeys = [...new Set(params.keys())]
+
+    // Maintain the original order of the parameters by iterating the
+    // ordered list of keys, and using the `req.query` object as the source of values.
+    orderedKeys.forEach((key) => {
+        const value = req.query[key]
+        const values = Array.isArray(value) ? value : [value]
+
+        values.forEach((v) => {
+            newParams.append(key, v)
+        })
+    })
+    const searchString = newParams.toString()
+
+    // Update the location objects reference.
+    return searchString ? `?${searchString}` : ''
+}
+
 /**
  * This is the main react-rendering function for SSR. It is an Express handler.
  *
@@ -93,10 +117,10 @@ export const render = async (req, res, next) => {
     const routes = getRoutes(res.locals)
     const WrappedApp = routeComponent(App, false, res.locals)
 
-    const [pathname, search] = req.originalUrl.split('?')
+    const [pathname] = req.originalUrl.split('?')
     const location = {
         pathname,
-        search: search ? `?${search}` : ''
+        search: getLocationSearch(req)
     }
 
     // Step 1 - Find the match.
@@ -116,7 +140,6 @@ export const render = async (req, res, next) => {
     const component = await route.component.getComponent()
 
     // Step 3 - Init the app state
-    const deviceType = detectDeviceType(req)
     const props = {
         error: null,
         appState: {},
@@ -125,8 +148,7 @@ export const render = async (req, res, next) => {
         res,
         App: WrappedApp,
         routes,
-        location,
-        deviceType
+        location
     }
     let appJSX = <OuterApp {...props} />
 
@@ -167,8 +189,7 @@ export const render = async (req, res, next) => {
             res,
             location,
             config,
-            appJSX,
-            deviceType
+            appJSX
         })
     } catch (e) {
         // This is an unrecoverable error.
@@ -192,17 +213,7 @@ export const render = async (req, res, next) => {
     }
 }
 
-const OuterApp = ({
-    req,
-    res,
-    error,
-    App,
-    appState,
-    routes,
-    routerContext,
-    location,
-    deviceType
-}) => {
+const OuterApp = ({req, res, error, App, appState, routes, routerContext, location}) => {
     const AppConfig = getAppConfig()
     return (
         <ServerContext.Provider value={{req, res}}>
@@ -211,11 +222,9 @@ const OuterApp = ({
                     correlationId={res.locals.requestId}
                     resetOnPageChange={false}
                 >
-                    <DeviceContext.Provider value={{type: deviceType}}>
-                        <AppConfig locals={res.locals}>
-                            <Switch error={error} appState={appState} routes={routes} App={App} />
-                        </AppConfig>
-                    </DeviceContext.Provider>
+                    <AppConfig locals={res.locals}>
+                        <Switch error={error} appState={appState} routes={routes} App={App} />
+                    </AppConfig>
                 </CorrelationIdProvider>
             </Router>
         </ServerContext.Provider>
@@ -230,15 +239,14 @@ OuterApp.propTypes = {
     appState: PropTypes.object,
     routes: PropTypes.array,
     routerContext: PropTypes.object,
-    location: PropTypes.object,
-    deviceType: PropTypes.string
+    location: PropTypes.object
 }
 
 const renderToString = (jsx, extractor) =>
     ReactDOMServer.renderToString(extractor.collectChunks(jsx))
 
 const renderApp = (args) => {
-    const {req, res, appStateError, appJSX, appState, config, deviceType} = args
+    const {req, res, appStateError, appJSX, appState, config} = args
     const extractor = new ChunkExtractor({statsFile: BUNDLES_PATH, publicPath: getAssetUrl()})
 
     const ssrOnly = 'mobify_server_only' in req.query || '__server_only' in req.query
@@ -300,7 +308,6 @@ const renderApp = (args) => {
     const windowGlobals = {
         __INITIAL_CORRELATION_ID__: res.locals.requestId,
         __CONFIG__: config,
-        __DEVICE_TYPE__: deviceType,
         __PRELOADED_STATE__: appState,
         __ERROR__: error,
         // `window.Progressive` has a long history at Mobify and some
@@ -365,10 +372,10 @@ const getWindowProgressive = (req, res) => {
     }
 }
 
-// eslint-disable-next-line no-unused-vars
 const serverRenderer =
-    ({clientStats, serverStats}) =>
-    (req, res, next) =>
-        render(req, res, next)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ({clientStats, serverStats}) => {
+        return (req, res, next) => render(req, res, next)
+    }
 
 export default serverRenderer

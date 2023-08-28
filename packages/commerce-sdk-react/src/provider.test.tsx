@@ -17,7 +17,7 @@ describe('provider', () => {
         jest.clearAllMocks()
     })
 
-    test('api clients optional config are passed properly', async () => {
+    test('api clients optional config are passed properly', () => {
         const Component = () => {
             const api = useCommerceApi()
             return (
@@ -44,5 +44,14 @@ describe('provider', () => {
         expect(Auth).toHaveBeenCalledTimes(1)
         const authInstance = (Auth as jest.Mock).mock.instances[0]
         expect(authInstance.ready).toHaveBeenCalledTimes(1)
+    })
+
+    test('Auth, if initialized with `fetchedToken` short circuits auth.ready()', () => {
+        renderWithProviders(<h1>I can render with no problem!</h1>)
+        expect(screen.getByText('I can render with no problem!')).toBeInTheDocument()
+        expect(Auth).toHaveBeenCalledTimes(1)
+        const authInstance = (Auth as jest.Mock).mock.instances[0]
+        expect(authInstance.ready).toHaveBeenCalledTimes(1)
+        expect(authInstance.queueRequest).toHaveBeenCalledTimes(0)
     })
 })

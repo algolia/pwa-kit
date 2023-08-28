@@ -7,9 +7,9 @@
 import React from 'react'
 import {screen, render, fireEvent, waitFor} from '@testing-library/react'
 import {Router, useHistory, useLocation} from 'react-router-dom'
-import SwatchGroup from './index'
-import {Box} from '@chakra-ui/react'
-import Swatch from './swatch'
+import SwatchGroup from '@salesforce/retail-react-app/app/components/swatch-group/index'
+import {Box} from '@salesforce/retail-react-app/app/components/shared/ui'
+import Swatch from '@salesforce/retail-react-app/app/components/swatch-group/swatch'
 import {createMemoryHistory} from 'history'
 
 const data = {
@@ -113,7 +113,7 @@ describe('Swatch Component', () => {
                 <Page />
             </Router>
         )
-        expect(screen.getAllByRole('link').length).toEqual(data.values.length)
+        expect(screen.getAllByRole('radio')).toHaveLength(data.values.length)
     })
 
     test('swatch can be selected', () => {
@@ -126,11 +126,11 @@ describe('Swatch Component', () => {
             </Router>
         )
 
-        expect(screen.getAllByRole('link').length).toEqual(data.values.length)
-        const firstSwatch = screen.getAllByRole('link')[0]
+        expect(screen.getAllByRole('radio')).toHaveLength(data.values.length)
+        const firstSwatch = screen.getAllByRole('radio')[0]
         fireEvent.click(firstSwatch)
         waitFor(() => {
-            expect(history.search).toEqual('?color=BLACKFB')
+            expect(history.search).toBe('?color=BLACKFB')
         })
     })
 })

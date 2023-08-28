@@ -8,28 +8,42 @@
 import React, {useState, useEffect} from 'react'
 import PropTypes from 'prop-types'
 import {FormattedMessage} from 'react-intl'
-import {Box, Button, Container, Stack, Text} from '@chakra-ui/react'
-import useCustomer from '../../commerce-api/hooks/useCustomer'
-import Seo from '../../components/seo'
+import {
+    Box,
+    Button,
+    Container,
+    Stack,
+    Text
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {useForm} from 'react-hook-form'
-import ResetPasswordForm from '../../components/reset-password'
-import {BrandLogo} from '../../components/icons'
-import useNavigation from '../../hooks/use-navigation'
-import useEinstein from '../../commerce-api/hooks/useEinstein'
+import {
+    useShopperCustomersMutation,
+    ShopperCustomersMutations
+} from '@salesforce/commerce-sdk-react'
+import Seo from '@salesforce/retail-react-app/app/components/seo'
+import ResetPasswordForm from '@salesforce/retail-react-app/app/components/reset-password'
+import {BrandLogo} from '@salesforce/retail-react-app/app/components/icons'
+import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
+import useEinstein from '@salesforce/retail-react-app/app/hooks/use-einstein'
 import {useLocation} from 'react-router-dom'
 
 const ResetPassword = () => {
-    const customer = useCustomer()
     const form = useForm()
     const navigate = useNavigation()
     const [submittedEmail, setSubmittedEmail] = useState('')
     const [showSubmittedSuccess, setShowSubmittedSuccess] = useState(false)
     const einstein = useEinstein()
     const {pathname} = useLocation()
+    const getResetPasswordToken = useShopperCustomersMutation(
+        ShopperCustomersMutations.GetResetPasswordToken
+    )
 
     const submitForm = async ({email}) => {
+        const body = {
+            login: email
+        }
         try {
-            await customer.getResetPasswordToken(email)
+            await getResetPasswordToken.mutateAsync({body})
             setSubmittedEmail(email)
             setShowSubmittedSuccess(!showSubmittedSuccess)
         } catch (error) {
@@ -76,7 +90,7 @@ const ResetPassword = () => {
                                     id="reset_password.info.receive_email_shortly"
                                     values={{
                                         email: submittedEmail,
-                                        // eslint-disable-next-line react/display-name
+
                                         b: (chunks) => <b>{chunks}</b>
                                     }}
                                 />

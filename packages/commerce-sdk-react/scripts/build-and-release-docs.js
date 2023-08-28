@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2021, salesforce.com, inc.
+ * Copyright (c) 2023, Salesforce, Inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const packageJSON = require('../package.json')
 const sh = require('shelljs')
 const semver = require('semver')
@@ -15,6 +16,7 @@ const main = () => {
     const isPrerelease = semver.prerelease(currentVersion.trim())
     // if it is a pre-release version, do nothing
     if (isPrerelease) {
+        console.log('This is a preview release, exiting.')
         return
     }
 

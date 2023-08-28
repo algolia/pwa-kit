@@ -11,7 +11,7 @@ const config = {
             require('@babel/preset-env'),
             {
                 targets: {
-                    node: 14
+                    node: 18
                 }
             }
         ],
@@ -37,7 +37,8 @@ const config = {
                 idInterpolationPattern: '[sha512:contenthash:base64:6]',
                 ast: true
             }
-        ]
+        ],
+        require('@babel/plugin-transform-async-generator-functions')
     ],
     env: {
         test: {

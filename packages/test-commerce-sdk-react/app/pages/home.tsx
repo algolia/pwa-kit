@@ -25,6 +25,9 @@ const Home = () => {
                     <Link to="/products">useShopperProducts</Link>
                 </li>
                 <li>
+                    <Link to="/experience">useShopperExperience</Link>
+                </li>
+                <li>
                     <Link to="/categories">useCategories</Link>
                 </li>
                 <li>
@@ -43,13 +46,16 @@ const Home = () => {
                     <Link to="/customer">useCustomer & useShopperCustomersMutation</Link>
                 </li>
                 <li>
-                    <Link to="/slas-helpers">useShopperLoginHelper</Link>
+                    <Link to="/slas-helpers">useAuthHelper</Link>
                 </li>
                 <li>
                     <Link to="/basket">useBasket & useShopperBasketsMutation</Link>
                 </li>
                 <li>
                     <Link to="/orders">useShopperOrders & useShopperOrdersMutation</Link>
+                </li>
+                <li>
+                    <Link to="/context">useShopperContext & useShopperContextsMutation</Link>
                 </li>
             </ul>
 

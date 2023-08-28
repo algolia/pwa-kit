@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2021, salesforce.com, inc.
+ * Copyright (c) 2023, Salesforce, Inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const p = require('path')
 const sh = require('shelljs')
 const fs = require('fs')
@@ -12,6 +13,8 @@ const tar = require('tar')
 
 sh.set('-e')
 sh.config.silent = false
+
+const TEMPLATE_PREFIX = 'template-'
 
 const monorepoRoot = p.resolve(__dirname, '..', '..', '..')
 const templatesDir = p.resolve(__dirname, '..', 'templates')
@@ -22,9 +25,10 @@ const tarPathForPkg = (pkg) => p.resolve(templatesDir, `${pkg}.tar.gz`)
 
 const main = () => {
     const pkgNames = [
-        'template-retail-react-app',
-        'template-express-minimal',
-        'template-typescript-minimal'
+        'retail-react-app',
+        'express-minimal',
+        'typescript-minimal',
+        'mrt-reference-app'
     ]
 
     if (!sh.test('-d', templatesDir)) {
@@ -35,6 +39,7 @@ const main = () => {
 
     const tmpDir = mkdtempSync()
     const checkoutDir = p.join(tmpDir, 'mobify-platform-sdks')
+    const packageDir = p.join(checkoutDir, 'packages')
 
     sh.exec(
         `git clone --config core.longpaths=true --single-branch ` +
@@ -42,15 +47,24 @@ const main = () => {
     )
 
     return Promise.all(
-        pkgNames.map((pkgName) =>
-            tar.c(
-                {
-                    file: tarPathForPkg(pkgName),
-                    cwd: p.join(checkoutDir, 'packages')
-                },
-                [pkgName]
+        pkgNames.map((pkgName) => {
+            // Emulate an NPM package by having the tar contain a "package" folder.
+            const tmpPackageDir = mkdtempSync()
+            sh.mv(
+                p.join(packageDir, `${TEMPLATE_PREFIX}${pkgName}`),
+                p.join(tmpPackageDir, 'package')
             )
-        )
+
+            return tar
+                .c(
+                    {
+                        file: tarPathForPkg(pkgName),
+                        cwd: tmpPackageDir
+                    },
+                    ['.']
+                )
+                .then(() => sh.rm('-rf', tmpPackageDir))
+        })
     ).then(() => sh.rm('-rf', tmpDir))
 }
 

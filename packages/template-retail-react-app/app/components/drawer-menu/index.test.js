@@ -5,12 +5,13 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import React from 'react'
-import DrawerMenu from './index'
-import {renderWithProviders} from '../../utils/test-utils'
+import DrawerMenu from '@salesforce/retail-react-app/app/components/drawer-menu/index'
+import {renderWithProviders} from '@salesforce/retail-react-app/app/utils/test-utils'
+import {mockCategories} from '@salesforce/retail-react-app/app/mocks/mock-data'
 
 describe('DrawerMenu', () => {
     test('Renders DrawerMenu without errors', async () => {
-        renderWithProviders(<DrawerMenu isOpen={true} />)
+        renderWithProviders(<DrawerMenu isOpen={true} root={mockCategories.root} />)
 
         const drawer = document.querySelector('.chakra-portal')
         const accordion = document.querySelector('.chakra-accordion')

@@ -8,11 +8,28 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import ccValidator from 'card-validator'
 import {useIntl} from 'react-intl'
-import {Box, Flex, FormLabel, InputRightElement, SimpleGrid, Stack, Tooltip} from '@chakra-ui/react'
-import {formatCreditCardNumber, getCreditCardIcon} from '../../utils/cc-utils'
-import useCreditCardFields from './useCreditCardFields'
-import Field from '../field'
-import {AmexIcon, DiscoverIcon, MastercardIcon, VisaIcon, InfoIcon} from '../icons'
+import {
+    Box,
+    Flex,
+    FormLabel,
+    InputRightElement,
+    SimpleGrid,
+    Stack,
+    Tooltip
+} from '@salesforce/retail-react-app/app/components/shared/ui'
+import {
+    formatCreditCardNumber,
+    getCreditCardIcon
+} from '@salesforce/retail-react-app/app/utils/cc-utils'
+import useCreditCardFields from '@salesforce/retail-react-app/app/components/forms/useCreditCardFields'
+import Field from '@salesforce/retail-react-app/app/components/field'
+import {
+    AmexIcon,
+    DiscoverIcon,
+    MastercardIcon,
+    VisaIcon,
+    InfoIcon
+} from '@salesforce/retail-react-app/app/components/icons'
 
 const CreditCardFields = ({form, prefix = ''}) => {
     const {formatMessage} = useIntl()
@@ -88,8 +105,7 @@ const CreditCardFields = ({form, prefix = ''}) => {
                                 let value = evt.target.value.replace('/', '')
 
                                 // We ignore input values other than digits and `/`.
-                                // eslint-disable-next-line no-useless-escape
-                                if (value.match(/[^\d|\/]/g)) {
+                                if (value.match(/[^\d|/]/g)) {
                                     return
                                 }
 

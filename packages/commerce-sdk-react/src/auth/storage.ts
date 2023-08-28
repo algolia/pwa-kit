@@ -1,15 +1,36 @@
 /*
- * Copyright (c) 2022, Salesforce, Inc.
+ * Copyright (c) 2023, Salesforce, Inc.
  * All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import Cookies from 'js-cookie'
+import {onClient} from '../utils'
 
-export interface BaseStorage {
-    set(key: string, value: string, options?: unknown): void
-    get(key: string): string
-    delete(key: string): void
+export type StorageType = 'cookie' | 'local' | 'memory'
+
+export interface BaseStorageOptions {
+    keySuffix?: string
+}
+
+export interface MemoryStorageOptions extends BaseStorageOptions {
+    sharedContext?: boolean
+}
+export abstract class BaseStorage {
+    protected options: BaseStorageOptions = {}
+
+    constructor(options?: BaseStorageOptions) {
+        this.options = {
+            keySuffix: options?.keySuffix ?? ''
+        }
+    }
+
+    protected getSuffixedKey(key: string): string {
+        return this.options.keySuffix ? `${key}_${this.options.keySuffix}` : key
+    }
+    abstract set(key: string, value: string, options?: unknown): void
+    abstract get(key: string): string
+    abstract delete(key: string): void
 }
 
 /**
@@ -18,20 +39,31 @@ export interface BaseStorage {
  * or a customized storage. This class is mainly used for commerce-sdk-react library
  * to store authentication tokens.
  */
-export class CookieStorage implements BaseStorage {
-    constructor() {
+export class CookieStorage extends BaseStorage {
+    constructor(options?: BaseStorageOptions) {
+        super(options)
+
         if (typeof document === 'undefined') {
             throw new Error('CookieStorage is not avaliable on the current environment.')
         }
     }
     set(key: string, value: string, options?: Cookies.CookieAttributes) {
-        Cookies.set(key, value, {...options, secure: true})
+        const suffixedKey = this.getSuffixedKey(key)
+        Cookies.set(suffixedKey, value, {
+            // Deployed sites will always be HTTPS, but the local dev server is served over HTTP.
+            // Ideally, this would be `secure: true`, because Chrome and Firefox both treat
+            // localhost as a Secure context. But Safari doesn't, so here we are.
+            secure: !onClient() || window.location.protocol === 'https:',
+            ...options
+        })
     }
     get(key: string) {
-        return Cookies.get(key) || ''
+        const suffixedKey = this.getSuffixedKey(key)
+        return Cookies.get(suffixedKey) || ''
     }
     delete(key: string) {
-        Cookies.remove(key)
+        const suffixedKey = this.getSuffixedKey(key)
+        Cookies.remove(suffixedKey)
     }
 }
 
@@ -41,33 +73,61 @@ export class CookieStorage implements BaseStorage {
  * or a customized storage. This class is mainly used for commerce-sdk-react library
  * to store authentication tokens.
  */
-export class LocalStorage implements BaseStorage {
-    constructor() {
+export class LocalStorage extends BaseStorage {
+    constructor(options?: BaseStorageOptions) {
+        super(options)
+
         if (typeof window === 'undefined') {
             throw new Error('LocalStorage is not avaliable on the current environment.')
         }
     }
     set(key: string, value: string) {
         const oldValue = this.get(key)
-        window.localStorage.setItem(key, value)
+        const suffixedKey = this.getSuffixedKey(key)
+        window.localStorage.setItem(suffixedKey, value)
         const event = new StorageEvent('storage', {
-            key: key,
+            key: suffixedKey,
             oldValue: oldValue,
             newValue: value
         })
         window.dispatchEvent(event)
     }
     get(key: string) {
-        return window.localStorage.getItem(key) || ''
+        const suffixedKey = this.getSuffixedKey(key)
+        return window.localStorage.getItem(suffixedKey) || ''
     }
     delete(key: string) {
-        const oldValue = this.get(key)
-        window.localStorage.removeItem(key)
+        const suffixedKey = this.getSuffixedKey(key)
+        const oldValue = this.get(suffixedKey)
+        window.localStorage.removeItem(suffixedKey)
         const event = new StorageEvent('storage', {
-            key: key,
+            key: suffixedKey,
             oldValue: oldValue,
             newValue: null
         })
         window.dispatchEvent(event)
+    }
+}
+
+const globalMap = new Map()
+
+export class MemoryStorage extends BaseStorage {
+    private map: Map<string, string>
+    constructor(options?: MemoryStorageOptions) {
+        super(options)
+
+        this.map = options?.sharedContext ? globalMap : new Map()
+    }
+    set(key: string, value: string) {
+        const suffixedKey = this.getSuffixedKey(key)
+        this.map.set(suffixedKey, value)
+    }
+    get(key: string) {
+        const suffixedKey = this.getSuffixedKey(key)
+        return this.map.get(suffixedKey) || ''
+    }
+    delete(key: string) {
+        const suffixedKey = this.getSuffixedKey(key)
+        this.map.delete(suffixedKey)
     }
 }

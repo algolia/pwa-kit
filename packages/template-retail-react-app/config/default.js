@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const sites = require('./sites.js')
 
 module.exports = {
@@ -48,7 +49,7 @@ module.exports = {
         '**/*.json'
     ],
     ssrParameters: {
-        ssrFunctionNodeVersion: '14.x',
+        ssrFunctionNodeVersion: '18.x',
         proxyConfigs: [
             {
                 host: 'kv7kzm78.api.commercecloud.salesforce.com',

@@ -10,7 +10,7 @@ import {Router} from 'react-router'
 
 import {render} from '@testing-library/react'
 import {createMemoryHistory} from 'history'
-import {useVariationParams} from './use-variation-params'
+import {useVariationParams} from '@salesforce/retail-react-app/app/hooks/use-variation-params'
 
 // Below is a partial product used for mocking purposes. Note: only the properties
 // that are used in the hook at defined.
@@ -42,7 +42,7 @@ describe('The useVariationParams', () => {
             </Router>
         )
 
-        expect(wrapper.getByTestId('params').text).toEqual('{"color":"blue","size":"2"}')
+        expect(wrapper.getByTestId('params').text).toBe('{"color":"blue","size":"2"}')
     })
 
     test('returns correct params when there are non-product params in the url.', () => {
@@ -55,7 +55,7 @@ describe('The useVariationParams', () => {
             </Router>
         )
 
-        expect(wrapper.getByTestId('params').text).toEqual('{"color":"blue","size":"2"}')
+        expect(wrapper.getByTestId('params').text).toBe('{"color":"blue","size":"2"}')
     })
 
     test('returns correct params when there is only a subset product params in the url.', () => {
@@ -68,6 +68,6 @@ describe('The useVariationParams', () => {
             </Router>
         )
 
-        expect(wrapper.getByTestId('params').text).toEqual('{"color":"blue"}')
+        expect(wrapper.getByTestId('params').text).toBe('{"color":"blue"}')
     })
 })

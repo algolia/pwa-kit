@@ -15,10 +15,11 @@ import {
     AccordionItem,
     AccordionPanel,
     Box,
+    Text,
 
     // Hooks
     useStyleConfig
-} from '@chakra-ui/react'
+} from '@salesforce/retail-react-app/app/components/shared/ui'
 
 // Icons
 import {
@@ -30,9 +31,9 @@ import {
     FlagITIcon,
     FlagCNIcon,
     FlagJPIcon
-} from '../icons'
+} from '@salesforce/retail-react-app/app/components/icons'
 
-import LocaleText from '../locale-text'
+import LocaleText from '@salesforce/retail-react-app/app/components/locale-text'
 
 // NOTE: If you want to have flags shown next to a selectable locale, update this
 // mapping object with the short code as the key for the desired icon.
@@ -66,7 +67,9 @@ const LocaleSelector = ({selectedLocale = '', locales = [], onSelect = () => {},
                                 )}
                                 {/* Display flag icon if one exists */}
                                 {flags[selectedLocale]}
-                                <LocaleText {...styles.selectedText} shortCode={selectedLocale} />
+                                <Text {...styles.selectedText}>
+                                    <LocaleText shortCode={selectedLocale} />
+                                </Text>
                             </AccordionButton>
                             <AccordionPanel>
                                 <Accordion allowToggle={true} {...styles.accordion}>
@@ -80,10 +83,9 @@ const LocaleSelector = ({selectedLocale = '', locales = [], onSelect = () => {},
                                                 {flags[locale]}
 
                                                 {/* Locale name */}
-                                                <LocaleText
-                                                    {...styles.optionText}
-                                                    shortCode={locale}
-                                                />
+                                                <Text {...styles.optionText}>
+                                                    <LocaleText shortCode={locale} />
+                                                </Text>
 
                                                 {/* Selection indicator */}
                                                 {selectedLocale === locale && (

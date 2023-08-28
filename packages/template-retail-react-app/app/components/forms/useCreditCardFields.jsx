@@ -42,7 +42,13 @@ const messages = defineMessages({
  * @param {Object} form.errors - An object containing field errors
  * @returns {Object} Field definitions for use in a form
  */
-export default function useCreditCardFields({form: {control, errors}, prefix = ''}) {
+export default function useCreditCardFields({
+    form: {
+        control,
+        formState: {errors}
+    },
+    prefix = ''
+}) {
     const {formatMessage} = useIntl()
 
     const fields = {
@@ -61,7 +67,7 @@ export default function useCreditCardFields({form: {control, errors}, prefix = '
             },
             error: errors[`${prefix}number`],
             inputProps: {
-                inputmode: 'numeric'
+                inputMode: 'numeric'
             },
             control
         },
@@ -107,7 +113,7 @@ export default function useCreditCardFields({form: {control, errors}, prefix = '
             },
             error: errors[`${prefix}expiry`],
             inputProps: {
-                inputmode: 'numeric'
+                inputMode: 'numeric'
             },
             control
         },
@@ -126,7 +132,7 @@ export default function useCreditCardFields({form: {control, errors}, prefix = '
             },
             error: errors[`${prefix}securityCode`],
             inputProps: ({onChange}) => ({
-                inputmode: 'numeric',
+                inputMode: 'numeric',
                 maxLength: 4,
                 onChange(evt) {
                     onChange(evt.target.value.replace(/[^0-9 ]+/, ''))

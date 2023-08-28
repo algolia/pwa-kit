@@ -6,7 +6,7 @@
  */
 
 import React from 'react'
-import {useCategories} from 'commerce-sdk-react-preview'
+import {useCategories} from '@salesforce/commerce-sdk-react'
 import Json from '../components/Json'
 import {Link} from 'react-router-dom'
 import {flatten} from '../utils/utils'
@@ -18,8 +18,10 @@ function UseShopperCategories() {
         error,
         data: result
     } = useCategories({
-        ids: 'root',
-        levels: 2
+        parameters: {
+            ids: 'root',
+            levels: 2
+        }
     })
     if (isLoading) {
         return (

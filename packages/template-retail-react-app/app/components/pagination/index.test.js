@@ -5,8 +5,8 @@
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
 import React from 'react'
-import Pagination from './index'
-import {renderWithProviders} from '../../utils/test-utils'
+import Pagination from '@salesforce/retail-react-app/app/components/pagination/index'
+import {renderWithProviders} from '@salesforce/retail-react-app/app/utils/test-utils'
 
 const mockUrls = ['/test?offset=0', '/test?offset=25', '/test?offset=50', '/test?offset=75']
 const mockCurrentUrl = '/test?offset=25'
@@ -21,5 +21,5 @@ test('Renders Breadcrum', () => {
 
     expect(prev).toBeDefined()
     expect(next).toBeDefined()
-    expect(option.length).toEqual(mockUrls.length)
+    expect(option).toHaveLength(mockUrls.length)
 })
