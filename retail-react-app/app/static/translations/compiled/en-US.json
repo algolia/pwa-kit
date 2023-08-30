@@ -1353,12 +1353,6 @@
       "value": "Wishlist"
     }
   ],
-  "header.field.placeholder.search_for_products": [
-    {
-      "type": 0,
-      "value": "Search for products..."
-    }
-  ],
   "header.popover.action.log_out": [
     {
       "type": 0,
@@ -2211,22 +2205,6 @@
       "value": "Filter"
     }
   ],
-  "product_list.button.sort_by": [
-    {
-      "type": 0,
-      "value": "Sort By: "
-    },
-    {
-      "type": 1,
-      "value": "sortOption"
-    }
-  ],
-  "product_list.drawer.title.sort_by": [
-    {
-      "type": 0,
-      "value": "Sort By"
-    }
-  ],
   "product_list.modal.button.clear_filters": [
     {
       "type": 0,
@@ -2236,15 +2214,7 @@
   "product_list.modal.button.view_items": [
     {
       "type": 0,
-      "value": "View "
-    },
-    {
-      "type": 1,
-      "value": "prroductCount"
-    },
-    {
-      "type": 0,
-      "value": " items"
+      "value": "View items"
     }
   ],
   "product_list.modal.title.filter": [

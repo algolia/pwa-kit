@@ -558,9 +558,6 @@
   "header.button.assistive_msg.wishlist": {
     "defaultMessage": "Wishlist"
   },
-  "header.field.placeholder.search_for_products": {
-    "defaultMessage": "Search for products..."
-  },
   "header.popover.action.log_out": {
     "defaultMessage": "Log out"
   },
@@ -969,17 +966,11 @@
   "product_list.button.filter": {
     "defaultMessage": "Filter"
   },
-  "product_list.button.sort_by": {
-    "defaultMessage": "Sort By: {sortOption}"
-  },
-  "product_list.drawer.title.sort_by": {
-    "defaultMessage": "Sort By"
-  },
   "product_list.modal.button.clear_filters": {
     "defaultMessage": "Clear Filters"
   },
   "product_list.modal.button.view_items": {
-    "defaultMessage": "View {prroductCount} items"
+    "defaultMessage": "View items"
   },
   "product_list.modal.title.filter": {
     "defaultMessage": "Filter"
