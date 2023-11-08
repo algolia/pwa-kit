@@ -88,12 +88,14 @@ const ProductTile = (props) => {
     let imageUrl = ''
     let imageAlt = ''
     // eslint-disable-next-line react/prop-types
-    product.image_groups.forEach((imageGroup) => {
-        if (imageGroup.view_type == 'large') {
-            imageUrl = imageGroup.images[0].dis_base_link
-            imageAlt = imageGroup.images[0].alt
-        }
-    })
+    if ( product.image_groups ) {
+        product.image_groups.forEach((imageGroup) => {
+            if (imageGroup.view_type == 'large') {
+                imageUrl = imageGroup.images[0].dis_base_link
+                imageAlt = imageGroup.images[0].alt
+            }
+        })
+    }
 
     const productPrice = product.price ? product.price.USD : ''
     const {currency: activeCurrency} = useCurrency()
