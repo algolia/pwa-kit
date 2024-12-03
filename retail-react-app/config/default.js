@@ -6,6 +6,21 @@
  */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const sites = require('./sites.js')
+
+function parseEnvVar(envVarName) {
+    const val = process.env[envVarName];
+    if (val === undefined) {
+      throw new Error(`Environment variable ${envVarName} is required.`);
+    }
+    try {
+      return JSON.parse(val);
+    } catch (err) {
+        return val;
+        // throw new Error(
+        // `Environment variable ${envVarName} must be a valid JSON string.`
+      // );
+    }
+  }
 module.exports = {
     app: {
         // Customize how your 'site' and 'locale' are displayed in the url.
@@ -26,8 +41,8 @@ module.exports = {
         // The sites for your app, which is imported from sites.js
         sites,
         algolia: {
-            appId: 'YH9KIEOW1H',
-            apiKey: 'b09d6dab074870f67f7682f4aabaa474',
+            appId: parseEnvVar("ALGOLIA_APP_ID"),
+            apiKey: parseEnvVar("ALGOLIA_API_KEY"),
             indices: {
                 querySuggestions: 'zzsb_032_dx__NTOManaged__products__default_query_suggestions',
                 primary: {
@@ -50,10 +65,10 @@ module.exports = {
         commerceAPI: {
             proxyPath: '/mobify/proxy/api',
             parameters: {
-                clientId: '89da0584-f5e4-4820-8473-88ce0b86e71e',
-                organizationId: 'f_ecom_zzsb_032',
-                shortCode: 'kv7kzm78',
-                siteId: 'NTOManaged'
+                clientId: parseEnvVar("CLIENT_ID"),
+                organizationId: parseEnvVar("ORGANIZATION_ID"),
+                shortCode: parseEnvVar("SHORT_CODE"),
+                siteId: parseEnvVar("SITE_ID")
             }
         },
         // Einstein api config
@@ -90,11 +105,11 @@ module.exports = {
         ssrFunctionNodeVersion: '18.x',
         proxyConfigs: [
             {
-                host: 'kv7kzm78.api.commercecloud.salesforce.com',
+                host: parseEnvVar("API_URL"),
                 path: 'api'
             },
             {
-                host: 'zzsb-032.dx.commercecloud.salesforce.com',
+                host: parseEnvVar("OCAPI_URL"),
                 path: 'ocapi'
             }
         ]

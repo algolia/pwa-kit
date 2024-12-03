@@ -2833,20 +2833,6 @@
       "value": "]"
     }
   ],
-  "header.field.placeholder.search_for_products": [
-    {
-      "type": 0,
-      "value": "["
-    },
-    {
-      "type": 0,
-      "value": "Şḗḗȧȧřƈħ ƒǿǿř ƥřǿǿḓŭŭƈŧş..."
-    },
-    {
-      "type": 0,
-      "value": "]"
-    }
-  ],
   "header.popover.action.log_out": [
     {
       "type": 0,
@@ -4763,38 +4749,6 @@
       "value": "]"
     }
   ],
-  "product_list.button.sort_by": [
-    {
-      "type": 0,
-      "value": "["
-    },
-    {
-      "type": 0,
-      "value": "Şǿǿřŧ Ɓẏ: "
-    },
-    {
-      "type": 1,
-      "value": "sortOption"
-    },
-    {
-      "type": 0,
-      "value": "]"
-    }
-  ],
-  "product_list.drawer.title.sort_by": [
-    {
-      "type": 0,
-      "value": "["
-    },
-    {
-      "type": 0,
-      "value": "Şǿǿřŧ Ɓẏ"
-    },
-    {
-      "type": 0,
-      "value": "]"
-    }
-  ],
   "product_list.modal.button.clear_filters": [
     {
       "type": 0,
@@ -4816,15 +4770,7 @@
     },
     {
       "type": 0,
-      "value": "Ṽīḗḗẇ "
-    },
-    {
-      "type": 1,
-      "value": "prroductCount"
-    },
-    {
-      "type": 0,
-      "value": " īŧḗḗḿş"
+      "value": "Ṽīḗḗẇ īŧḗḗḿş"
     },
     {
       "type": 0,

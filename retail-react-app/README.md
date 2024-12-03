@@ -33,6 +33,16 @@ The Retail React App's configuration files are located in the `app/config` folde
 
 The full documentation for PWA Kit and Managed Runtime is hosted on the [Salesforce Developers](https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/overview) portal.
 
+## Algolia specific code files
+1. app/pages/product-list/index.jsx - contains the InstantSearch component and Hits components.
+1. app/pages/product-list/partials folder - contains several algolia-specific files, such as refinements, hits, insights.
+1. app/pages/product-detail/index.jsx - contains frequently bought together
+1. app/components/algolia-autocomplete/index.jsx - contains the autocomplete functionality
+1. app/components/algolia-product-tile/index.jsx - contains the product block
+1. app/components/algolia-recommend/index.jsx - contains the Algolia recommend functionality
+1. app/components/header/index.jsx - contains the insertion of the Algolia Autocomplete
+
+
 ### Useful Links:
 
 -   [Get Started](https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/getting-started.html)

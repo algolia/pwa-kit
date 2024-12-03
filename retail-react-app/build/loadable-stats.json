@@ -1,8 +1,8 @@
 {
   "name": "client",
-  "hash": "39d6ceeaaa93d9fdb84c",
-  "publicPath": "",
-  "outputPath": "/Users/peterhale/data/sites/pwa-kit/retail-react-app/build",
+  "hash": "ea7a55533f9238d459b4",
+  "publicPath": "/mobify/bundle/development/",
+  "outputPath": "/Users/peterhale/data/sites/salesforce/pwa-kit/retail-react-app/build",
   "assetsByChunkName": {
     "main": [
       "main.js"
@@ -54,15 +54,14 @@
     {
       "type": "asset",
       "name": "vendor.js",
-      "size": 1564066,
+      "size": 6442961,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true,
         "related": {
-          "license": "vendor.js.LICENSE.txt"
+          "sourceMap": "vendor.js.map"
         }
       },
       "chunkNames": [
@@ -75,20 +74,22 @@
       "auxiliaryChunkIdHints": [],
       "filteredRelated": 1,
       "chunks": [
-        736
+        "vendor"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
       "name": "main.js",
-      "size": 160830,
+      "size": 1195711,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "main.js.map"
+        }
       },
       "chunkNames": [
         "main"
@@ -96,43 +97,24 @@
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        179
-      ],
-      "auxiliaryChunks": []
-    },
-    {
-      "type": "asset",
-      "name": "pages-account.js",
-      "size": 34882,
-      "emitted": false,
-      "comparedForEmit": false,
-      "cached": true,
-      "info": {
-        "javascriptModule": false,
-        "minimized": true
-      },
-      "chunkNames": [
-        "pages-account"
-      ],
-      "chunkIdHints": [],
-      "auxiliaryChunkNames": [],
-      "auxiliaryChunkIdHints": [],
-      "chunks": [
-        760
+        "main"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
       "name": "pages-checkout.js",
-      "size": 34334,
+      "size": 169772,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "pages-checkout.js.map"
+        }
       },
       "chunkNames": [
         "pages-checkout"
@@ -140,21 +122,49 @@
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        541
+        "pages-checkout"
+      ],
+      "auxiliaryChunks": []
+    },
+    {
+      "type": "asset",
+      "name": "pages-account.js",
+      "size": 163883,
+      "emitted": false,
+      "comparedForEmit": false,
+      "cached": true,
+      "info": {
+        "javascriptModule": false,
+        "related": {
+          "sourceMap": "pages-account.js.map"
+        }
+      },
+      "chunkNames": [
+        "pages-account"
+      ],
+      "chunkIdHints": [],
+      "auxiliaryChunkNames": [],
+      "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
+      "chunks": [
+        "pages-account"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
       "name": "pages-product-list.js",
-      "size": 22854,
+      "size": 139346,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "pages-product-list.js.map"
+        }
       },
       "chunkNames": [
         "pages-product-list"
@@ -162,44 +172,24 @@
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        114
-      ],
-      "auxiliaryChunks": []
-    },
-    {
-      "type": "asset",
-      "name": "pages-checkout-confirmation.js",
-      "size": 19657,
-      "emitted": false,
-      "comparedForEmit": false,
-      "cached": true,
-      "info": {
-        "javascriptModule": false,
-        "minimized": true
-      },
-      "chunkNames": [
-        "pages-checkout-confirmation"
-      ],
-      "chunkIdHints": [],
-      "auxiliaryChunkNames": [],
-      "auxiliaryChunkIdHints": [],
-      "chunks": [
-        778,
-        997
+        "pages-product-list"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
       "name": "pages-cart.js",
-      "size": 18798,
+      "size": 70709,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "pages-cart.js.map"
+        }
       },
       "chunkNames": [
         "pages-cart"
@@ -207,146 +197,118 @@
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        363
+        "pages-cart"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
-      "name": "103.js",
-      "size": 17329,
+      "name": "app_components_product-view_index_jsx.js",
+      "size": 68708,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "app_components_product-view_index_jsx.js.map"
+        }
       },
       "chunkNames": [],
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        103,
-        997
+        "app_components_product-view_index_jsx"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
-      "name": "77.js",
-      "size": 14201,
+      "name": "pages-checkout-confirmation.js",
+      "size": 60798,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
-      },
-      "chunkNames": [],
-      "chunkIdHints": [],
-      "auxiliaryChunkNames": [],
-      "auxiliaryChunkIdHints": [],
-      "chunks": [
-        77
-      ],
-      "auxiliaryChunks": []
-    },
-    {
-      "type": "asset",
-      "name": "410.js",
-      "size": 12584,
-      "emitted": false,
-      "comparedForEmit": false,
-      "cached": true,
-      "info": {
-        "javascriptModule": false,
-        "minimized": true
-      },
-      "chunkNames": [],
-      "chunkIdHints": [],
-      "auxiliaryChunkNames": [],
-      "auxiliaryChunkIdHints": [],
-      "chunks": [
-        410
-      ],
-      "auxiliaryChunks": []
-    },
-    {
-      "type": "asset",
-      "name": "180.js",
-      "size": 11452,
-      "emitted": false,
-      "comparedForEmit": false,
-      "cached": true,
-      "info": {
-        "javascriptModule": false,
-        "minimized": true
-      },
-      "chunkNames": [],
-      "chunkIdHints": [],
-      "auxiliaryChunkNames": [],
-      "auxiliaryChunkIdHints": [],
-      "chunks": [
-        180
-      ],
-      "auxiliaryChunks": []
-    },
-    {
-      "type": "asset",
-      "name": "pages-product-detail.js",
-      "size": 10875,
-      "emitted": false,
-      "comparedForEmit": false,
-      "cached": true,
-      "info": {
-        "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "pages-checkout-confirmation.js.map"
+        }
       },
       "chunkNames": [
-        "pages-product-detail"
+        "pages-checkout-confirmation"
       ],
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        7
+        "pages-checkout-confirmation"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
-      "name": "pages-home.js",
-      "size": 9382,
+      "name": "app_components_action-card_index_jsx-app_components_address-display_index_jsx-app_components_-8b77ee.js",
+      "size": 58708,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "app_components_action-card_index_jsx-app_components_address-display_index_jsx-app_components_-8b77ee.js.map"
+        }
       },
-      "chunkNames": [
-        "pages-home"
-      ],
+      "chunkNames": [],
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        676
+        "app_components_action-card_index_jsx-app_components_address-display_index_jsx-app_components_-8b77ee"
+      ],
+      "auxiliaryChunks": []
+    },
+    {
+      "type": "asset",
+      "name": "app_components_order-summary_index_jsx.js",
+      "size": 50271,
+      "emitted": false,
+      "comparedForEmit": false,
+      "cached": true,
+      "info": {
+        "javascriptModule": false,
+        "related": {
+          "sourceMap": "app_components_order-summary_index_jsx.js.map"
+        }
+      },
+      "chunkNames": [],
+      "chunkIdHints": [],
+      "auxiliaryChunkNames": [],
+      "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
+      "chunks": [
+        "app_components_order-summary_index_jsx"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
       "name": "pages-account-wishlist.js",
-      "size": 6776,
+      "size": 48623,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "pages-account-wishlist.js.map"
+        }
       },
       "chunkNames": [
         "pages-account-wishlist"
@@ -354,43 +316,143 @@
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        997
+        "pages-account-wishlist"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
-      "name": "pages-reset-password.js",
-      "size": 2137,
+      "name": "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1.js",
+      "size": 45130,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1.js.map"
+        }
+      },
+      "chunkNames": [],
+      "chunkIdHints": [],
+      "auxiliaryChunkNames": [],
+      "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
+      "chunks": [
+        "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1"
+      ],
+      "auxiliaryChunks": []
+    },
+    {
+      "type": "asset",
+      "name": "pages-product-detail.js",
+      "size": 43167,
+      "emitted": false,
+      "comparedForEmit": false,
+      "cached": true,
+      "info": {
+        "javascriptModule": false,
+        "related": {
+          "sourceMap": "pages-product-detail.js.map"
+        }
       },
       "chunkNames": [
-        "pages-reset-password"
+        "pages-product-detail"
       ],
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        896
+        "pages-product-detail"
+      ],
+      "auxiliaryChunks": []
+    },
+    {
+      "type": "asset",
+      "name": "pages-home.js",
+      "size": 39662,
+      "emitted": false,
+      "comparedForEmit": false,
+      "cached": true,
+      "info": {
+        "javascriptModule": false,
+        "related": {
+          "sourceMap": "pages-home.js.map"
+        }
+      },
+      "chunkNames": [
+        "pages-home"
+      ],
+      "chunkIdHints": [],
+      "auxiliaryChunkNames": [],
+      "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
+      "chunks": [
+        "pages-home"
+      ],
+      "auxiliaryChunks": []
+    },
+    {
+      "type": "asset",
+      "name": "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c.js",
+      "size": 38284,
+      "emitted": false,
+      "comparedForEmit": false,
+      "cached": true,
+      "info": {
+        "javascriptModule": false,
+        "related": {
+          "sourceMap": "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c.js.map"
+        }
+      },
+      "chunkNames": [],
+      "chunkIdHints": [],
+      "auxiliaryChunkNames": [],
+      "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
+      "chunks": [
+        "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c"
+      ],
+      "auxiliaryChunks": []
+    },
+    {
+      "type": "asset",
+      "name": "app_components_algolia-product-tile_index_jsx.js",
+      "size": 17629,
+      "emitted": false,
+      "comparedForEmit": false,
+      "cached": true,
+      "info": {
+        "javascriptModule": false,
+        "related": {
+          "sourceMap": "app_components_algolia-product-tile_index_jsx.js.map"
+        }
+      },
+      "chunkNames": [],
+      "chunkIdHints": [],
+      "auxiliaryChunkNames": [],
+      "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
+      "chunks": [
+        "app_components_algolia-product-tile_index_jsx"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
       "name": "pages-login.js",
-      "size": 2094,
+      "size": 12465,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "pages-login.js.map"
+        }
       },
       "chunkNames": [
         "pages-login"
@@ -398,43 +460,49 @@
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        28
+        "pages-login"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
-      "name": "pages-page-not-found.js",
-      "size": 1796,
+      "name": "pages-reset-password.js",
+      "size": 11234,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "pages-reset-password.js.map"
+        }
       },
       "chunkNames": [
-        "pages-page-not-found"
+        "pages-reset-password"
       ],
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        710
+        "pages-reset-password"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
       "name": "pages-registration.js",
-      "size": 1345,
+      "size": 9015,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "pages-registration.js.map"
+        }
       },
       "chunkNames": [
         "pages-registration"
@@ -442,21 +510,49 @@
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        17
+        "pages-registration"
+      ],
+      "auxiliaryChunks": []
+    },
+    {
+      "type": "asset",
+      "name": "pages-page-not-found.js",
+      "size": 8070,
+      "emitted": false,
+      "comparedForEmit": false,
+      "cached": true,
+      "info": {
+        "javascriptModule": false,
+        "related": {
+          "sourceMap": "pages-page-not-found.js.map"
+        }
+      },
+      "chunkNames": [
+        "pages-page-not-found"
+      ],
+      "chunkIdHints": [],
+      "auxiliaryChunkNames": [],
+      "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
+      "chunks": [
+        "pages-page-not-found"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
       "name": "pages-login-redirect.js",
-      "size": 340,
+      "size": 3016,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "pages-login-redirect.js.map"
+        }
       },
       "chunkNames": [
         "pages-login-redirect"
@@ -464,28 +560,32 @@
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        721
+        "pages-login-redirect"
       ],
       "auxiliaryChunks": []
     },
     {
       "type": "asset",
-      "name": "146.js",
-      "size": 99,
+      "name": "_1242.js",
+      "size": 284,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "javascriptModule": false,
-        "minimized": true
+        "related": {
+          "sourceMap": "_1242.js.map"
+        }
       },
       "chunkNames": [],
       "chunkIdHints": [],
       "auxiliaryChunkNames": [],
       "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
       "chunks": [
-        146
+        "_1242"
       ],
       "auxiliaryChunks": []
     }
@@ -494,8 +594,8 @@
     "main": {
       "name": "main",
       "chunks": [
-        736,
-        179
+        "vendor",
+        "main"
       ],
       "assets": [
         {
@@ -507,36 +607,32 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 2,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-home": {
       "name": "pages-home",
       "chunks": [
-        736,
-        676
+        "pages-home"
       ],
       "assets": [
-        {
-          "name": "vendor.js"
-        },
         {
           "name": "pages-home.js"
         }
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 1,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-login": {
       "name": "pages-login",
       "chunks": [
-        28
+        "pages-login"
       ],
       "assets": [
         {
@@ -545,15 +641,15 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 1,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-registration": {
       "name": "pages-registration",
       "chunks": [
-        17
+        "pages-registration"
       ],
       "assets": [
         {
@@ -562,15 +658,15 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 1,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-reset-password": {
       "name": "pages-reset-password",
       "chunks": [
-        896
+        "pages-reset-password"
       ],
       "assets": [
         {
@@ -579,36 +675,40 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 1,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-account": {
       "name": "pages-account",
       "chunks": [
-        736,
-        410,
-        103,
-        77,
-        180,
-        760
+        "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1",
+        "app_components_product-view_index_jsx",
+        "app_components_order-summary_index_jsx",
+        "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c",
+        "app_components_action-card_index_jsx-app_components_address-display_index_jsx-app_components_-8b77ee",
+        "pages-account-wishlist",
+        "pages-account"
       ],
       "assets": [
         {
-          "name": "vendor.js"
+          "name": "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1.js"
         },
         {
-          "name": "410.js"
+          "name": "app_components_product-view_index_jsx.js"
         },
         {
-          "name": "103.js"
+          "name": "app_components_order-summary_index_jsx.js"
         },
         {
-          "name": "77.js"
+          "name": "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c.js"
         },
         {
-          "name": "180.js"
+          "name": "app_components_action-card_index_jsx-app_components_address-display_index_jsx-app_components_-8b77ee.js"
+        },
+        {
+          "name": "pages-account-wishlist.js"
         },
         {
           "name": "pages-account.js"
@@ -616,28 +716,32 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 7,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-cart": {
       "name": "pages-cart",
       "chunks": [
-        736,
-        410,
-        103,
-        363
+        "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1",
+        "app_components_product-view_index_jsx",
+        "app_components_order-summary_index_jsx",
+        "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c",
+        "pages-cart"
       ],
       "assets": [
         {
-          "name": "vendor.js"
+          "name": "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1.js"
         },
         {
-          "name": "410.js"
+          "name": "app_components_product-view_index_jsx.js"
         },
         {
-          "name": "103.js"
+          "name": "app_components_order-summary_index_jsx.js"
+        },
+        {
+          "name": "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c.js"
         },
         {
           "name": "pages-cart.js"
@@ -645,28 +749,32 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 5,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-checkout": {
       "name": "pages-checkout",
       "chunks": [
-        736,
-        103,
-        180,
-        541
+        "vendor",
+        "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1",
+        "app_components_order-summary_index_jsx",
+        "app_components_action-card_index_jsx-app_components_address-display_index_jsx-app_components_-8b77ee",
+        "pages-checkout"
       ],
       "assets": [
         {
           "name": "vendor.js"
         },
         {
-          "name": "103.js"
+          "name": "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1.js"
         },
         {
-          "name": "180.js"
+          "name": "app_components_order-summary_index_jsx.js"
+        },
+        {
+          "name": "app_components_action-card_index_jsx-app_components_address-display_index_jsx-app_components_-8b77ee.js"
         },
         {
           "name": "pages-checkout.js"
@@ -674,20 +782,20 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 5,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-checkout-confirmation": {
       "name": "pages-checkout-confirmation",
       "chunks": [
-        736,
-        778
+        "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1",
+        "pages-checkout-confirmation"
       ],
       "assets": [
         {
-          "name": "vendor.js"
+          "name": "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1.js"
         },
         {
           "name": "pages-checkout-confirmation.js"
@@ -695,15 +803,15 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 2,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-login-redirect": {
       "name": "pages-login-redirect",
       "chunks": [
-        721
+        "pages-login-redirect"
       ],
       "assets": [
         {
@@ -712,24 +820,28 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 1,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-product-detail": {
       "name": "pages-product-detail",
       "chunks": [
-        736,
-        410,
-        7
+        "vendor",
+        "app_components_product-view_index_jsx",
+        "app_components_algolia-product-tile_index_jsx",
+        "pages-product-detail"
       ],
       "assets": [
         {
           "name": "vendor.js"
         },
         {
-          "name": "410.js"
+          "name": "app_components_product-view_index_jsx.js"
+        },
+        {
+          "name": "app_components_algolia-product-tile_index_jsx.js"
         },
         {
           "name": "pages-product-detail.js"
@@ -737,20 +849,24 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 4,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-product-list": {
       "name": "pages-product-list",
       "chunks": [
-        736,
-        114
+        "vendor",
+        "app_components_algolia-product-tile_index_jsx",
+        "pages-product-list"
       ],
       "assets": [
         {
           "name": "vendor.js"
+        },
+        {
+          "name": "app_components_algolia-product-tile_index_jsx.js"
         },
         {
           "name": "pages-product-list.js"
@@ -758,28 +874,28 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 3,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-account-wishlist": {
       "name": "pages-account-wishlist",
       "chunks": [
-        736,
-        410,
-        77,
-        997
+        "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1",
+        "app_components_product-view_index_jsx",
+        "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c",
+        "pages-account-wishlist"
       ],
       "assets": [
         {
-          "name": "vendor.js"
+          "name": "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1.js"
         },
         {
-          "name": "410.js"
+          "name": "app_components_product-view_index_jsx.js"
         },
         {
-          "name": "77.js"
+          "name": "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c.js"
         },
         {
           "name": "pages-account-wishlist.js"
@@ -787,15 +903,15 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 4,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     },
     "pages-page-not-found": {
       "name": "pages-page-not-found",
       "chunks": [
-        710
+        "pages-page-not-found"
       ],
       "assets": [
         {
@@ -804,8 +920,8 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 0,
-      "auxiliaryAssetsSize": 0,
+      "filteredAuxiliaryAssets": 1,
+      "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
     }
@@ -813,123 +929,135 @@
   "generator": "loadable-components",
   "chunks": [
     {
-      "id": 179,
+      "id": "main",
       "files": [
         "main.js"
       ]
     },
     {
-      "id": 146,
+      "id": "_1242",
       "files": [
-        "146.js"
+        "_1242.js"
       ]
     },
     {
-      "id": 676,
+      "id": "pages-home",
       "files": [
         "pages-home.js"
       ]
     },
     {
-      "id": 28,
+      "id": "pages-login",
       "files": [
         "pages-login.js"
       ]
     },
     {
-      "id": 17,
+      "id": "pages-registration",
       "files": [
         "pages-registration.js"
       ]
     },
     {
-      "id": 896,
+      "id": "pages-reset-password",
       "files": [
         "pages-reset-password.js"
       ]
     },
     {
-      "id": 760,
+      "id": "pages-account",
       "files": [
         "pages-account.js"
       ]
     },
     {
-      "id": 363,
+      "id": "pages-cart",
       "files": [
         "pages-cart.js"
       ]
     },
     {
-      "id": 541,
+      "id": "pages-checkout",
       "files": [
         "pages-checkout.js"
       ]
     },
     {
-      "id": 778,
+      "id": "pages-checkout-confirmation",
       "files": [
         "pages-checkout-confirmation.js"
       ]
     },
     {
-      "id": 721,
+      "id": "pages-login-redirect",
       "files": [
         "pages-login-redirect.js"
       ]
     },
     {
-      "id": 7,
+      "id": "pages-product-detail",
       "files": [
         "pages-product-detail.js"
       ]
     },
     {
-      "id": 114,
+      "id": "pages-product-list",
       "files": [
         "pages-product-list.js"
       ]
     },
     {
-      "id": 997,
+      "id": "pages-account-wishlist",
       "files": [
         "pages-account-wishlist.js"
       ]
     },
     {
-      "id": 710,
+      "id": "pages-page-not-found",
       "files": [
         "pages-page-not-found.js"
       ]
     },
     {
-      "id": 736,
+      "id": "vendor",
       "files": [
         "vendor.js"
       ]
     },
     {
-      "id": 410,
+      "id": "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1",
       "files": [
-        "410.js"
+        "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1.js"
       ]
     },
     {
-      "id": 103,
+      "id": "app_components_product-view_index_jsx",
       "files": [
-        "103.js"
+        "app_components_product-view_index_jsx.js"
       ]
     },
     {
-      "id": 77,
+      "id": "app_components_order-summary_index_jsx",
       "files": [
-        "77.js"
+        "app_components_order-summary_index_jsx.js"
       ]
     },
     {
-      "id": 180,
+      "id": "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c",
       "files": [
-        "180.js"
+        "app_components_confirmation-modal_index_jsx-app_components_product-item_index_jsx-app_compone-5d0c1c.js"
+      ]
+    },
+    {
+      "id": "app_components_action-card_index_jsx-app_components_address-display_index_jsx-app_components_-8b77ee",
+      "files": [
+        "app_components_action-card_index_jsx-app_components_address-display_index_jsx-app_components_-8b77ee.js"
+      ]
+    },
+    {
+      "id": "app_components_algolia-product-tile_index_jsx",
+      "files": [
+        "app_components_algolia-product-tile_index_jsx.js"
       ]
     }
   ]
