@@ -6,7 +6,7 @@
  */
 import React from 'react'
 import {Box, Divider, Text} from '@chakra-ui/react'
-import {useHits} from 'react-instantsearch-hooks-web'
+import {useHits} from 'react-instantsearch'
 import {useHasRefinements} from '@salesforce/retail-react-app/app/hooks/use-has-refinements'
 
 import PropTypes from 'prop-types'

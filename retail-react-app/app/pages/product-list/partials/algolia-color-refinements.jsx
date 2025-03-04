@@ -10,7 +10,7 @@ import {useIntl} from 'react-intl'
 import PropTypes from 'prop-types'
 import {cssColorGroups} from '../../../constants'
 import {capitalize} from '../../../utils/utils'
-import {useRefinementList} from 'react-instantsearch-hooks-web'
+import {useRefinementList} from 'react-instantsearch'
 import AlgoliaRefinementsContainer from './algolia-refinements-container'
 
 const AlgoliaColorRefinements = (props) => {

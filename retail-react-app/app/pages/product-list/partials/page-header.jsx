@@ -15,7 +15,7 @@ import {useIntl} from 'react-intl'
 import Breadcrumb from '@salesforce/retail-react-app/app/components/breadcrumb'
 
 // Algolia
-import {useHits, useInstantSearch} from 'react-instantsearch-hooks-web'
+import {useHits, useInstantSearch} from 'react-instantsearch'
 
 const PageHeader = ({category, productSearchResult, isLoading, searchQuery, ...otherProps}) => {
     const intl = useIntl()

@@ -72,6 +72,7 @@
     "card-validator": "^8.1.1",
     "cross-env": "^5.2.1",
     "cross-fetch": "^3.1.4",
+    "dotenv": "^16.4.7",
     "focus-visible": "^5.2.0",
     "framer-motion": "^10.12.9",
     "full-icu": "^1.5.0",
@@ -92,7 +93,9 @@
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.43.9",
+    "react-instantsearch": "^7.15.4",
     "react-instantsearch-hooks-web": "^6.43.0",
+    "react-instantsearch-core": "^7.0.0",
     "react-intl": "^5.25.1",
     "react-router-dom": "^5.3.4"
   },
