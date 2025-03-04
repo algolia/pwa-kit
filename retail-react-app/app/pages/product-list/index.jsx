@@ -529,7 +529,7 @@ const ProductList = (props) => {
                                     justifyContent={['center', 'center', 'flex-start']}
                                     paddingTop={16}
                                 >
-                                    <AlgoliaPagination onPageChange={() => window.scrollTo(0, 0)} />
+                                    {/* <AlgoliaPagination onPageChange={() => window.scrollTo(0, 0)} /> */}
                                 </Flex>
                             </Box>
                         </Grid>

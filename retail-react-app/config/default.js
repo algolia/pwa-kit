@@ -6,7 +6,7 @@
  */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const sites = require('./sites.js')
-
+import 'dotenv/config';
 function parseEnvVar(envVarName) {
     const val = process.env[envVarName];
     if (val === undefined) {
@@ -47,7 +47,7 @@ module.exports = {
                 querySuggestions: 'zzsb_032_dx__NTOManaged__products__default_query_suggestions',
                 primary: {
                     label: 'Sort By: Best Matches',
-                    value: 'zzsb_032_dx__NTOManaged__products__default'
+                    value: 'staging_web_vineyardvines_demandware_net__Vineyard-Vines__products__default'
                 },
                 replicas: [
                     {

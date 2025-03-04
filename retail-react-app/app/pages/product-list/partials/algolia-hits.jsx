@@ -4,15 +4,34 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import React, {Fragment} from 'react'
+import React, { useEffect, useRef, Fragment } from "react";
 import PropTypes from 'prop-types'
-import {useHits, useInstantSearch} from 'react-instantsearch'
-import {Skeleton as ProductTileSkeleton} from '../../../components/product-tile'
+import { useInfiniteHits, useInstantSearch } from 'react-instantsearch'
+import { Skeleton as ProductTileSkeleton } from '../../../components/product-tile'
 
 const AlgoliaHits = (props) => {
-    const {hitComponent, isLoading} = props
-    const {hits, sendEvent} = useHits(props)
-    const {status} = useInstantSearch(props)
+    const { hitComponent, isLoading } = props
+    const { hits, isLastPage, showMore, sendEvent } = useInfiniteHits(props);
+    const sentinelRef = useRef(null);
+    const { status } = useInstantSearch(props)
+
+    useEffect(() => {
+        if (sentinelRef.current !== null) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && !isLastPage) {
+                        showMore();
+                    }
+                });
+            });
+
+            observer.observe(sentinelRef.current);
+
+            return () => {
+                observer.disconnect();
+            };
+        }
+    }, [isLastPage, showMore]);
 
     if (isLoading || status === 'loading' || status === 'stalled') {
         return (
@@ -24,11 +43,18 @@ const AlgoliaHits = (props) => {
         )
     }
 
+
+
     return (
         <>
             {hits.map((hit, idx) => (
-                <Fragment key={idx}>{hitComponent({hit, sendEvent})}</Fragment>
+                <Fragment key={idx}>{hitComponent({ hit, sendEvent })}</Fragment>
             ))}
+            <div
+                className="ais-InfiniteHits-sentinel"
+                ref={sentinelRef}
+                aria-hidden="true"
+            />
         </>
     )
 }
