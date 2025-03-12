@@ -61,6 +61,9 @@ import useEinstein from '@salesforce/retail-react-app/app/hooks/use-einstein'
 // Others
 import {HTTPNotFound, HTTPError} from '@salesforce/pwa-kit-react-sdk/ssr/universal/errors'
 
+import { createInfiniteHitsSessionStorageCache } from "instantsearch.js/es/lib/infiniteHitsCache";
+
+
 // Constants
 import {
     DEFAULT_LIMIT_VALUES,
@@ -98,6 +101,9 @@ import AlgoliaUiStateProvider from './partials/algolia-uistate-provider'
 // list of ignored refinements.
 const REFINEMENT_DISALLOW_LIST = ['c_isNew']
 
+const sessionStorageCache = createInfiniteHitsSessionStorageCache();
+
+
 /*
  * This is a simple product listing page. It displays a paginated list
  * of product hit objects. Allowing for sorting and filtering based on the
@@ -130,6 +136,7 @@ const ProductList = (props) => {
     const allIndices = [algoliaConfig.indices.primary, ...algoliaConfig.indices.replicas]
     const indexName = algoliaConfig.indices.primary.value
 
+    
     const searchClient = useMemo(() => {
         return algoliasearch(algoliaConfig.appId, algoliaConfig.apiKey)
     }, [])
@@ -478,6 +485,7 @@ const ProductList = (props) => {
                                 >
                                     <AlgoliaHits
                                         isLoading={isLoading}
+                                        cache={sessionStorageCache}
                                         hitComponent={({hit, sendEvent}) => {
                                             const isInWishlist = false;
 
@@ -525,12 +533,12 @@ const ProductList = (props) => {
                                     />
                                 </SimpleGrid>
                                 {/* Footer */}
-                                <Flex
+                                {/* <Flex
                                     justifyContent={['center', 'center', 'flex-start']}
                                     paddingTop={16}
                                 >
-                                    {/* <AlgoliaPagination onPageChange={() => window.scrollTo(0, 0)} /> */}
-                                </Flex>
+                                    <AlgoliaPagination onPageChange={() => window.scrollTo(0, 0)} />
+                                </Flex> */}
                             </Box>
                         </Grid>
                     </>
