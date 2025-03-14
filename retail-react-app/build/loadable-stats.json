@@ -1,12 +1,12 @@
 {
   "name": "client",
-  "hash": "67304b5cfb8498341426",
+  "hash": "da90f1edd3c0373bbe1f",
   "publicPath": "/mobify/bundle/development/",
   "outputPath": "/Users/peterhale/data/sites/salesforce/pwa-kit/retail-react-app/build",
   "assetsByChunkName": {
     "main": [
       "main.js",
-      "main.24c7cd1dce9e0b13229e.hot-update.js"
+      "main.465d97d112e7022bef84.hot-update.js"
     ],
     "pages-home": [
       "pages-home.js"
@@ -40,7 +40,7 @@
     ],
     "pages-product-list": [
       "pages-product-list.js",
-      "pages-product-list.24c7cd1dce9e0b13229e.hot-update.js"
+      "pages-product-list.465d97d112e7022bef84.hot-update.js"
     ],
     "pages-account-wishlist": [
       "pages-account-wishlist.js"
@@ -56,7 +56,7 @@
     {
       "type": "asset",
       "name": "vendor.js",
-      "size": 6577734,
+      "size": 6582237,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -158,7 +158,7 @@
     {
       "type": "asset",
       "name": "pages-product-list.js",
-      "size": 139426,
+      "size": 135828,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -374,17 +374,17 @@
     },
     {
       "type": "asset",
-      "name": "pages-product-list.24c7cd1dce9e0b13229e.hot-update.js",
-      "size": 42508,
+      "name": "pages-product-list.465d97d112e7022bef84.hot-update.js",
+      "size": 40700,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
       "info": {
         "hotModuleReplacement": true,
         "immutable": true,
-        "fullhash": "24c7cd1dce9e0b13229e",
+        "fullhash": "465d97d112e7022bef84",
         "related": {
-          "sourceMap": "pages-product-list.24c7cd1dce9e0b13229e.hot-update.js.map"
+          "sourceMap": "pages-product-list.465d97d112e7022bef84.hot-update.js.map"
         }
       },
       "chunkNames": [
@@ -597,7 +597,7 @@
     },
     {
       "type": "asset",
-      "name": "main.24c7cd1dce9e0b13229e.hot-update.js",
+      "name": "main.465d97d112e7022bef84.hot-update.js",
       "size": 356,
       "emitted": false,
       "comparedForEmit": false,
@@ -605,9 +605,9 @@
       "info": {
         "hotModuleReplacement": true,
         "immutable": true,
-        "fullhash": "24c7cd1dce9e0b13229e",
+        "fullhash": "465d97d112e7022bef84",
         "related": {
-          "sourceMap": "main.24c7cd1dce9e0b13229e.hot-update.js.map"
+          "sourceMap": "main.465d97d112e7022bef84.hot-update.js.map"
         }
       },
       "chunkNames": [
@@ -647,7 +647,7 @@
     },
     {
       "type": "asset",
-      "name": "main.24c7cd1dce9e0b13229e.hot-update.json",
+      "name": "main.465d97d112e7022bef84.hot-update.json",
       "size": 49,
       "emitted": false,
       "comparedForEmit": false,
@@ -655,7 +655,7 @@
       "info": {
         "hotModuleReplacement": true,
         "immutable": true,
-        "fullhash": "24c7cd1dce9e0b13229e"
+        "fullhash": "465d97d112e7022bef84"
       },
       "chunkNames": [],
       "chunkIdHints": [],
@@ -680,7 +680,7 @@
           "name": "main.js"
         },
         {
-          "name": "main.24c7cd1dce9e0b13229e.hot-update.js"
+          "name": "main.465d97d112e7022bef84.hot-update.js"
         }
       ],
       "filteredAssets": 0,
@@ -950,7 +950,7 @@
           "name": "pages-product-list.js"
         },
         {
-          "name": "pages-product-list.24c7cd1dce9e0b13229e.hot-update.js"
+          "name": "pages-product-list.465d97d112e7022bef84.hot-update.js"
         }
       ],
       "filteredAssets": 0,
@@ -1013,7 +1013,7 @@
       "id": "main",
       "files": [
         "main.js",
-        "main.24c7cd1dce9e0b13229e.hot-update.js"
+        "main.465d97d112e7022bef84.hot-update.js"
       ]
     },
     {
@@ -1086,7 +1086,7 @@
       "id": "pages-product-list",
       "files": [
         "pages-product-list.js",
-        "pages-product-list.24c7cd1dce9e0b13229e.hot-update.js"
+        "pages-product-list.465d97d112e7022bef84.hot-update.js"
       ]
     },
     {

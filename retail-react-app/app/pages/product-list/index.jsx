@@ -86,12 +86,8 @@ import {Configure, InstantSearch} from 'react-instantsearch'
 import ProductTile from '../../components/algolia-product-tile'
 import AlgoliaHits from './partials/algolia-hits'
 import AlgoliaCurrentRefinements from './partials/algolia-current-refinements'
-import AlgoliaHierarchicalRefinements from './partials/algolia-hierarchical-refinements'
-import AlgoliaColorRefinements from './partials/algolia-color-refinements'
 import AlgoliaNoResultsBoundary from './partials/algolia-no-results-boundary'
-import AlgoliaSizeRefinements from './partials/algolia-size-refinements'
-import AlgoliaRangeRefinements from './partials/algolia-range-refinements'
-import AlgoliaPagination from './partials/algolia-pagination'
+import AlgoliaDynamicWidgetRefinement from './partials/algolia-dynamic-widgets-refinement'
 import AlgoliaSortBy from './partials/algolia-sort-by'
 import AlgoliaClearRefinements from './partials/algolia-clear-refinements'
 import AlgoliaUiStateProvider from './partials/algolia-uistate-provider'
@@ -141,12 +137,6 @@ const ProductList = (props) => {
         return algoliasearch(algoliaConfig.appId, algoliaConfig.apiKey)
     }, [])
 
-    const hierarchicalCategoryAttributes = [
-        `__primary_category.0`,
-        `__primary_category.1`,
-        `__primary_category.2`
-    ]
-
     const currentRefinementAttributes = [
         'size',
         'refinementColor',
@@ -155,15 +145,7 @@ const ProductList = (props) => {
     ]
 
     const filterEls = (
-        <>
-            <AlgoliaHierarchicalRefinements
-                attributes={hierarchicalCategoryAttributes}
-                title="Category"
-            />
-            <AlgoliaColorRefinements attribute="refinementColor" title="Color" />
-            <AlgoliaSizeRefinements attribute="size" title="Size" />
-            <AlgoliaRangeRefinements attribute="price.USD" title="Price" />
-        </>
+        <AlgoliaDynamicWidgetRefinement></AlgoliaDynamicWidgetRefinement>
     )    
 
     /**************** Page State ****************/
