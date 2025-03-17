@@ -14,12 +14,14 @@ import PropTypes from 'prop-types'
 const AlgoliaRefinementsContainer = (props) => {
     const divider = props.divider === undefined ? true : divider
     const {results} = useHits()
+    let title = props.title;
+    if ( typeof(title) == 'undefined') title = props.attributes;
     const hasRefinements = useHasRefinements(results, props.attributes)
 
     return (
         <Box display={hasRefinements ? 'block' : 'none'}>
             <Text fontSize="md" fontWeight={600}>
-                {props.title}
+                {title}
             </Text>
             <Box mt="4">{props.children}</Box>
             {divider && <Divider mt="6" />}
