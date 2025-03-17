@@ -6,6 +6,8 @@
  */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const sites = require('./sites.js')
+const algoliaConfig = require('./algolia-config.json')
+
 import 'dotenv/config';
 function parseEnvVar(envVarName) {
     const val = process.env[envVarName];
@@ -40,27 +42,7 @@ module.exports = {
         // },
         // The sites for your app, which is imported from sites.js
         sites,
-        algolia: {
-            appId: parseEnvVar("ALGOLIA_APP_ID"),
-            apiKey: parseEnvVar("ALGOLIA_API_KEY"),
-            indices: {
-                querySuggestions: 'zzsb_032_dx__NTOManaged__products__default_query_suggestions',
-                primary: {
-                    label: 'Sort By: Best Matches',
-                    value: 'staging_web_vineyardvines_demandware_net__Vineyard-Vines__products__default'
-                },
-                replicas: [
-                    {
-                        label: 'Sort By: Price Low to High',
-                        value: 'zzsb_032_dx__NTOManaged__products__default_price_asc'
-                    },
-                    {
-                        label: 'Sort By: Price High to Low',
-                        value: 'zzsb_032_dx__NTOManaged__products__default_price_desc'
-                    }
-                ]
-            }
-        },
+        algolia: algoliaConfig,
         // Commerce api config
         commerceAPI: {
             proxyPath: '/mobify/proxy/api',
