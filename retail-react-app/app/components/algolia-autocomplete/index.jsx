@@ -6,7 +6,7 @@
  */
 /* eslint-disable react/prop-types */
 
-import React, {createElement, Fragment, useCallback, useEffect, useMemo, useRef} from 'react'
+import React, {createElement, Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {render} from 'react-dom'
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 import {Box, useMultiStyleConfig, Text, Link} from '@chakra-ui/react'
@@ -133,7 +133,10 @@ function AlgoliaAutocomplete() {
         }
     })
 
+    const [showSearchBox, setShowSearchBox] = useState(false);
+
     useEffect(() => {
+        console.log(`useEffect ${containerRef.current}`);
         if (!containerRef.current) {
             return undefined
         }
@@ -189,6 +192,9 @@ function AlgoliaAutocomplete() {
             onSelect({state}) {
                 navigate(`/search?q=${state.query}`)
             },
+            onReset({state}) {
+                setShowSearchBox(false);
+            },
             render({elements}, root) {
                 const {recentSearchesPlugin, querySuggestionsPlugin, products} = elements
 
@@ -212,9 +218,21 @@ function AlgoliaAutocomplete() {
         return () => {
             search.destroy()
         }
-    }, [])
+    }, [showSearchBox])
 
-    return <div ref={containerRef} />
+    const onClickHandler = (e) => {
+        setShowSearchBox(true);
+    }
+
+    return <div> { showSearchBox ? <div ref={containerRef} /> : 
+                <button onClick={onClickHandler}>
+                    <Box className="aa-ItemIcon aa-ItemIcon--noBorder">
+                        <SearchIcon />
+                    </Box>
+                </button>
+            }
+            </div>
+            
 }
 
 function SearchIcon() {
