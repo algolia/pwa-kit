@@ -12,7 +12,7 @@ import PropTypes from 'prop-types'
 
 const AlgoliaClearRefinements = (props) => {
     const {variant, ...otherProps} = props
-    const {canRefine, refine} = useClearRefinements(otherProps)
+    const {canRefine, refine} = useClearRefinements(props)
 
     if (variant === 'button') {
         return (
@@ -23,6 +23,11 @@ const AlgoliaClearRefinements = (props) => {
                 />
             </Button>
         )
+    }
+
+    const handleClear = () => {
+        console.log(`algolia -- clear refinements`);
+        refine();
     }
 
     return (

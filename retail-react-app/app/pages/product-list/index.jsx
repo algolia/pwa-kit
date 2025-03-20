@@ -325,19 +325,6 @@ const ProductList = (props) => {
         )
     }
 
-    // Clears all filters
-    const resetFilters = () => {
-        const newSearchParams = {
-            ...searchParams,
-            refine: []
-        }
-        const newPath = isSearch
-            ? `/search?${stringifySearchParams(newSearchParams)}`
-            : `/category/${params.categoryId}?${stringifySearchParams(newSearchParams)}`
-
-        navigate(newPath)
-    }
-
     /**************** Einstein ****************/
     useEffect(() => {
         if (productSearchResult) {
@@ -346,6 +333,7 @@ const ProductList = (props) => {
                 : einstein.sendViewCategory(category, productSearchResult)
         }
     }, [productSearchResult])
+    console.log('algolia -- displaying product list page');
 
     return (
         <Box
@@ -392,7 +380,7 @@ const ProductList = (props) => {
                                 <AlgoliaCurrentRefinements
                                     includedAttributes={currentRefinementAttributes}
                                 />
-                                <AlgoliaClearRefinements />
+                                <AlgoliaClearRefinements includedAttributes={currentRefinementAttributes} />
                             </Flex>
                             <Box paddingTop={'45px'}>
                                 <AlgoliaSortBy items={allIndices} />
