@@ -36,11 +36,11 @@ export function ProductItem({hit, components}) {
                 <Box className="aa-ItemContentBody">
                     <Box>
                         <Text className="aa-ItemContentBrand">
-                            <components.Highlight hit={hit} attribute="brand" />
+                            {hit.brand}
                         </Text>
                         <Box className="aa-ItemContentTitleWrapper">
                             <Text className="aa-ItemContentTitle">
-                                <components.Highlight hit={hit} attribute="name" />
+                                {hit.name}
                             </Text>
                         </Box>
                     </Box>

@@ -32,7 +32,6 @@ import {AuthHelpers, useAuthHelper, useCustomerType} from '@salesforce/commerce-
 import {useCurrentBasket} from '@salesforce/retail-react-app/app/hooks/use-current-basket'
 
 import Link from '@salesforce/retail-react-app/app/components/link'
-import Search from '@salesforce/retail-react-app/app/components/search'
 import withRegistration from '@salesforce/retail-react-app/app/components/with-registration'
 import {
     AccountIcon,
@@ -145,14 +144,7 @@ const Header = ({
                     />
                     <Box {...styles.bodyContainer}>{children}</Box>
                     <Box {...styles.searchContainer}>
-                        <AlgoliaAutocomplete />
-                        {/* <Search
-                            placeholder={intl.formatMessage({
-                                id: 'header.field.placeholder.search_for_products',
-                                defaultMessage: 'Search for products...'
-                            })}
-                            {...styles.search}
-                        /> */}
+                        <AlgoliaAutocomplete showSearchBox="false" />
                     </Box>
                     <AccountIcon
                         {...styles.accountIcon}

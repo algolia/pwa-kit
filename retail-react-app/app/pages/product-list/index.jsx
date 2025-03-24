@@ -333,7 +333,6 @@ const ProductList = (props) => {
                 : einstein.sendViewCategory(category, productSearchResult)
         }
     }, [productSearchResult])
-    console.log('algolia -- displaying product list page');
 
     return (
         <Box

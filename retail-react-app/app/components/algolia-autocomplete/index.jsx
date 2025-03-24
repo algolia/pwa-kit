@@ -6,39 +6,42 @@
  */
 /* eslint-disable react/prop-types */
 
-import React, {createElement, Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {render} from 'react-dom'
-import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
-import {Box, useMultiStyleConfig, Text, Link} from '@chakra-ui/react'
+import React, { createElement, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { render } from 'react-dom'
+import { getConfig } from '@salesforce/pwa-kit-runtime/utils/ssr-config'
+import { Box, useMultiStyleConfig, Text, Link } from '@chakra-ui/react'
 import useNavigation from '../../hooks/use-navigation'
 import useMultiSite from '../../hooks/use-multi-site'
 import algoliasearch from 'algoliasearch/lite'
-import {autocomplete, getAlgoliaResults} from '@algolia/autocomplete-js'
-import {createLocalStorageRecentSearchesPlugin} from '@algolia/autocomplete-plugin-recent-searches'
-import {createQuerySuggestionsPlugin} from '@algolia/autocomplete-plugin-query-suggestions'
-import {ProductItem} from './product-item'
+import { getAlgoliaResults } from '@algolia/autocomplete-preset-algolia'
+import { createAutocomplete } from '@algolia/autocomplete-core';
+import { createLocalStorageRecentSearchesPlugin } from '@algolia/autocomplete-plugin-recent-searches'
+import { createQuerySuggestionsPlugin } from '@algolia/autocomplete-plugin-query-suggestions'
+import { ProductItem } from './product-item'
 
-function AlgoliaAutocomplete() {
+import '@algolia/autocomplete-theme-classic';
+
+function AlgoliaAutocomplete(props) {
     const containerRef = useRef(null)
     const navigate = useNavigation()
-    const {buildUrl} = useMultiSite()
+    const { buildUrl } = useMultiSite()
     const styles = useMultiStyleConfig('AlgoliaAutocomplete')
 
-    let {app: algoliaConfig} = useMemo(() => getConfig(), [])
+    let { app: algoliaConfig } = useMemo(() => getConfig(), [])
     algoliaConfig = {
         ...algoliaConfig.algolia
     }
 
     const productIndexName = algoliaConfig.indices.primary.value
 
-    const searchClient = useMemo(() => {
-        return algoliasearch(algoliaConfig.appId, algoliaConfig.apiKey)
-    }, [])
+    const searchClient = algoliasearch(algoliaConfig.appId, algoliaConfig.apiKey);
 
     const itemClicked = useCallback(
         (e) => {
             e.preventDefault()
-            navigate(`/search?q=${e.target.outerText}`)
+            navigate(`/search?q=${e.target.outerText}`);
+            setShowSearchBox(false);
+            autocomplete.setIsOpen(false);
         },
         [navigate]
     )
@@ -51,43 +54,12 @@ function AlgoliaAutocomplete() {
                 hitsPerPage: 7
             }
         },
-        transformSource({source}) {
+        transformSource({ source }) {
             return {
                 ...source,
-                getItemUrl({item}) {
+                getItemUrl({ item }) {
                     return buildUrl(`/search?q=${item.query}`)
                 },
-                templates: {
-                    header() {
-                        return (
-                            <Box>
-                                <Text className="aa-SourceHeaderTitle">Popular searches</Text>
-                                <Box className="aa-SourceHeaderLine" />
-                            </Box>
-                        )
-                    },
-                    item({item, components}) {
-                        return (
-                            <Link className="aa-ItemLink" onClick={itemClicked}>
-                                <Box className="aa-ItemWrapper">
-                                    <Box className="aa-ItemIcon aa-ItemIcon--noBorder">
-                                        <SearchIcon />
-                                    </Box>
-                                    <Box className="aa-ItemContent">
-                                        <Box className="aa-ItemContentBody">
-                                            <Box className="aa-ItemContentTitle">
-                                                <components.Highlight
-                                                    hit={item}
-                                                    attribute="query"
-                                                />
-                                            </Box>
-                                        </Box>
-                                    </Box>
-                                </Box>
-                            </Link>
-                        )
-                    }
-                }
             }
         }
     })
@@ -95,144 +67,239 @@ function AlgoliaAutocomplete() {
     const recentSearchesPlugin = createLocalStorageRecentSearchesPlugin({
         key: 'recentSearch',
         limit: 4,
-        transformSource({source}) {
+        transformSource({ source }) {
             return {
                 ...source,
-                getItemUrl({item}) {
+                getItemUrl({ item }) {
                     return buildUrl(`/search?q=${item.query}`)
                 },
-                templates: {
-                    header() {
-                        return (
-                            <Box>
-                                <Text className="aa-SourceHeaderTitle">Recent searches</Text>
-                                <Box className="aa-SourceHeaderLine" />
-                            </Box>
-                        )
-                    },
-                    item({item}) {
-                        return (
-                            <Link className="aa-ItemLink" onClick={itemClicked}>
-                                <Box className="aa-ItemWrapper">
+            }
+        }
+    })
+
+    const startState = props && props.showSearchBox && (props.showSearchBox == "true");
+    const [showSearchBox, setShowSearchBox] = useState(startState);
+
+    const [autocompleteState, setAutocompleteState] = useState({});
+
+    const productsContainer = (query) => {
+
+        return {
+            sourceId: 'products',
+            getItemInputValue({ item }) {
+                return item.query;
+            },
+            getItems() {
+                return getAlgoliaResults({
+                    searchClient,
+                    queries: [
+                        {
+                            indexName: productIndexName,
+                            query,
+                            params: {
+                                hitsPerPage: 4
+                            }
+                        }
+                    ]
+                })
+            },
+            getItemUrl({ item }) {
+                return item.url;
+            },
+        }
+    };
+    const autocomplete = useMemo(() => createAutocomplete({
+        plugins: [recentSearchesPlugin, querySuggestionsPlugin],
+        placeholder: 'Search products',
+        openOnFocus: true,
+        insights: true,
+        id: 'autocomplete-0',
+        onStateChange({ state }) {
+            // (2) Synchronize the Autocomplete state with the React state.
+            console.log(`autocomplete state is open ${state.isOpen}`, state);
+            setAutocompleteState(state);
+        },
+        getSources({ query }) {
+            return [
+                productsContainer(query)
+            ]
+        },
+        onSubmit({ state }) {
+            navigate(`/search?q=${state.query}`)
+        },
+        onSelect({ state }) {
+            navigate(`/search?q=${state.query}`)
+        },
+        onReset({ state }) {
+            onResetCalled(state);
+        }
+    }), []);
+
+    const collectionsProvider = (collections, callback) => {
+        let recentSearches;
+        let querySuggestions;
+        let products;
+        for (let i = 0; i < collections.length; i++) {
+            const collection = collections[i];
+            if (collection.source.sourceId == 'products') {
+                products = collection;
+            }
+            if (collection.source.sourceId == 'querySuggestionsPlugin') {
+                querySuggestions = collection;
+            }
+            if (collection.source.sourceId == 'recentSearchesPlugin') {
+                recentSearches = collection;
+            }
+        }
+        return callback(recentSearches, querySuggestions, products);
+    }
+
+    const onClickHandler = (e) => {
+        setShowSearchBox(true);
+    }
+
+    const inputRef = useRef(null);
+    const formRef = useRef(null);
+    const panelRef = useRef(null);
+
+    const { getEnvironmentProps } = autocomplete;
+
+    useEffect(() => {
+        if (!(formRef.current && panelRef.current && inputRef.current)) {
+            return;
+        }
+
+        const { onTouchStart, onTouchMove, onMouseDown } = getEnvironmentProps({
+            formElement: formRef.current,
+            panelElement: panelRef.current,
+            inputElement: inputRef.current,
+        });
+
+        window.addEventListener('touchstart', onTouchStart);
+        window.addEventListener('touchmove', onTouchMove);
+        window.addEventListener('mousedown', onMouseDown);
+
+        return () => {
+            window.removeEventListener('touchstart', onTouchStart);
+            window.removeEventListener('touchmove', onTouchMove);
+            window.removeEventListener('mousedown', onMouseDown);
+        };
+    }, [getEnvironmentProps, autocompleteState.isOpen]);
+
+
+    const pluginsContainer = (plugin, title) => {
+
+        console.log(`plugin ${title}`, plugin);
+        if (typeof (plugin) !== 'undefined' && plugin.items.length > 0) {
+            return (
+                <>
+                    <Box>
+                        <Text className="aa-SourceHeaderTitle">{title}</Text>
+                        <Box className="aa-SourceHeaderLine" />
+                    </Box>
+                    <div className="aa-List" {...autocomplete.getListProps()}>
+                        {plugin.items.map((item) => (
+                            <Link key={item.objectID} className="aa-ItemLink" onClick={itemClicked}>
+                                <Box className="aa-ItemWrapper" >
                                     <Box className="aa-ItemIcon aa-ItemIcon--noBorder">
                                         <SearchIcon />
                                     </Box>
                                     <Box className="aa-ItemContent">
                                         <Box className="aa-ItemContentBody">
                                             <Box className="aa-ItemContentTitle">
-                                                <Text>{item.label}</Text>
+                                                <Text>{item.query || item.label}</Text>
                                             </Box>
                                         </Box>
                                     </Box>
                                 </Box>
                             </Link>
-                        )
-                    }
-                }
-            }
+                        ))}
+                    </div>
+                </>
+            )
         }
-    })
-
-    const [showSearchBox, setShowSearchBox] = useState(false);
-
-    useEffect(() => {
-        console.log(`useEffect ${containerRef.current}`);
-        if (!containerRef.current) {
-            return undefined
-        }
-
-        const search = autocomplete({
-            container: containerRef.current,
-            renderer: {createElement, Fragment, render},
-            plugins: [recentSearchesPlugin, querySuggestionsPlugin],
-            placeholder: 'Search products...',
-            panelPlacement: 'full-width',
-            autoFocus: false,
-            openOnFocus: true,
-            debug: false,
-            getSources({query}) {
-                return [
-                    {
-                        sourceId: 'products',
-                        templates: {
-                            header() {
-                                return (
-                                    <Box>
-                                        <Text className="aa-SourceHeaderTitle">Products</Text>
-                                        <Box className="aa-SourceHeaderLine" />
-                                    </Box>
-                                )
-                            },
-                            item({html, item, components}) {
-                                return (
-                                    <ProductItem html={html} hit={item} components={components} />
-                                )
-                            }
-                        },
-                        getItems() {
-                            return getAlgoliaResults({
-                                searchClient,
-                                queries: [
-                                    {
-                                        indexName: productIndexName,
-                                        query,
-                                        params: {
-                                            hitsPerPage: 4
-                                        }
-                                    }
-                                ]
-                            })
-                        }
-                    }
-                ]
-            },
-            onSubmit({state}) {
-                navigate(`/search?q=${state.query}`)
-            },
-            onSelect({state}) {
-                navigate(`/search?q=${state.query}`)
-            },
-            onReset({state}) {
-                setShowSearchBox(false);
-            },
-            render({elements}, root) {
-                const {recentSearchesPlugin, querySuggestionsPlugin, products} = elements
-
-                render(
-                    <Box sx={styles}>
-                        <Box className="aa-PanelSections">
-                            <Box className="aa-PanelSection--left">
-                                {recentSearchesPlugin}
-                                {querySuggestionsPlugin}
-                            </Box>
-                            <Box className="aa-PanelSection--right aa-Products">
-                                {products}
-                            </Box>
-                        </Box>
-                    </Box>,
-                    root
-                )
-            }
-        })
-
-        return () => {
-            search.destroy()
-        }
-    }, [showSearchBox])
-
-    const onClickHandler = (e) => {
-        setShowSearchBox(true);
     }
 
-    return <div> { showSearchBox ? <div ref={containerRef} /> : 
-                <button onClick={onClickHandler}>
+    const onResetCalled = (state) => {
+        console.log(`onResetCalled(${state})`);
+        autocomplete.setIsOpen(false);
+        setShowSearchBox(false);
+    }
+
+    return (
+        <div className="aa-Autocomplete" {...autocomplete.getRootProps({})}>
+            {showSearchBox ? (
+                <form
+                    ref={formRef}
+                    className="aa-Form"
+                    {...autocomplete.getFormProps({ inputElement: inputRef.current })}
+                >
+                    <div className="aa-InputWrapperPrefix">
+                        <label className="aa-Label" {...autocomplete.getLabelProps({})}>
+                            <button className="aa-SubmitButton" type="submit" title="Submit">
+                                <SearchIcon />
+                            </button>
+                        </label>
+                    </div>
+                    <div className="aa-InputWrapper">
+                        <input
+                            className="aa-Input"
+                            ref={inputRef}
+                            {...autocomplete.getInputProps({ inputElement: inputRef.current })}
+                        />
+                    </div>
+                    <div className="aa-InputWrapperSuffix">
+                        <button className="aa-ClearButton" title="Clear" type="reset">
+                            <ClearIcon />
+                        </button>
+                    </div>
+                </form>) : (<button onClick={onClickHandler}>
                     <Box className="aa-ItemIcon aa-ItemIcon--noBorder">
                         <SearchIcon />
                     </Box>
-                </button>
-            }
+                </button>)}
+            <div ref={panelRef} className={[
+                'aa-Panel',
+                autocompleteState.status === 'stalled' && 'aa-Panel--stalled',
+            ]
+                .filter(Boolean)
+                .join(' ')}
+                {...autocomplete.getPanelProps({})}>
+                {autocompleteState.isOpen &&
+                    collectionsProvider(autocompleteState.collections, (recentSearches, querySuggestions, products) => {
+                        const productSource = products.source;
+
+                        return (
+                            <Box sx={styles}>
+                                <Box className="aa-PanelSections">
+                                    <Box className="aa-PanelSection--left">
+                                        {pluginsContainer(recentSearches, 'Recent Searches')}
+                                        {pluginsContainer(querySuggestions, 'Query Suggestions')}
+                                    </Box>
+                                    <Box className="aa-PanelSection--right aa-Products">
+                                        <Box>
+                                            <Text className="aa-SourceHeaderTitle">Products</Text>
+                                            <Box className="aa-SourceHeaderLine" />
+                                        </Box>
+                                        {products.items.length > 0 && (
+                                            <div className="aa-List" {...autocomplete.getListProps()}>
+                                                {products.items.map((item) => (
+                                                    <ProductItem key={item.objectID} hit={item} className="aa-Item" {...autocomplete.getItemProps({
+                                                        item,
+                                                        productSource,
+                                                    })} />
+                                                ))}
+                                            </div>
+                                        )}
+
+                                    </Box>
+                                </Box>
+                            </Box>
+                        )
+                    })}
             </div>
-            
+        </div>
+    );
 }
 
 function SearchIcon() {
@@ -242,5 +309,22 @@ function SearchIcon() {
         </svg>
     )
 }
+function ClearIcon() {
+    return (
+        <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+        >
+            <path
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                fillRule="evenodd"
+                clipRule="evenodd"
+            />
+        </svg>
+    );
+}
+
 
 export default AlgoliaAutocomplete
