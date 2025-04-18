@@ -1,10 +1,11 @@
 {
   "name": "client",
-  "hash": "f62b15b2f54a282e602c",
+  "hash": "567efcc8744ce2737bf0",
   "publicPath": "/mobify/bundle/development/",
   "outputPath": "/Users/peterhale/data/sites/salesforce/pwa-kit/retail-react-app/build",
   "assetsByChunkName": {
     "main": [
+      "main.css",
       "main.js"
     ],
     "pages-home": [
@@ -54,7 +55,7 @@
     {
       "type": "asset",
       "name": "vendor.js",
-      "size": 6627763,
+      "size": 6587618,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -81,7 +82,7 @@
     {
       "type": "asset",
       "name": "main.js",
-      "size": 1201111,
+      "size": 1168936,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -106,7 +107,7 @@
     {
       "type": "asset",
       "name": "pages-checkout.js",
-      "size": 169772,
+      "size": 169771,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -156,7 +157,7 @@
     {
       "type": "asset",
       "name": "pages-product-list.js",
-      "size": 147364,
+      "size": 147159,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -181,7 +182,7 @@
     {
       "type": "asset",
       "name": "pages-cart.js",
-      "size": 70709,
+      "size": 70708,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -206,7 +207,7 @@
     {
       "type": "asset",
       "name": "app_components_product-view_index_jsx.js",
-      "size": 68708,
+      "size": 68705,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -420,6 +421,30 @@
     },
     {
       "type": "asset",
+      "name": "main.css",
+      "size": 27178,
+      "emitted": false,
+      "comparedForEmit": false,
+      "cached": true,
+      "info": {
+        "related": {
+          "sourceMap": "main.css.map"
+        }
+      },
+      "chunkNames": [
+        "main"
+      ],
+      "chunkIdHints": [],
+      "auxiliaryChunkNames": [],
+      "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
+      "chunks": [
+        "main"
+      ],
+      "auxiliaryChunks": []
+    },
+    {
+      "type": "asset",
       "name": "app_components_algolia-product-tile_index_jsx.js",
       "size": 17629,
       "emitted": false,
@@ -602,12 +627,15 @@
           "name": "vendor.js"
         },
         {
+          "name": "main.css"
+        },
+        {
           "name": "main.js"
         }
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 2,
+      "filteredAuxiliaryAssets": 3,
       "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
@@ -724,6 +752,7 @@
     "pages-cart": {
       "name": "pages-cart",
       "chunks": [
+        "vendor",
         "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1",
         "app_components_product-view_index_jsx",
         "app_components_order-summary_index_jsx",
@@ -731,6 +760,9 @@
         "pages-cart"
       ],
       "assets": [
+        {
+          "name": "vendor.js"
+        },
         {
           "name": "app_components_item-variant_item-attributes_jsx-app_components_item-variant_item-image_jsx-ap-c1a2e1.js"
         },
@@ -749,7 +781,7 @@
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 5,
+      "filteredAuxiliaryAssets": 6,
       "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
@@ -931,6 +963,7 @@
     {
       "id": "main",
       "files": [
+        "main.css",
         "main.js"
       ]
     },

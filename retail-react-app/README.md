@@ -11,7 +11,10 @@ Developers don’t have to worry about the underlying infrastructure, whether th
 
 ## Get Started
 
-To start your web server for local development, run the following command in your project directory:
+To start your web server for local development, do the following:
+1. copy the file algolia-config-example.json and rename it to algolia-config.json
+2. make updates to algolia-config.json with your own config
+3. start your local environment
 
 ```bash
 npm start
