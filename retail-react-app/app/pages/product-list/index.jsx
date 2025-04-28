@@ -17,6 +17,7 @@ import {
     useShopperCustomersMutation
 } from '@salesforce/commerce-sdk-react'
 import {useServerContext} from '@salesforce/pwa-kit-react-sdk/ssr/universal/hooks'
+import { history as algoliaHistory} from 'instantsearch.js/es/lib/routers'
 
 // Components
 import {
@@ -82,7 +83,7 @@ import {useCurrency} from '@salesforce/retail-react-app/app/hooks'
 
 // Algolia
 import algoliasearch from 'algoliasearch/lite'
-import {Configure, InstantSearch} from 'react-instantsearch'
+import {Configure, InstantSearch, useSearchBox, useInstantSearch } from 'react-instantsearch'
 import ProductTile from '../../components/algolia-product-tile'
 import AlgoliaHits from './partials/algolia-hits'
 import AlgoliaCurrentRefinements from './partials/algolia-current-refinements'
@@ -131,6 +132,33 @@ const ProductList = (props) => {
     // Algolia Settings
     const allIndices = [algoliaConfig.indices.primary, ...algoliaConfig.indices.replicas]
     const indexName = algoliaConfig.indices.primary.value
+
+    // const routing = {
+    //     router: algoliaHistory({
+    //       cleanUrlOnDispose: false,
+    //     }),
+    //   };
+
+      const historyRouter = algoliaHistory({
+        createURL({ qsModule, location, routeState }) {
+          if (typeof location == "undefined") location = window.location;
+
+          const { origin, pathname, hash } = location;
+          // eslint-disable-next-line dot-notation
+          const indexState = routeState["instant_search"] || {};
+          const queryString = qsModule.stringify(routeState);
+
+          if (!indexState.query) {
+            return `${origin}${pathname}${hash}`;
+          }
+
+          return `${origin}${pathname}?${queryString}${hash}`;
+        },
+        parseURL({ qsModule, location }) {
+          if (typeof location == "undefined") location = window.location;
+          return qsModule.parse(location.search.slice(1));
+        }
+      });      
 
     
     const searchClient = useMemo(() => {
@@ -228,7 +256,8 @@ const ProductList = (props) => {
     }, [isRefetching])
 
     const query = searchQuery ?? ''
-    const filters = !isLoading && category?.id ? `categories.id:${category.id}` : ''
+    //const filters = !isLoading && category?.id ? `categories.id:${category.id}` : ''
+    const filters = params.categoryId? `categories.id:${params.categoryId}` : '';
 
     /**************** Render Variables ****************/
     const basePath = `${location.pathname}${location.search}`
@@ -350,10 +379,34 @@ const ProductList = (props) => {
             <InstantSearch
                 searchClient={searchClient}
                 indexName={indexName}
-                routing
+                routing={{
+                    stateMapping: {
+                      stateToRoute(uiState) {
+                        const indexState = uiState[INDEX_NAME] || {};
+                        const { query, configure, ...rest } = indexState;
+            
+                        return {
+                          q: query,        // put query at top-level
+                          ...rest,         // everything else stays flat
+                        };
+                      },
+            
+                      routeToState(routeState) {
+                        const { q, ...rest } = routeState;
+            
+                        return {
+                          [indexName]: {
+                            ...rest,
+                            query: q,      // re-inject query back into InstantSearch state
+                          },
+                        };
+                      },
+                    },
+                  }}
                 insights={true}
             >
-                <Configure query={query} filters={filters} />
+                <DebugState query={query}/>
+                <Configure filters={filters} maxValuesPerFacet={40}/>
                 <AlgoliaNoResultsBoundary
                     fallback={<EmptySearchResults searchQuery={searchQuery} category={category} />}
                 >
@@ -616,3 +669,12 @@ Sort.propTypes = {
     productSearchResult: PropTypes.object,
     basePath: PropTypes.string
 }
+
+function DebugState(props) {
+    const { indexUiState, setIndexUiState } = useInstantSearch();
+    const { query, refine } = useSearchBox(props);
+  
+    console.log(indexUiState);
+  
+    return <></>;
+  }
