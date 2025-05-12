@@ -379,25 +379,26 @@ const ProductList = (props) => {
             <InstantSearch
                 searchClient={searchClient}
                 indexName={indexName}
+                // routing={true}
                 routing={{
                     stateMapping: {
                       stateToRoute(uiState) {
-                        const indexState = uiState[INDEX_NAME] || {};
-                        const { query, configure, ...rest } = indexState;
+                        const indexState = uiState[indexName] || {};
+                        const { query, configure, refinementList } = indexState;
             
                         return {
                           q: query,        // put query at top-level
-                          ...rest,         // everything else stays flat
+                          refinementList,         // everything else stays flat
                         };
                       },
             
                       routeToState(routeState) {
-                        const { q, ...rest } = routeState;
+                        const { q, refinementList } = routeState;
             
                         return {
                           [indexName]: {
-                            ...rest,
-                            query: q,      // re-inject query back into InstantSearch state
+                            query: q,// re-inject query back into InstantSearch state
+                            refinementList,
                           },
                         };
                       },
@@ -405,7 +406,6 @@ const ProductList = (props) => {
                   }}
                 insights={true}
             >
-                <DebugState query={query}/>
                 <Configure filters={filters} maxValuesPerFacet={40}/>
                 <AlgoliaNoResultsBoundary
                     fallback={<EmptySearchResults searchQuery={searchQuery} category={category} />}
@@ -669,12 +669,3 @@ Sort.propTypes = {
     productSearchResult: PropTypes.object,
     basePath: PropTypes.string
 }
-
-function DebugState(props) {
-    const { indexUiState, setIndexUiState } = useInstantSearch();
-    const { query, refine } = useSearchBox(props);
-  
-    console.log(indexUiState);
-  
-    return <></>;
-  }
